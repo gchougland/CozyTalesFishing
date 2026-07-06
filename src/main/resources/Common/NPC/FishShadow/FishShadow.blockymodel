@@ -21,36 +21,8 @@
       "children": [
         {
           "id": "2",
-          "name": "Front--C1",
-          "position": {"x": 0, "y": -2.33333, "z": -6},
-          "orientation": {"x": -0.70711, "y": 0, "z": 0, "w": 0.70711},
-          "shape": {
-            "type": "quad",
-            "offset": {"x": 0, "y": 4, "z": 0},
-            "stretch": {"x": 1, "y": 1, "z": 1},
-            "settings": {
-              "isPiece": false,
-              "size": {"x": 28, "y": 28},
-              "normal": "+Z",
-              "isStaticBox": true
-            },
-            "textureLayout": {
-              "front": {
-                "offset": {"x": 0, "y": 0},
-                "mirror": {"x": false, "y": false},
-                "angle": 0
-              }
-            },
-            "unwrapMode": "custom",
-            "visible": true,
-            "doubleSided": true,
-            "shadingMode": "flat"
-          }
-        },
-        {
-          "id": "3",
-          "name": "Tail",
-          "position": {"x": 0, "y": -2.58333, "z": 0},
+          "name": "bone",
+          "position": {"x": 0, "y": -7.33333, "z": -6},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "none",
@@ -67,9 +39,9 @@
           },
           "children": [
             {
-              "id": "4",
-              "name": "Tail--C1",
-              "position": {"x": 0, "y": 0, "z": 18},
+              "id": "3",
+              "name": "Front--C1",
+              "position": {"x": 0, "y": 0, "z": 0},
               "orientation": {"x": -0.70711, "y": 0, "z": 0, "w": 0.70711},
               "shape": {
                 "type": "quad",
@@ -83,7 +55,7 @@
                 },
                 "textureLayout": {
                   "front": {
-                    "offset": {"x": 0, "y": 28},
+                    "offset": {"x": 0, "y": 0},
                     "mirror": {"x": false, "y": false},
                     "angle": 0
                   }
@@ -93,36 +65,85 @@
                 "doubleSided": true,
                 "shadingMode": "flat"
               }
-            }
-          ]
-        },
-        {
-          "id": "5",
-          "name": "Fin--C2",
-          "position": {"x": 0, "y": 0.66667, "z": -8},
-          "orientation": {"x": 0, "y": 0.70711, "z": 0, "w": 0.70711},
-          "shape": {
-            "type": "quad",
-            "offset": {"x": 0, "y": 4, "z": 0},
-            "stretch": {"x": 1, "y": 1, "z": 1},
-            "settings": {
-              "isPiece": false,
-              "size": {"x": 14, "y": 14},
-              "normal": "+Z",
-              "isStaticBox": true
             },
-            "textureLayout": {
-              "front": {
-                "offset": {"x": 28, "y": 0},
-                "mirror": {"x": false, "y": false},
-                "angle": 0
+            {
+              "id": "4",
+              "name": "Fin--C2",
+              "position": {"x": 0, "y": 3, "z": 0},
+              "orientation": {"x": 0, "y": 0.70711, "z": 0, "w": 0.70711},
+              "shape": {
+                "type": "quad",
+                "offset": {"x": 0, "y": 4, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false,
+                  "size": {"x": 14, "y": 14},
+                  "normal": "+Z",
+                  "isStaticBox": true
+                },
+                "textureLayout": {
+                  "front": {
+                    "offset": {"x": 28, "y": 0},
+                    "mirror": {"x": false, "y": false},
+                    "angle": 0
+                  }
+                },
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": true,
+                "shadingMode": "flat"
               }
             },
-            "unwrapMode": "custom",
-            "visible": true,
-            "doubleSided": true,
-            "shadingMode": "flat"
-          }
+            {
+              "id": "5",
+              "name": "Tail",
+              "position": {"x": 0, "y": -0.25, "z": 10},
+              "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+              "shape": {
+                "type": "none",
+                "offset": {"x": 0, "y": 0, "z": 0},
+                "stretch": {"x": 1, "y": 1, "z": 1},
+                "settings": {
+                  "isPiece": false
+                },
+                "textureLayout": {},
+                "unwrapMode": "custom",
+                "visible": true,
+                "doubleSided": false,
+                "shadingMode": "flat"
+              },
+              "children": [
+                {
+                  "id": "6",
+                  "name": "Tail--C1",
+                  "position": {"x": 0, "y": 0, "z": 14},
+                  "orientation": {"x": -0.70711, "y": 0, "z": 0, "w": 0.70711},
+                  "shape": {
+                    "type": "quad",
+                    "offset": {"x": 0, "y": 4, "z": 0},
+                    "stretch": {"x": 1, "y": 1, "z": 1},
+                    "settings": {
+                      "isPiece": false,
+                      "size": {"x": 28, "y": 28},
+                      "normal": "+Z",
+                      "isStaticBox": true
+                    },
+                    "textureLayout": {
+                      "front": {
+                        "offset": {"x": 0, "y": 28},
+                        "mirror": {"x": false, "y": false},
+                        "angle": 0
+                      }
+                    },
+                    "unwrapMode": "custom",
+                    "visible": true,
+                    "doubleSided": true,
+                    "shadingMode": "flat"
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     }
