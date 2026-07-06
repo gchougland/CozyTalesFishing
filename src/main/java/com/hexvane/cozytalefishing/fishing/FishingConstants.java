@@ -40,7 +40,7 @@ public final class FishingConstants {
     public static final float BASE_SEGMENT_LENGTH = 0.5f;
 
     /** Visible segment props per block of line length (2 = twice as dense as one prop per BASE_SEGMENT_LENGTH). */
-    public static final int SEGMENT_VISUAL_DENSITY = 2;
+    public static final int SEGMENT_VISUAL_DENSITY = 3;
 
 
 
@@ -74,11 +74,12 @@ public final class FishingConstants {
     public static final float CAST_WHIP_IMPULSE = 0.35f;
 
     /** Rope rest length multiplier relative to tip-to-bobber distance (1 = taut). */
+    public static final float ROPE_SLACK_FACTOR = 1.0f;
 
-    public static final float ROPE_SLACK_FACTOR = 1.01f;
+    /** Pulls floating line nodes toward a straight tip-to-bobber line (reeling uses a higher value). */
+    public static final float FLOATING_ROPE_STRAIGHTEN = 0.35f;
 
     /** Slack while reeling so the line visually tightens toward the rod tip. */
-
     public static final float REEL_ROPE_SLACK_FACTOR = 1.0f;
 
     /** Minimum clearance above terrain for simulated line nodes. */

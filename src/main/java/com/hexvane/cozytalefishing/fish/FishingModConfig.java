@@ -158,7 +158,7 @@ public final class FishingModConfig {
     private int oceanMinDepth = 8;
     private int floodFillMaxBlocks = 256;
     private int floodFillMaxRadius = 16;
-    private boolean enableSpawnDiagnostics = true;
+    private boolean enableSpawnDiagnostics = false;
 
     public int getShadowsPerPlayerCap() {
         return shadowsPerPlayerCap;

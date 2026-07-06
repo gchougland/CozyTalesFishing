@@ -246,20 +246,39 @@ public final class FishShadowSpawnDiagnostics {
                     world,
                     blockX,
                     blockZ,
-                    playerEnvironmentIndex
+                    FishShadowSpawnHelper.EnvironmentMatchMode.STRICT
                 );
             if (!envMatch) {
                 stats.rejectedEnvironment++;
                 continue;
             }
-            if (!matchesUnderground(world, blockX, blockZ, surfaceY, species)) {
+            if (!FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species)) {
                 stats.rejectedUnderground++;
+                continue;
             }
         }
 
-        stats.strictEligible = countEligible(bodyType, environmentIndex, blockX, blockZ, surfaceY, world, playerEnvironmentIndex, true);
-        stats.relaxedEligible = countEligible(bodyType, environmentIndex, blockX, blockZ, surfaceY, world, playerEnvironmentIndex, false);
-        stats.fallbackEligible = stats.bodyPoolSize;
+        stats.strictEligible =
+            countEligible(
+                bodyType,
+                environmentIndex,
+                blockX,
+                blockZ,
+                surfaceY,
+                world,
+                FishShadowSpawnHelper.EnvironmentMatchMode.STRICT
+            );
+        stats.relaxedEligible =
+            countEligible(
+                bodyType,
+                environmentIndex,
+                blockX,
+                blockZ,
+                surfaceY,
+                world,
+                FishShadowSpawnHelper.EnvironmentMatchMode.ZONE_ONLY
+            );
+        stats.fallbackEligible = stats.relaxedEligible;
         return stats;
     }
 
@@ -270,45 +289,28 @@ public final class FishShadowSpawnDiagnostics {
         int blockZ,
         int surfaceY,
         @Nonnull World world,
-        int playerEnvironmentIndex,
-        boolean strictEnvironment
+        @Nonnull FishShadowSpawnHelper.EnvironmentMatchMode environmentMode
     ) {
         int count = 0;
         for (FishSpeciesAsset species : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType)) {
             if (!species.matchesWaterBody(bodyType)) {
                 continue;
             }
-            if (strictEnvironment && !FishShadowSpawnHelper.matchesSpawnEnvironment(
+            if (!FishShadowSpawnHelper.matchesSpawnEnvironment(
                 species,
                 environmentIndex,
                 world,
                 blockX,
                 blockZ,
-                playerEnvironmentIndex
+                environmentMode
             )) {
                 continue;
             }
-            if (!matchesUnderground(world, blockX, blockZ, surfaceY, species)) {
+            if (!FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species)) {
                 continue;
             }
             count++;
         }
         return count;
-    }
-
-    private static boolean matchesUnderground(
-        @Nonnull World world,
-        int x,
-        int z,
-        int surfaceY,
-        @Nonnull FishSpeciesAsset species
-    ) {
-        FishingModConfig config = FishingModConfig.get();
-        boolean underground =
-            FishShadowSpawnHelper.isUnderground(world, x, z, surfaceY, config.getUndergroundSurfaceOffset());
-        if (species.isUndergroundOnly()) {
-            return underground;
-        }
-        return !underground;
     }
 }

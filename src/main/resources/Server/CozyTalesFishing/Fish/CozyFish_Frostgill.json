@@ -3,8 +3,18 @@
   "ItemId": "Fish_Frostgill_Item",
   "Rarity": "Rare",
   "SpawnWeight": 4,
-  "SpawnLocation": {"Environments":["Env_Zone3_Glacial","Env_Zone0_Cold","Env_Zone3_Caves_Tundra","Env_Zone3_Caves_Forests","Env_Zone3_Caves_Glacial","Env_Zone3_Caves_Mountains","Env_Zone3_Caves"]},
-  "WaterBodyTypes": ["River", "Pond", "Ocean"],
+  "SpawnLocation": {
+    "Zone": "Zone3",
+    "Environments": [
+      "Env_Zone3_Glacial",
+      "Env_Zone3_Caves_Tundra",
+      "Env_Zone3_Caves_Forests",
+      "Env_Zone3_Caves_Glacial",
+      "Env_Zone3_Caves_Mountains",
+      "Env_Zone3_Caves"
+    ]
+  },
+  "WaterBodyTypes": ["River", "Pond"],
   "DayTimeRange": [6, 24],
   "Weather": [],
   "UndergroundOnly": true,

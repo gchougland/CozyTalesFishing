@@ -3,7 +3,7 @@
   "ItemId": "Fish_Bluegill_Item",
   "Rarity": "Common",
   "SpawnWeight": 10,
-  "SpawnLocation": {"Environments":["Env_Zone1_Plains","Env_Zone3_Tundra"]},
+  "SpawnLocation": {"Environments":["Env_Zone1_Plains","Env_Zone3_Tundra","Env_Zone3_Forests"]},
   "WaterBodyTypes": ["Pond", "River"],
   "DayTimeRange": [6, 24],
   "Weather": [],

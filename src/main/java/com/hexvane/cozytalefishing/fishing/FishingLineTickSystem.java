@@ -122,6 +122,19 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
         if (tighteningLine) {
             FishingLineMath.straightenIntermediateNodes(nodes, tip, bobberPos, FishingConstants.NODE_COUNT, 0.45f);
             FishingLineMath.satisfyDistanceConstraints(nodes, FishingConstants.NODE_COUNT, segmentLength, 4);
+        } else if (
+            line.getPhase() == FishingLinePhase.FLOATING
+                || line.getPhase() == FishingLinePhase.CASTING
+                || line.getPhase() == FishingLinePhase.FIGHTING
+        ) {
+            FishingLineMath.straightenIntermediateNodes(
+                nodes,
+                tip,
+                bobberPos,
+                FishingConstants.NODE_COUNT,
+                FishingConstants.FLOATING_ROPE_STRAIGHTEN
+            );
+            FishingLineMath.satisfyDistanceConstraints(nodes, FishingConstants.NODE_COUNT, segmentLength, 4);
         }
 
         nodes[0].set(tip);

@@ -4,14 +4,11 @@ import com.hexvane.cozytalefishing.fishing.FishingDebugLog;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.worldgen.IWorldGen;
 import com.hypixel.hytale.server.worldgen.chunk.ChunkGenerator;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -66,15 +63,6 @@ public final class WaterBodyClassifier {
         if (worldChunk == null) {
             return null;
         }
-        BlockChunk blockChunk = worldChunk.getBlockChunk();
-        int environmentIndex = blockChunk.getEnvironment(blockX, surfaceY, blockZ);
-
-        IntSet oceanIndices = FishSpeciesRegistry.getOceanEnvironmentIndices();
-        if (oceanIndices.contains(environmentIndex)) {
-            tier1Hits++;
-            cache.put(regionKey, WaterBodyType.Ocean);
-            return WaterBodyType.Ocean;
-        }
 
         String biomeName = resolveBiomeName(world, blockX, blockZ);
         if (biomeName != null) {
@@ -85,12 +73,12 @@ public final class WaterBodyClassifier {
                 return override;
             }
             String lower = biomeName.toLowerCase();
-            if (lower.contains("river")) {
+            if (lower.contains("river") || lower.contains("creek") || lower.contains("stream")) {
                 tier1Hits++;
                 cache.put(regionKey, WaterBodyType.River);
                 return WaterBodyType.River;
             }
-            if (lower.contains("pond") || lower.contains("oasis")) {
+            if (lower.contains("pond") || lower.contains("oasis") || lower.contains("lake")) {
                 tier1Hits++;
                 cache.put(regionKey, WaterBodyType.Pond);
                 return WaterBodyType.Pond;
@@ -98,7 +86,7 @@ public final class WaterBodyClassifier {
         }
 
         if (!context.consumeFloodFillBudget()) {
-            return null;
+            return classifyFromLocalColumn(world, blockX, surfaceY, blockZ, config);
         }
 
         WaterBodyType geometry = classifyByGeometry(world, blockX, surfaceY, blockZ, config);
@@ -126,6 +114,24 @@ public final class WaterBodyClassifier {
 
     public static void invalidateCaches() {
         WORLD_CACHES.clear();
+    }
+
+    @Nullable
+    private static WaterBodyType classifyFromLocalColumn(
+        @Nonnull World world,
+        int blockX,
+        int surfaceY,
+        int blockZ,
+        @Nonnull FishingModConfig config
+    ) {
+        int depth = measureDepth(world, blockX, surfaceY, blockZ);
+        if (depth <= 0) {
+            return null;
+        }
+        if (depth < config.getOceanMinDepth() && depth <= 4) {
+            return WaterBodyType.Pond;
+        }
+        return depth >= config.getOceanMinDepth() ? WaterBodyType.Ocean : WaterBodyType.River;
     }
 
     @Nullable
@@ -164,9 +170,6 @@ public final class WaterBodyClassifier {
             maxZ = Math.max(maxZ, z);
             maxDepth = Math.max(maxDepth, measureDepth(world, x, surfaceY, z));
 
-            if (blockCount >= config.getOceanMinBlocks() || maxDepth >= config.getOceanMinDepth()) {
-                return WaterBodyType.Ocean;
-            }
             if (blockCount >= config.getFloodFillMaxBlocks()) {
                 break;
             }
@@ -186,10 +189,12 @@ public final class WaterBodyClassifier {
         if (blockCount <= config.getPondMaxBlocks() && maxDim <= config.getPondMaxDimension()) {
             return WaterBodyType.Pond;
         }
-        if (aspectRatio >= config.getRiverMinAspectRatio() && blockCount <= config.getRiverMaxBlocks()) {
+        if (aspectRatio >= config.getRiverMinAspectRatio()) {
             return WaterBodyType.River;
         }
-        if (blockCount >= config.getOceanMinBlocks() || maxDepth >= config.getOceanMinDepth()) {
+        boolean deepEnough = maxDepth >= config.getOceanMinDepth();
+        boolean wideEnough = blockCount >= config.getOceanMinBlocks();
+        if (deepEnough && wideEnough && aspectRatio < 2.5f) {
             return WaterBodyType.Ocean;
         }
         return aspectRatio > 2.0f ? WaterBodyType.River : WaterBodyType.Pond;

@@ -3,7 +3,7 @@
   "ItemId": "Fish_Pike_Item",
   "Rarity": "Uncommon",
   "SpawnWeight": 6,
-  "SpawnLocation": {"Environments":["Env_Zone1_Swamps","Env_Zone3_Tundra"]},
+  "SpawnLocation": {"Environments":["Env_Zone1_Swamps","Env_Zone3_Tundra","Env_Zone3_Forests","Env_Zone3_Glacial"]},
   "WaterBodyTypes": ["River", "Pond"],
   "DayTimeRange": [6, 24],
   "Weather": [],

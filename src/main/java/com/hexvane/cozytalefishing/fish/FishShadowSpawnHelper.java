@@ -7,11 +7,15 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.universe.world.worldgen.IWorldGen;
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.worldgen.chunk.ChunkGenerator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.joml.Vector3d;
@@ -19,6 +23,15 @@ import org.joml.Vector3d;
 public final class FishShadowSpawnHelper {
     /** Small offset above the top face of the surface water block. */
     public static final double SURFACE_Y_OFFSET = 0.02;
+
+    private static final Pattern ZONE_PREFIX_PATTERN = Pattern.compile("zone(\\d+)", Pattern.CASE_INSENSITIVE);
+
+    public enum EnvironmentMatchMode {
+        /** Require world zone, environment index, and biome rules. */
+        STRICT,
+        /** Require world zone only (used when no species match strict rules). */
+        ZONE_ONLY
+    }
 
     private FishShadowSpawnHelper() {}
 
@@ -175,7 +188,7 @@ public final class FishShadowSpawnHelper {
         int x,
         int z
     ) {
-        return matchesSpawnEnvironment(species, environmentIndex, world, x, z, -1);
+        return matchesSpawnEnvironment(species, environmentIndex, world, x, z, EnvironmentMatchMode.STRICT);
     }
 
     public static boolean matchesSpawnEnvironment(
@@ -186,20 +199,46 @@ public final class FishShadowSpawnHelper {
         int z,
         int playerEnvironmentIndex
     ) {
+        return matchesSpawnEnvironment(species, environmentIndex, world, x, z, EnvironmentMatchMode.STRICT);
+    }
+
+    public static boolean matchesSpawnEnvironment(
+        @Nonnull FishSpeciesAsset species,
+        int environmentIndex,
+        @Nonnull World world,
+        int x,
+        int z,
+        @Nonnull EnvironmentMatchMode mode
+    ) {
+        String worldZone = getWorldZonePrefix(world, x, z);
+        if (worldZone != null && !speciesSupportsWorldZone(species, worldZone)) {
+            return false;
+        }
+
+        String speciesZone = getSpeciesZonePrefix(species);
+        if (speciesZone != null && worldZone != null && !zonesMatch(speciesZone, worldZone)) {
+            return false;
+        }
+        if (mode == EnvironmentMatchMode.ZONE_ONLY) {
+            return speciesZone != null && worldZone != null && zonesMatch(speciesZone, worldZone);
+        }
+
         int[] allowed = species.getAllowedEnvironmentIndices();
         if (allowed.length > 0) {
             for (int index : allowed) {
-                if (index == environmentIndex || (playerEnvironmentIndex >= 0 && index == playerEnvironmentIndex)) {
+                if (index != environmentIndex) {
+                    continue;
+                }
+                String envZone = FishSpeciesRegistry.getEnvironmentZonePrefix(index);
+                if (envZone == null || worldZone == null || zonesMatch(envZone, worldZone)) {
                     return true;
                 }
             }
-        } else {
-            return true;
         }
 
         String biomeName = WaterBodyClassifier.getBiomeName(world, x, z);
         if (biomeName == null) {
-            return false;
+            return allowed.length == 0 && !species.getSpawnLocation().hasEnvironments() && !species.getSpawnLocation().hasBiomes();
         }
 
         FishSpawnLocation location = species.getSpawnLocation();
@@ -212,7 +251,7 @@ public final class FishShadowSpawnHelper {
         }
         if (location.hasEnvironments()) {
             for (String envId : location.getEnvironments()) {
-                if (biomeMatchesEnvironmentId(biomeName, envId)) {
+                if (biomeMatchesEnvironmentId(biomeName, envId, worldZone)) {
                     return true;
                 }
             }
@@ -220,7 +259,98 @@ public final class FishShadowSpawnHelper {
         if (location.hasZone()) {
             return biomeMatchesZone(biomeName, location.getZone());
         }
-        return false;
+        return allowed.length == 0;
+    }
+
+    public static boolean matchesUndergroundFilter(
+        @Nonnull World world,
+        int x,
+        int z,
+        int surfaceY,
+        @Nonnull FishSpeciesAsset species
+    ) {
+        FishingModConfig config = FishingModConfig.get();
+        boolean underground = isUnderground(world, x, z, surfaceY, config.getUndergroundSurfaceOffset());
+
+        if (isZone4(world, x, z) && !underground) {
+            return false;
+        }
+        if (FishSpeciesRegistry.requiresUndergroundSpawn(species)) {
+            return underground;
+        }
+        if (species.isUndergroundOnly()) {
+            return underground;
+        }
+        return !underground;
+    }
+
+    @Nullable
+    public static String getWorldZoneName(@Nonnull World world, int blockX, int blockZ) {
+        IWorldGen worldGen = world.getChunkStore().getGenerator();
+        if (!(worldGen instanceof ChunkGenerator generator)) {
+            return null;
+        }
+        int seed = (int) world.getWorldConfig().getSeed();
+        return generator.getZoneBiomeResultAt(seed, blockX, blockZ).getZoneResult().getZone().name();
+    }
+
+    public static boolean isZone4(@Nonnull World world, int blockX, int blockZ) {
+        String zone = getWorldZonePrefix(world, blockX, blockZ);
+        return zone != null && zone.equalsIgnoreCase("Zone4");
+    }
+
+    @Nullable
+    public static String getWorldZonePrefix(@Nonnull World world, int blockX, int blockZ) {
+        return extractZonePrefix(getWorldZoneName(world, blockX, blockZ));
+    }
+
+    @Nullable
+    public static String getSpeciesZonePrefix(@Nonnull FishSpeciesAsset species) {
+        FishSpawnLocation location = species.getSpawnLocation();
+        if (location.hasZone()) {
+            return extractZonePrefix(location.getZone());
+        }
+        return FishSpeciesRegistry.getPrimaryZonePrefix(species);
+    }
+
+    @Nullable
+    public static String extractZonePrefix(@Nullable String id) {
+        if (id == null || id.isBlank()) {
+            return null;
+        }
+        Matcher matcher = ZONE_PREFIX_PATTERN.matcher(id);
+        if (matcher.find()) {
+            return "Zone" + matcher.group(1);
+        }
+        return null;
+    }
+
+    public static boolean zonesMatch(@Nonnull String left, @Nonnull String right) {
+        return left.equalsIgnoreCase(right);
+    }
+
+    /** True when the species lists at least one environment (or Zone field) for this world zone. */
+    public static boolean speciesSupportsWorldZone(@Nonnull FishSpeciesAsset species, @Nonnull String worldZone) {
+        FishSpawnLocation location = species.getSpawnLocation();
+        if (location.hasZone()) {
+            String required = extractZonePrefix(location.getZone());
+            return required == null || zonesMatch(required, worldZone);
+        }
+        if (!location.hasEnvironments()) {
+            return true;
+        }
+        boolean foundEnvZone = false;
+        for (String envId : location.getEnvironments()) {
+            String envZone = extractZonePrefix(envId);
+            if (envZone == null) {
+                continue;
+            }
+            foundEnvZone = true;
+            if (zonesMatch(envZone, worldZone)) {
+                return true;
+            }
+        }
+        return !foundEnvZone;
     }
 
     public static boolean hasWaterAt(@Nonnull World world, int blockX, int blockZ) {
@@ -295,7 +425,16 @@ public final class FishShadowSpawnHelper {
         return best;
     }
 
-    private static boolean biomeMatchesEnvironmentId(@Nonnull String biomeName, @Nonnull String envId) {
+    private static boolean biomeMatchesEnvironmentId(
+        @Nonnull String biomeName,
+        @Nonnull String envId,
+        @Nullable String worldZone
+    ) {
+        String envZone = extractZonePrefix(envId);
+        if (envZone != null && worldZone != null && !zonesMatch(envZone, worldZone)) {
+            return false;
+        }
+
         String biome = biomeName.toLowerCase();
         String env = envId.toLowerCase();
         if (env.startsWith("env_")) {

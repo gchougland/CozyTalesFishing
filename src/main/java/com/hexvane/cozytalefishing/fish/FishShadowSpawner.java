@@ -385,19 +385,27 @@ public final class FishShadowSpawner {
     ) {
 
         List<FishSpeciesAsset> eligible =
-
-            filterSpecies(bodyType, blockX, blockZ, surfaceY, environmentIndex, world, playerEnvironmentIndex, true);
+            filterSpecies(
+                bodyType,
+                blockX,
+                blockZ,
+                surfaceY,
+                environmentIndex,
+                world,
+                FishShadowSpawnHelper.EnvironmentMatchMode.STRICT
+            );
 
         if (eligible.isEmpty()) {
-
-            eligible = filterSpecies(bodyType, blockX, blockZ, surfaceY, environmentIndex, world, playerEnvironmentIndex, false);
-
-        }
-
-        if (eligible.isEmpty()) {
-
-            eligible = new ArrayList<>(FishSpeciesRegistry.getSpeciesForWaterBody(bodyType));
-
+            eligible =
+                filterSpecies(
+                    bodyType,
+                    blockX,
+                    blockZ,
+                    surfaceY,
+                    environmentIndex,
+                    world,
+                    FishShadowSpawnHelper.EnvironmentMatchMode.ZONE_ONLY
+                );
         }
 
         return weightedPick(eligible, config.getGlobalSpawnWeightMultiplier(), random);
@@ -409,105 +417,40 @@ public final class FishShadowSpawner {
     @Nonnull
 
     private static List<FishSpeciesAsset> filterSpecies(
-
         @Nonnull WaterBodyType bodyType,
-
         int blockX,
-
         int blockZ,
-
         int surfaceY,
-
         int environmentIndex,
-
         @Nonnull World world,
-
-        int playerEnvironmentIndex,
-
-        boolean strictEnvironment
-
+        @Nonnull FishShadowSpawnHelper.EnvironmentMatchMode environmentMode
     ) {
-
         List<FishSpeciesAsset> eligible = new ArrayList<>();
 
         for (FishSpeciesAsset species : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType)) {
-
             if (!species.matchesWaterBody(bodyType)) {
-
                 continue;
-
             }
-
-            if (strictEnvironment && !FishShadowSpawnHelper.matchesSpawnEnvironment(
-
+            if (!FishShadowSpawnHelper.matchesSpawnEnvironment(
                 species,
-
                 environmentIndex,
-
                 world,
-
                 blockX,
-
                 blockZ,
-
-                playerEnvironmentIndex
-
+                environmentMode
             )) {
-
                 continue;
-
             }
-
-            if (!matchesUnderground(world, blockX, blockZ, surfaceY, species)) {
-
+            if (!FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species)) {
                 continue;
-
             }
-
             eligible.add(species);
-
         }
 
         return eligible;
-
     }
-
-
-
-    private static boolean matchesUnderground(
-
-        @Nonnull World world,
-
-        int x,
-
-        int z,
-
-        int surfaceY,
-
-        @Nonnull FishSpeciesAsset species
-
-    ) {
-
-        FishingModConfig config = FishingModConfig.get();
-
-        boolean underground =
-
-            FishShadowSpawnHelper.isUnderground(world, x, z, surfaceY, config.getUndergroundSurfaceOffset());
-
-        if (species.isUndergroundOnly()) {
-
-            return underground;
-
-        }
-
-        return !underground;
-
-    }
-
-
 
     @Nullable
-
     private static FishSpeciesAsset weightedPick(
 
         @Nonnull List<FishSpeciesAsset> species,

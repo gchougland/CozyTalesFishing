@@ -118,6 +118,10 @@ public final class FishSpeciesSpawnDebug {
             .append(String.format(Locale.US, "%.1f", catchPosition.z))
             .append("), biome=")
             .append(biome != null ? biome : "unknown");
+        String worldZone = FishShadowSpawnHelper.getWorldZoneName(world, blockX, blockZ);
+        if (worldZone != null) {
+            text.append(", worldZone=").append(worldZone);
+        }
         text.append('\n');
         text.append("  shadowWaterBody=").append(shadow.getWaterBodyType().name());
         text.append(", catchEnvIndex=").append(catchEnvironmentIndex);
@@ -135,7 +139,7 @@ public final class FishSpeciesSpawnDebug {
                     blockZ,
                     playerEnvironmentIndex
                 );
-            boolean undergroundMatch = species.isUndergroundOnly() == underground;
+            boolean undergroundMatch = FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species);
             boolean waterBodyMatch = species.matchesWaterBody(shadow.getWaterBodyType());
             text.append("  matches: waterBody=")
                 .append(waterBodyMatch)

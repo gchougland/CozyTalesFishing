@@ -3,7 +3,14 @@
   "ItemId": "Fish_Shellfish_Lava_Item",
   "Rarity": "Legendary",
   "SpawnWeight": 1,
-  "SpawnLocation": {"Environments":["Env_Zone3_Caves_Volcanic","Env_Zone3_Caves"]},
+  "SpawnLocation": {
+    "Zone": "Zone4",
+    "Environments": [
+      "Env_Zone4_Caves_Volcanic",
+      "Env_Zone4_Caves",
+      "Env_Zone4_Jungles"
+    ]
+  },
   "WaterBodyTypes": ["Pond"],
   "DayTimeRange": [6, 24],
   "Weather": [],
