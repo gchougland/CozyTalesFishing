@@ -1,0 +1,110 @@
+package com.hexvane.cozytalefishing.fishing;
+
+
+
+/** Tunable fishing rod / line constants. */
+
+public final class FishingConstants {
+
+    public static final String BOBBER_PROJECTILE_CONFIG_ID = "Projectile_Config_CozyFishing_Bobber";
+
+    public static final String STRING_SEGMENT_MODEL_ID = "CozyTalesFishing_StringSegment";
+
+    public static final String BOBBER_MODEL_ID = "CozyTalesFishing_Bobber";
+
+    public static final String SPLASH_PARTICLE_SYSTEM_ID = "CozyFishing_Bobber_Splash_System";
+
+    public static final String ROD_ITEM_ID = "Tool_Cozy_Fishing_Rod";
+
+    public static final String ROD_MODEL_PATH = "Items/Fishing/CozyFishingRod.blockymodel";
+
+    /**
+
+     * Enough segments that rope node spacing stays below the fixed visual length of one segment prop
+
+     * ({@link #BASE_SEGMENT_LENGTH} at unit scale). Prop entities do not reliably stretch at runtime.
+
+     */
+
+    public static final int SEGMENT_COUNT = 32;
+
+    public static final int NODE_COUNT = SEGMENT_COUNT + 1;
+
+    /** Fixed world-space length of one segment prop at unit scale (see model HitBox). */
+
+    public static final float BASE_SEGMENT_LENGTH = 0.5f;
+
+
+
+    public static final float MAX_CHARGE_SECONDS = 2.0f;
+
+    /** Minimum held charge before a release spawns the bobber. */
+
+    public static final float MIN_CAST_CHARGE_SECONDS = 0.02f;
+
+    public static final float MIN_CAST_BLOCKS = 4.0f;
+
+    public static final float MAX_CAST_BLOCKS = 12.0f;
+
+    /** Scales {@code Projectile_Config_CozyFishing_Bobber} LaunchForce by charge (0 = min, 1 = max). */
+    public static final float MIN_CAST_FORCE_MULTIPLIER = 0.30f;
+
+    public static final float MAX_CAST_FORCE_MULTIPLIER = 1.00f;
+
+
+
+    public static final float GRAVITY = 6.0f;
+
+    /** Reduced gravity while the bobber is floating so the line does not hang through terrain. */
+
+    public static final float FLOATING_GRAVITY = 1.5f;
+
+    public static final int CONSTRAINT_ITERATIONS = 10;
+
+    public static final int CAST_WHIP_TICKS = 4;
+
+    public static final float CAST_WHIP_IMPULSE = 0.35f;
+
+    /** Rope rest length multiplier relative to tip-to-bobber distance (1 = taut). */
+
+    public static final float ROPE_SLACK_FACTOR = 1.01f;
+
+    /** Minimum clearance above terrain for simulated line nodes. */
+
+    public static final double GROUND_CLEARANCE = 0.1;
+
+
+
+    public static final float BOB_AMPLITUDE = 0.06f;
+
+    public static final float BOB_FREQUENCY = 2.2f;
+
+    public static final float GROUND_RECALL_DELAY_SECONDS = 1.5f;
+
+
+
+    /**
+     * Eye-to-hand attach offset from {@code Projectile_Config_Arrow_Base} SpawnOffset (shortbow FPS hold).
+     * Combined with the rod model {@code Tip} bone offset in {@link RodTipUtil}.
+     */
+    public static final double ATTACH_HORIZONTAL_CENTER = 0.35;
+
+    public static final double ATTACH_VERTICAL_CENTER = -0.25;
+
+    /**
+     * Scales parsed {@code Tip}−{@code R-Attachment} shaft length when projecting along look.
+     * FPS hold keeps much of the rod behind the camera; 1.0 overshoots the visual tip.
+     */
+    public static final double ROD_SHAFT_LENGTH_SCALE = 0.70;
+
+    /** Extra world-space Y added after shaft projection (raises anchor vs. lowering from scale trim). */
+    public static final double ROD_TIP_VERTICAL_LIFT = 0.8;
+
+    /** Pulls segment i&gt;0 slightly back along its edge so props overlap at rope nodes. */
+    public static final float SEGMENT_JOINT_OVERLAP = 0.08f;
+
+    private FishingConstants() {}
+
+}
+
+

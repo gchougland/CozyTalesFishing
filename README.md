@@ -24,7 +24,22 @@ Each fish species will have stats and spawn requirements, including:
 
 ## Status
 
-Early setup — the mod loads and builds, but fishing gameplay is not yet implemented.
+Fishing rod **visual cycle** is implemented (charge, cast, Verlet string segments, bobber float/splash, recall). Fish shadows and catch mechanics are not implemented yet.
+
+### In-game test
+
+1. Run `.\gradlew.bat runServerNoSync` (recommended while editing assets).
+2. Give yourself the rod: `/give Tool_Cozy_Fishing_Rod` (or use creative).
+3. Hold **primary** near water to charge (vertical HUD bar), release to cast.
+4. **Secondary** click to reel in / despawn the line.
+
+### Assets you may still need to add locally
+
+- **`Common/Items/Tools/Fishing_Rod/FishingRod.png`** — copy from the base game asset pack if textures are missing (rod, bobber, and string segments reference this atlas).
+- **`Icons/ItemsGenerated/Tool_Cozy_Fishing_Rod.png`** — custom inventory icon (item currently uses a placeholder icon path).
+- **Custom cast `.blockyanim`** — optional; temp charge/cast anims borrow Shortbow animations via `CozyFishingRod.json`.
+
+Tuning values live in [`FishingConstants.java`](src/main/java/com/hexvane/cozytalefishing/fishing/FishingConstants.java) (cast distance, launch force, bob amplitude, rod tip offset).
 
 ## Prerequisites
 

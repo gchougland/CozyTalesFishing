@@ -1,0 +1,10 @@
+{
+  "Type": "CozyFishingRecall",
+  "RunTime": 0.25,
+  "Effects": {
+    "ItemAnimationId": "ReelIn",
+    "ClearAnimationOnFinish": true,
+    "WorldSoundEventId": "SFX_Bow_T1_Shoot",
+    "LocalSoundEventId": "SFX_Bow_T1_Shoot_Local"
+  }
+}

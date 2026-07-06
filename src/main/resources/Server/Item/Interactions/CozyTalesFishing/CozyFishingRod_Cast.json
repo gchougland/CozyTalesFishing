@@ -1,0 +1,10 @@
+{
+  "Type": "CozyFishingCast",
+  "RunTime": 0.35,
+  "Effects": {
+    "ItemAnimationId": "ShootCharged",
+    "ClearAnimationOnFinish": true,
+    "WorldSoundEventId": "SFX_Bow_T1_Shoot",
+    "LocalSoundEventId": "SFX_Bow_T1_Shoot_Local"
+  }
+}

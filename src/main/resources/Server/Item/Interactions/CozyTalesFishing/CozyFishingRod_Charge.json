@@ -1,0 +1,19 @@
+{
+  "Type": "CozyFishingCharge",
+  "AllowIndefiniteHold": true,
+  "DisplayProgress": true,
+  "CancelOnOtherClick": false,
+  "RunTime": 2.5,
+  "HorizontalSpeedMultiplier": 0.6,
+  "Effects": {
+    "ItemAnimationId": "ShootCharging",
+    "ClearAnimationOnFinish": true,
+    "ClearSoundEventOnFinish": true,
+    "WorldSoundEventId": "SFX_Bow_T1_Draw",
+    "LocalSoundEventId": "SFX_Bow_T1_Draw_Local"
+  },
+  "Next": {
+    "0": "CozyFishingRod_Cast",
+    "2.0": "CozyFishingRod_Cast"
+  }
+}

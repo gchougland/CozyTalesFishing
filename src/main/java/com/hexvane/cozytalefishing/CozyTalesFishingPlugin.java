@@ -1,5 +1,6 @@
 package com.hexvane.cozytalefishing;
 
+import com.hexvane.cozytalefishing.fishing.FishingBootstrap;
 import com.hexvane.cozytalefishing.generated.HstatsBuildMetadata;
 import com.hypixel.hytale.assetstore.AssetPack;
 import com.hypixel.hytale.common.plugin.PluginIdentifier;
@@ -7,7 +8,6 @@ import com.hypixel.hytale.protocol.packets.setup.RequestCommonAssetsRebuild;
 import com.hypixel.hytale.server.core.HytaleServer;
 import com.hypixel.hytale.server.core.asset.AssetModule;
 import com.hypixel.hytale.server.core.asset.AssetPackRegisterEvent;
-import com.hypixel.hytale.server.core.asset.common.CommonAssetModule;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.Universe;
@@ -44,6 +44,8 @@ public final class CozyTalesFishingPlugin extends JavaPlugin {
                 );
         }
 
+        FishingBootstrap.register(this);
+
         getLogger().atInfo().log("CozyTalesFishing v%s loaded.", modVersion);
     }
 
@@ -65,12 +67,8 @@ public final class CozyTalesFishingPlugin extends JavaPlugin {
             .<Void, AssetPackRegisterEvent>dispatchFor(AssetPackRegisterEvent.class)
             .dispatch(new AssetPackRegisterEvent(pack));
 
-        CommonAssetModule commonAssets = CommonAssetModule.get();
-        if (commonAssets != null) {
-            commonAssets.loadCommonAssets(pack, System.nanoTime());
-            if (Universe.get().getPlayerCount() > 0) {
-                Universe.get().broadcastPacketNoCache(new RequestCommonAssetsRebuild());
-            }
+        if (Universe.get().getPlayerCount() > 0) {
+            Universe.get().broadcastPacketNoCache(new RequestCommonAssetsRebuild());
         }
     }
 }

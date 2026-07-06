@@ -1,0 +1,13 @@
+{
+  "Spawners": [
+    {
+      "SpawnerId": "CozyFishing_Bobber_Splash",
+      "PositionOffset": {
+        "X": 0,
+        "Y": 0.08,
+        "Z": 0
+      },
+      "FixedRotation": false
+    }
+  ]
+}

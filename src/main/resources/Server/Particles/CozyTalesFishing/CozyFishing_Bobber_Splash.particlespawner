@@ -1,0 +1,156 @@
+{
+  "RenderMode": "Erosion",
+  "EmitOffset": {
+    "X": {
+      "Min": -0.12,
+      "Max": 0.12
+    },
+    "Y": {
+      "Min": 0,
+      "Max": 0.05
+    },
+    "Z": {
+      "Min": -0.12,
+      "Max": 0.12
+    }
+  },
+  "ParticleRotationInfluence": "BillboardVelocity",
+  "LinearFiltering": false,
+  "LightInfluence": 1,
+  "TrailSpawnerPositionMultiplier": 0,
+  "TrailSpawnerRotationMultiplier": 1,
+  "ParticleLifeSpan": {
+    "Min": 0.25,
+    "Max": 0.65
+  },
+  "SpawnRate": {
+    "Min": 10,
+    "Max": 14
+  },
+  "TotalParticles": {
+    "Min": 14,
+    "Max": 18
+  },
+  "Attractors": [
+    {
+      "DampingMultiplier": {
+        "X": 0.85,
+        "Y": 0.88,
+        "Z": 0.85
+      },
+      "LinearAcceleration": {
+        "X": 0,
+        "Y": -6,
+        "Z": 0
+      }
+    }
+  ],
+  "ParticleRotateWithSpawner": true,
+  "MaxConcurrentParticles": 18,
+  "Particle": {
+    "Texture": "Particles/Textures/Rnd/Water_Splash_Small4.png",
+    "FrameSize": {
+      "Width": 64,
+      "Height": 64
+    },
+    "ScaleRatioConstraint": "None",
+    "Animation": {
+      "0": {
+        "FrameIndex": {
+          "Min": 0,
+          "Max": 3
+        },
+        "Scale": {
+          "X": {
+            "Min": 1,
+            "Max": 1
+          },
+          "Y": {
+            "Min": 1,
+            "Max": 1
+          }
+        },
+        "Rotation": {
+          "X": {
+            "Min": 0,
+            "Max": 0
+          },
+          "Y": {
+            "Min": 0,
+            "Max": 0
+          }
+        },
+        "Opacity": 0
+      },
+      "10": {
+        "Opacity": 0.8
+      },
+      "30": {
+        "Opacity": 1,
+        "Scale": {
+          "X": {
+            "Min": 2.0,
+            "Max": 1.8
+          },
+          "Y": {
+            "Min": 1.8,
+            "Max": 2.6
+          }
+        }
+      },
+      "100": {
+        "Opacity": 0
+      }
+    },
+    "UVOption": "RandomFlipU",
+    "InitialAnimationFrame": {
+      "Rotation": {
+        "X": {
+          "Min": 0,
+          "Max": 0
+        },
+        "Y": {
+          "Min": 0,
+          "Max": 0
+        }
+      },
+      "Scale": {
+        "X": {
+          "Min": 0.03,
+          "Max": 0.05
+        },
+        "Y": {
+          "Min": 0.04,
+          "Max": 0.08
+        }
+      },
+      "Opacity": 1,
+      "FrameIndex": {
+        "Min": 0,
+        "Max": 3
+      }
+    },
+    "CollisionAnimationFrame": {
+      "Opacity": 0.75,
+      "FrameIndex": {
+        "Min": 3,
+        "Max": 3
+      }
+    }
+  },
+  "InitialVelocity": {
+    "Speed": {
+      "Min": -2.4,
+      "Max": -1.2
+    },
+    "Yaw": {
+      "Min": -180,
+      "Max": 180
+    },
+    "Pitch": {
+      "Min": -75,
+      "Max": -30
+    }
+  },
+  "SpawnBurst": true
+}

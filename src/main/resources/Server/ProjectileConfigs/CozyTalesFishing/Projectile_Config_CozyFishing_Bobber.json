@@ -1,0 +1,43 @@
+{
+  "Model": "CozyTalesFishing_Bobber",
+  "SpawnRotationOffset": {
+    "Pitch": 0,
+    "Yaw": 0,
+    "Roll": 0
+  },
+  "Physics": {
+    "Type": "Standard",
+    "Gravity": 12,
+    "TerminalVelocityAir": 40,
+    "TerminalVelocityWater": 8,
+    "RotationMode": "VelocityDamped",
+    "Bounciness": 0,
+    "SticksVertically": false
+  },
+  "LaunchForce": 10,
+  "LaunchLocalSoundEventId": "SFX_Bow_T1_Shoot_Local",
+  "LaunchWorldSoundEventId": "SFX_Bow_T1_Shoot",
+  "SpawnOffset": {
+    "X": 0,
+    "Y": 0,
+    "Z": 0
+  },
+  "Interactions": {
+    "ProjectileHit": {
+      "Interactions": [
+        {
+          "Type": "Simple",
+          "RunTime": 0.05
+        }
+      ]
+    },
+    "ProjectileMiss": {
+      "Interactions": [
+        {
+          "Type": "Simple",
+          "RunTime": 0.05
+        }
+      ]
+    }
+  }
+}
