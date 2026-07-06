@@ -93,60 +93,72 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
         Vector3d[] nodes = line.getNodePositions();
         Vector3d[] oldNodes = line.getNodeOldPositions();
 
-        float gravity =
-            line.getPhase() == FishingLinePhase.FLOATING
-                || line.getPhase() == FishingLinePhase.REELING
-                || line.getPhase() == FishingLinePhase.FIGHTING
-                ? FishingConstants.FLOATING_GRAVITY
-                : FishingConstants.GRAVITY;
-        FishingLineMath.integrateVerlet(nodes, oldNodes, FishingConstants.NODE_COUNT, gravity, dt);
-
-        if (line.getWhipTicksRemaining() > 0) {
-            applyCastWhip(line, nodes, tip);
-            line.setWhipTicksRemaining(line.getWhipTicksRemaining() - 1);
-        }
-
-        nodes[0].set(tip);
-        nodes[FishingConstants.NODE_COUNT - 1].set(bobberPos);
-
         float tipToBobber = (float) tip.distance(bobberPos);
-        boolean tighteningLine =
-            line.isReeling()
-                || line.getPhase() == FishingLinePhase.REELING
-                || (line.getPhase() == FishingLinePhase.FIGHTING && line.isReeling());
-        float slackFactor = tighteningLine ? FishingConstants.REEL_ROPE_SLACK_FACTOR : FishingConstants.ROPE_SLACK_FACTOR;
-        float effectiveMaxLength = tighteningLine ? Math.min(line.getMaxLength(), tipToBobber) : line.getMaxLength();
-        float segmentLength = FishingLineMath.ropeSegmentLength(tipToBobber, effectiveMaxLength, slackFactor);
-        FishingLineMath.satisfyDistanceConstraints(nodes, FishingConstants.NODE_COUNT, segmentLength, FishingConstants.CONSTRAINT_ITERATIONS);
+        boolean shortLine = tipToBobber < FishingConstants.SHORT_LINE_STRAIGHTEN_BLOCKS;
 
-        if (tighteningLine) {
-            FishingLineMath.straightenIntermediateNodes(nodes, tip, bobberPos, FishingConstants.NODE_COUNT, 0.45f);
-            FishingLineMath.satisfyDistanceConstraints(nodes, FishingConstants.NODE_COUNT, segmentLength, 4);
-        } else if (
-            line.getPhase() == FishingLinePhase.FLOATING
-                || line.getPhase() == FishingLinePhase.CASTING
-                || line.getPhase() == FishingLinePhase.FIGHTING
-        ) {
-            FishingLineMath.straightenIntermediateNodes(
-                nodes,
-                tip,
-                bobberPos,
-                FishingConstants.NODE_COUNT,
-                FishingConstants.FLOATING_ROPE_STRAIGHTEN
-            );
-            FishingLineMath.satisfyDistanceConstraints(nodes, FishingConstants.NODE_COUNT, segmentLength, 4);
-        }
+        if (shortLine) {
+            FishingLineMath.layoutNodesOnLine(nodes, tip, bobberPos, FishingConstants.NODE_COUNT);
+            for (int i = 0; i < FishingConstants.NODE_COUNT; i++) {
+                oldNodes[i].set(nodes[i]);
+            }
+        } else {
+            float gravity =
+                line.getPhase() == FishingLinePhase.FLOATING
+                    || line.getPhase() == FishingLinePhase.REELING
+                    || line.getPhase() == FishingLinePhase.FIGHTING
+                    ? FishingConstants.FLOATING_GRAVITY
+                    : FishingConstants.GRAVITY;
+            FishingLineMath.integrateVerlet(nodes, oldNodes, FishingConstants.NODE_COUNT, gravity, dt);
 
-        nodes[0].set(tip);
-        nodes[FishingConstants.NODE_COUNT - 1].set(bobberPos);
-        FishingLineMath.enforceMaxLength(tip, nodes[FishingConstants.NODE_COUNT - 1], line.getMaxLength());
+            if (line.getWhipTicksRemaining() > 0) {
+                applyCastWhip(line, nodes, tip);
+                line.setWhipTicksRemaining(line.getWhipTicksRemaining() - 1);
+            }
 
-        World world = store.getExternalData().getWorld();
-        if (world != null) {
-            FishingLineGroundUtil.clampAboveGround(world, nodes, FishingConstants.NODE_COUNT);
             nodes[0].set(tip);
             nodes[FishingConstants.NODE_COUNT - 1].set(bobberPos);
+
+            boolean tighteningLine =
+                line.isReeling()
+                    || line.getPhase() == FishingLinePhase.REELING
+                    || (line.getPhase() == FishingLinePhase.FIGHTING && line.isReeling());
+            float slackFactor = tighteningLine ? FishingConstants.REEL_ROPE_SLACK_FACTOR : FishingConstants.ROPE_SLACK_FACTOR;
+            float effectiveMaxLength = tighteningLine ? Math.min(line.getMaxLength(), tipToBobber) : line.getMaxLength();
+            float segmentLength = FishingLineMath.ropeSegmentLength(tipToBobber, effectiveMaxLength, slackFactor);
+            FishingLineMath.satisfyDistanceConstraints(nodes, FishingConstants.NODE_COUNT, segmentLength, FishingConstants.CONSTRAINT_ITERATIONS);
+
+            if (tighteningLine) {
+                FishingLineMath.straightenIntermediateNodes(nodes, tip, bobberPos, FishingConstants.NODE_COUNT, 0.45f);
+                FishingLineMath.satisfyDistanceConstraints(nodes, FishingConstants.NODE_COUNT, segmentLength, 4);
+            } else if (
+                line.getPhase() == FishingLinePhase.FLOATING
+                    || line.getPhase() == FishingLinePhase.CASTING
+                    || line.getPhase() == FishingLinePhase.FIGHTING
+            ) {
+                FishingLineMath.straightenIntermediateNodes(
+                    nodes,
+                    tip,
+                    bobberPos,
+                    FishingConstants.NODE_COUNT,
+                    FishingConstants.FLOATING_ROPE_STRAIGHTEN
+                );
+                FishingLineMath.satisfyDistanceConstraints(nodes, FishingConstants.NODE_COUNT, segmentLength, 4);
+            }
+
+            nodes[0].set(tip);
+            nodes[FishingConstants.NODE_COUNT - 1].set(bobberPos);
+            FishingLineMath.enforceMaxLength(tip, nodes[FishingConstants.NODE_COUNT - 1], line.getMaxLength());
+
+            World world = store.getExternalData().getWorld();
+            if (world != null) {
+                FishingLineGroundUtil.clampAboveGround(world, nodes, FishingConstants.NODE_COUNT);
+                nodes[0].set(tip);
+                nodes[FishingConstants.NODE_COUNT - 1].set(bobberPos);
+            }
         }
+
+        nodes[0].set(tip);
+        nodes[FishingConstants.NODE_COUNT - 1].set(bobberPos);
 
         if (!line.isLoggedStretchDebug()) {
             double lineLength = tip.distance(bobberPos);
@@ -157,11 +169,13 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
                         validSegments++;
                     }
                 }
+                float debugSegmentLength =
+                    FishingLineMath.ropeSegmentLength((float) lineLength, line.getMaxLength());
                 FishingDebugLog.info(
                     "String sim stretch: length=%.2f maxLen=%.1f segLen=%.3f fixedVisual=%.2f phase=%s validSegments=%d/%d tip=(%.1f,%.1f,%.1f) bobber=(%.1f,%.1f,%.1f)",
                     lineLength,
                     line.getMaxLength(),
-                    segmentLength,
+                    debugSegmentLength,
                     FishingConstants.BASE_SEGMENT_LENGTH,
                     line.getPhase(),
                     validSegments,

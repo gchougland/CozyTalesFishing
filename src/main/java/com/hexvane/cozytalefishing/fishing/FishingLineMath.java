@@ -27,12 +27,84 @@ public final class FishingLineMath {
     }
 
     /** How many fixed-length segment props should be visible along the line. */
-    public static int visibleSegmentCount(float spanLengthBlocks) {
-        if (spanLengthBlocks < 1.0e-4f) {
+    public static int visibleSegmentCount(float arcLengthBlocks) {
+        if (arcLengthBlocks < 1.0e-4f) {
             return 0;
         }
-        int count = (int) Math.ceil(spanLengthBlocks / FishingConstants.BASE_SEGMENT_LENGTH * FishingConstants.SEGMENT_VISUAL_DENSITY);
-        return Math.max(1, Math.min(FishingConstants.SEGMENT_COUNT, count));
+        int densityCount =
+            (int) Math.ceil(arcLengthBlocks / FishingConstants.BASE_SEGMENT_LENGTH * FishingConstants.SEGMENT_VISUAL_DENSITY);
+        // At least one prop per BASE_SEGMENT_LENGTH so placement intervals never exceed prop length (gaps).
+        int minCoverage = Math.max(1, (int) Math.ceil(arcLengthBlocks / FishingConstants.BASE_SEGMENT_LENGTH));
+        return Math.min(FishingConstants.SEGMENT_COUNT, Math.max(densityCount, minCoverage));
+    }
+
+    /** Total length along the rope polyline from rod tip through each node. */
+    public static float ropePolylineLength(@Nonnull Vector3d[] nodes, @Nonnull Vector3d tip, int nodeCount) {
+        float total = 0.0f;
+        Vector3d prev = tip;
+        for (int i = 1; i < nodeCount; i++) {
+            total += prev.distance(nodes[i]);
+            prev = nodes[i];
+        }
+        return total;
+    }
+
+    /** Samples a point at normalized arc length {@code t} in [0, 1] along the rope polyline. */
+    public static void sampleRopeAt(
+        @Nonnull Vector3d[] nodes,
+        @Nonnull Vector3d tip,
+        int nodeCount,
+        float t,
+        float totalLength,
+        @Nonnull Vector3d out
+    ) {
+        t = clamp(t, 0.0f, 1.0f);
+        if (totalLength < 1.0e-6f) {
+            out.set(tip);
+            return;
+        }
+        float target = totalLength * t;
+        float walked = 0.0f;
+        Vector3d prev = tip;
+        out.set(tip);
+        for (int i = 1; i < nodeCount; i++) {
+            Vector3d curr = nodes[i];
+            float seg = (float) prev.distance(curr);
+            if (seg > 1.0e-8f && walked + seg >= target) {
+                float local = (target - walked) / seg;
+                out.x = prev.x + (curr.x - prev.x) * local;
+                out.y = prev.y + (curr.y - prev.y) * local;
+                out.z = prev.z + (curr.z - prev.z) * local;
+                return;
+            }
+            walked += seg;
+            prev = curr;
+        }
+        out.set(nodes[nodeCount - 1]);
+    }
+
+    /** Evenly distributes rope nodes on a straight line between tip and bobber. */
+    public static void layoutNodesOnLine(
+        @Nonnull Vector3d[] nodes,
+        @Nonnull Vector3d tip,
+        @Nonnull Vector3d bobber,
+        int nodeCount
+    ) {
+        if (nodeCount <= 0) {
+            return;
+        }
+        nodes[0].set(tip);
+        if (nodeCount == 1) {
+            return;
+        }
+        nodes[nodeCount - 1].set(bobber);
+        for (int i = 1; i < nodeCount - 1; i++) {
+            double t = i / (double) (nodeCount - 1);
+            Vector3d node = nodes[i];
+            node.x = tip.x + (bobber.x - tip.x) * t;
+            node.y = tip.y + (bobber.y - tip.y) * t;
+            node.z = tip.z + (bobber.z - tip.z) * t;
+        }
     }
 
     /** Maps a visible segment index to the rope node index it starts at (evenly spaced along the line). */

@@ -210,8 +210,27 @@ public final class FishShadowSpawnHelper {
         int z,
         @Nonnull EnvironmentMatchMode mode
     ) {
+        return matchesSpawnEnvironment(species, environmentIndex, world, x, z, mode, null);
+    }
+
+    public static boolean matchesSpawnEnvironment(
+        @Nonnull FishSpeciesAsset species,
+        int environmentIndex,
+        @Nonnull World world,
+        int x,
+        int z,
+        @Nonnull EnvironmentMatchMode mode,
+        @Nullable FishingSpawnRegionContext regionContext
+    ) {
         String worldZone = getWorldZonePrefix(world, x, z);
-        if (worldZone != null && !speciesSupportsWorldZone(species, worldZone)) {
+        if (regionContext != null) {
+            if (regionContext.getEffectiveZonePrefix() != null) {
+                worldZone = regionContext.getEffectiveZonePrefix();
+            }
+            if (!regionContext.isIgnoreWorldZoneGate() && worldZone != null && !speciesSupportsWorldZone(species, worldZone)) {
+                return false;
+            }
+        } else if (worldZone != null && !speciesSupportsWorldZone(species, worldZone)) {
             return false;
         }
 
@@ -221,6 +240,20 @@ public final class FishShadowSpawnHelper {
         }
         if (mode == EnvironmentMatchMode.ZONE_ONLY) {
             return speciesZone != null && worldZone != null && zonesMatch(speciesZone, worldZone);
+        }
+
+        if (regionContext != null && regionContext.getRegionEnvironmentIndices().length > 0) {
+            int[] regionIndices = regionContext.getRegionEnvironmentIndices();
+            int[] speciesIndices = species.getAllowedEnvironmentIndices();
+            if (speciesIndices.length > 0) {
+                for (int speciesIndex : speciesIndices) {
+                    for (int regionIndex : regionIndices) {
+                        if (speciesIndex == regionIndex) {
+                            return true;
+                        }
+                    }
+                }
+            }
         }
 
         int[] allowed = species.getAllowedEnvironmentIndices();
@@ -236,7 +269,9 @@ public final class FishShadowSpawnHelper {
             }
         }
 
-        String biomeName = WaterBodyClassifier.getBiomeName(world, x, z);
+        String biomeName = regionContext != null && regionContext.getEffectiveBiome() != null
+            ? regionContext.getEffectiveBiome()
+            : WaterBodyClassifier.getBiomeName(world, x, z);
         if (biomeName == null) {
             return allowed.length == 0 && !species.getSpawnLocation().hasEnvironments() && !species.getSpawnLocation().hasBiomes();
         }
@@ -267,12 +302,16 @@ public final class FishShadowSpawnHelper {
         int x,
         int z,
         int surfaceY,
-        @Nonnull FishSpeciesAsset species
+        @Nonnull FishSpeciesAsset species,
+        @Nullable FishingSpawnRegionContext regionContext
     ) {
         FishingModConfig config = FishingModConfig.get();
         boolean underground = isUnderground(world, x, z, surfaceY, config.getUndergroundSurfaceOffset());
 
-        if (isZone4(world, x, z) && !underground) {
+        String zonePrefix = regionContext != null && regionContext.getEffectiveZonePrefix() != null
+            ? regionContext.getEffectiveZonePrefix()
+            : getWorldZonePrefix(world, x, z);
+        if (zonePrefix != null && zonePrefix.equalsIgnoreCase("Zone4") && !underground) {
             return false;
         }
         if (FishSpeciesRegistry.requiresUndergroundSpawn(species)) {
@@ -282,6 +321,16 @@ public final class FishShadowSpawnHelper {
             return underground;
         }
         return !underground;
+    }
+
+    public static boolean matchesUndergroundFilter(
+        @Nonnull World world,
+        int x,
+        int z,
+        int surfaceY,
+        @Nonnull FishSpeciesAsset species
+    ) {
+        return matchesUndergroundFilter(world, x, z, surfaceY, species, null);
     }
 
     @Nullable

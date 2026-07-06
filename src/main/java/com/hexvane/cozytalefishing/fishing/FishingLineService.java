@@ -417,8 +417,11 @@ public final class FishingLineService {
 
         Vector3d bobberNode = nodes[FishingConstants.NODE_COUNT - 1];
         float tipToBobber = (float) rodTip.distance(bobberNode);
-        float spanLength = Math.min(tipToBobber, line.getMaxLength());
-        int visibleCount = FishingLineMath.visibleSegmentCount(spanLength);
+        float arcLength = FishingLineMath.ropePolylineLength(nodes, rodTip, FishingConstants.NODE_COUNT);
+        int visibleCount = FishingLineMath.visibleSegmentCount(arcLength);
+
+        Vector3d start = new Vector3d();
+        Vector3d end = new Vector3d();
 
         for (int i = visibleCount; i < FishingConstants.SEGMENT_COUNT; i++) {
             Ref<EntityStore> excess = segmentRefs[i];
@@ -429,26 +432,26 @@ public final class FishingLineService {
         }
 
         for (int i = 0; i < visibleCount; i++) {
-            int startNodeIndex = FishingLineMath.segmentStartNode(i, visibleCount);
-            int endNodeIndex = FishingLineMath.segmentEndNode(i, visibleCount);
-            Vector3d end = nodes[endNodeIndex];
-            Vector3d start = startNodeIndex == 0 ? rodTip : nodes[startNodeIndex];
+            float t0 = i / (float) visibleCount;
+            float t1 = (i + 1) / (float) visibleCount;
+            FishingLineMath.sampleRopeAt(nodes, rodTip, FishingConstants.NODE_COUNT, t0, arcLength, start);
+            FishingLineMath.sampleRopeAt(nodes, rodTip, FishingConstants.NODE_COUNT, t1, arcLength, end);
 
             dir.set(end).sub(start);
             float dist = (float) dir.length();
             if (dist < 1.0e-4f) {
-                dir.set(0, 1, 0);
-                dist = 0.01f;
-            } else {
-                dir.div(dist);
+                Ref<EntityStore> segmentRef = segmentRefs[i];
+                if (segmentRef != null) {
+                    SegmentEntityPool.despawnSegment(commandBuffer, segmentRef);
+                    segmentRefs[i] = null;
+                }
+                continue;
             }
+            dir.div(dist);
             FishingLineMath.rotationFromDirection(dir, rotation);
 
             if (i == 0) {
                 position.set(start);
-            } else if (dist <= FishingConstants.BASE_SEGMENT_LENGTH) {
-                float centerOffset = (dist - FishingConstants.BASE_SEGMENT_LENGTH) * 0.5f;
-                position.set(start).add(dir.x * centerOffset, dir.y * centerOffset, dir.z * centerOffset);
             } else {
                 position
                     .set(start)

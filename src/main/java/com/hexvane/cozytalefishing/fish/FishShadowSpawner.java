@@ -90,11 +90,18 @@ public final class FishShadowSpawner {
 
             }
 
-
+            FishingSpawnRegionContext regionContext =
+                FishingSpawnRegionRegistry.resolve(world.getWorldConfig().getUuid(), blockX, column.surfaceY(), blockZ);
+            if (regionContext != null && regionContext.getWaterBodyOverride() != null) {
+                bodyType = regionContext.getWaterBodyOverride();
+            }
 
             int environmentIndex = resolveEnvironmentIndex(world, column);
 
             String biomeName = WaterBodyClassifier.getBiomeName(world, blockX, blockZ);
+            if (regionContext != null && regionContext.getEffectiveBiome() != null) {
+                biomeName = regionContext.getEffectiveBiome();
+            }
 
             FishShadowSpawnDiagnostics.SpeciesFilterStats filterStats =
 
@@ -112,7 +119,9 @@ public final class FishShadowSpawner {
 
                     world,
 
-                    playerEnvironmentIndex
+                    playerEnvironmentIndex,
+
+                    regionContext
 
                 );
 
@@ -120,7 +129,17 @@ public final class FishShadowSpawner {
 
             FishSpeciesAsset species =
 
-                pickSpecies(bodyType, blockX, blockZ, column.surfaceY(), environmentIndex, world, playerEnvironmentIndex, config, random);
+                pickSpecies(
+                    bodyType,
+                    blockX,
+                    blockZ,
+                    column.surfaceY(),
+                    environmentIndex,
+                    world,
+                    config,
+                    random,
+                    regionContext
+                );
 
             if (species == null) {
 
@@ -130,7 +149,7 @@ public final class FishShadowSpawner {
 
                     String.format(
 
-                        "attempt %d @ (%d,%d) body=%s env=%d depth=%d biome=%s underground=%s -> NO_SPECIES [%s]",
+                        "attempt %d @ (%d,%d) body=%s env=%d depth=%d biome=%s underground=%s region=%s -> NO_SPECIES [%s]",
 
                         attempt + 1,
 
@@ -159,6 +178,8 @@ public final class FishShadowSpawner {
                             config.getUndergroundSurfaceOffset()
 
                         ),
+
+                        formatRegionId(regionContext),
 
                         filterStats.summarize()
 
@@ -206,7 +227,7 @@ public final class FishShadowSpawner {
 
                     String.format(
 
-                        "attempt %d @ (%d,%d) body=%s env=%d depth=%d biome=%s -> SUCCESS species=%s",
+                        "attempt %d @ (%d,%d) body=%s env=%d depth=%d biome=%s region=%s -> SUCCESS species=%s",
 
                         attempt + 1,
 
@@ -221,6 +242,8 @@ public final class FishShadowSpawner {
                         column.depth(),
 
                         biomeName != null ? biomeName : "unknown",
+
+                        formatRegionId(regionContext),
 
                         species.getId()
 
@@ -376,11 +399,11 @@ public final class FishShadowSpawner {
 
         @Nonnull World world,
 
-        int playerEnvironmentIndex,
-
         @Nonnull FishingModConfig config,
 
-        @Nonnull ThreadLocalRandom random
+        @Nonnull ThreadLocalRandom random,
+
+        @Nullable FishingSpawnRegionContext regionContext
 
     ) {
 
@@ -392,7 +415,8 @@ public final class FishShadowSpawner {
                 surfaceY,
                 environmentIndex,
                 world,
-                FishShadowSpawnHelper.EnvironmentMatchMode.STRICT
+                FishShadowSpawnHelper.EnvironmentMatchMode.STRICT,
+                regionContext
             );
 
         if (eligible.isEmpty()) {
@@ -404,7 +428,8 @@ public final class FishShadowSpawner {
                     surfaceY,
                     environmentIndex,
                     world,
-                    FishShadowSpawnHelper.EnvironmentMatchMode.ZONE_ONLY
+                    FishShadowSpawnHelper.EnvironmentMatchMode.ZONE_ONLY,
+                    regionContext
                 );
         }
 
@@ -423,7 +448,8 @@ public final class FishShadowSpawner {
         int surfaceY,
         int environmentIndex,
         @Nonnull World world,
-        @Nonnull FishShadowSpawnHelper.EnvironmentMatchMode environmentMode
+        @Nonnull FishShadowSpawnHelper.EnvironmentMatchMode environmentMode,
+        @Nullable FishingSpawnRegionContext regionContext
     ) {
         List<FishSpeciesAsset> eligible = new ArrayList<>();
 
@@ -437,17 +463,23 @@ public final class FishShadowSpawner {
                 world,
                 blockX,
                 blockZ,
-                environmentMode
+                environmentMode,
+                regionContext
             )) {
                 continue;
             }
-            if (!FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species)) {
+            if (!FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species, regionContext)) {
                 continue;
             }
             eligible.add(species);
         }
 
         return eligible;
+    }
+
+    @Nonnull
+    private static String formatRegionId(@Nullable FishingSpawnRegionContext regionContext) {
+        return regionContext != null ? regionContext.getRegion().getId() : "none";
     }
 
     @Nullable

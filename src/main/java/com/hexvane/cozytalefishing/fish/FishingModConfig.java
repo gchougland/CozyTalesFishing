@@ -107,6 +107,8 @@ public final class FishingModConfig {
             .add()
             .append(new KeyedCodec<>("EnableSpawnDiagnostics", Codec.BOOLEAN), (a, v) -> a.enableSpawnDiagnostics = v, a -> a.enableSpawnDiagnostics)
             .add()
+            .append(new KeyedCodec<>("EnableSpawnRegions", Codec.BOOLEAN), (a, v) -> a.enableSpawnRegions = v, a -> a.enableSpawnRegions)
+            .add()
             .build();
 
     @Nullable
@@ -126,7 +128,7 @@ public final class FishingModConfig {
         return new FishingModConfig();
     }
 
-    private int shadowsPerPlayerCap = 4;
+    private int shadowsPerPlayerCap = 7;
     private float globalSpawnWeightMultiplier = 1.0f;
     private float spawnCheckIntervalSeconds = 4.0f;
     private float spawnRadiusMin = 4.0f;
@@ -159,6 +161,7 @@ public final class FishingModConfig {
     private int floodFillMaxBlocks = 256;
     private int floodFillMaxRadius = 16;
     private boolean enableSpawnDiagnostics = false;
+    private boolean enableSpawnRegions = true;
 
     public int getShadowsPerPlayerCap() {
         return shadowsPerPlayerCap;
@@ -270,5 +273,9 @@ public final class FishingModConfig {
 
     public boolean isEnableSpawnDiagnostics() {
         return enableSpawnDiagnostics;
+    }
+
+    public boolean isEnableSpawnRegions() {
+        return enableSpawnRegions;
     }
 }

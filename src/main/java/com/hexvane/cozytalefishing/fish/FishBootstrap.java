@@ -47,6 +47,7 @@ public final class FishBootstrap {
         plugin.getEntityStoreRegistry().registerSystem(new FishShadowTickSystem());
 
         plugin.getCommandRegistry().registerCommand(new FishShadowSpawnCommand());
+        plugin.getCommandRegistry().registerCommand(new CozyFishCommand());
 
         plugin
             .getEventRegistry()

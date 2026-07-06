@@ -98,7 +98,14 @@ public final class FishSpeciesSpawnDebug {
         int blockX = (int) Math.floor(catchPosition.x);
         int blockZ = (int) Math.floor(catchPosition.z);
         int surfaceY = FishShadowSpawnHelper.findSurfaceWaterBlockY(world, blockX, blockZ);
+        FishingSpawnRegionContext regionContext =
+            surfaceY >= 0
+                ? FishingSpawnRegionRegistry.resolve(world.getWorldConfig().getUuid(), blockX, surfaceY, blockZ)
+                : null;
         String biome = WaterBodyClassifier.getBiomeName(world, blockX, blockZ);
+        if (regionContext != null && regionContext.getEffectiveBiome() != null) {
+            biome = regionContext.getEffectiveBiome();
+        }
         int catchEnvironmentIndex = surfaceY >= 0 ? resolveEnvironmentIndex(world, blockX, surfaceY, blockZ) : -1;
         int playerEnvironmentIndex = resolvePlayerEnvironmentIndex(commandBuffer, playerRef);
         boolean underground =
@@ -119,11 +126,19 @@ public final class FishSpeciesSpawnDebug {
             .append("), biome=")
             .append(biome != null ? biome : "unknown");
         String worldZone = FishShadowSpawnHelper.getWorldZoneName(world, blockX, blockZ);
-        if (worldZone != null) {
+        if (regionContext != null && regionContext.getEffectiveZonePrefix() != null) {
+            text.append(", effectiveZone=").append(regionContext.getEffectiveZonePrefix());
+        } else if (worldZone != null) {
             text.append(", worldZone=").append(worldZone);
+        }
+        if (regionContext != null) {
+            text.append(", spawnRegion=").append(regionContext.getRegion().getId());
         }
         text.append('\n');
         text.append("  shadowWaterBody=").append(shadow.getWaterBodyType().name());
+        if (regionContext != null && regionContext.getWaterBodyOverride() != null) {
+            text.append(" (region override=").append(regionContext.getWaterBodyOverride().name()).append(')');
+        }
         text.append(", catchEnvIndex=").append(catchEnvironmentIndex);
         text.append(", playerEnvIndex=").append(playerEnvironmentIndex);
         text.append(", underground=").append(underground);
@@ -137,9 +152,11 @@ public final class FishSpeciesSpawnDebug {
                     world,
                     blockX,
                     blockZ,
-                    playerEnvironmentIndex
+                    FishShadowSpawnHelper.EnvironmentMatchMode.STRICT,
+                    regionContext
                 );
-            boolean undergroundMatch = FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species);
+            boolean undergroundMatch =
+                FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species, regionContext);
             boolean waterBodyMatch = species.matchesWaterBody(shadow.getWaterBodyType());
             text.append("  matches: waterBody=")
                 .append(waterBodyMatch)

@@ -22,5 +22,7 @@
   "OceanMinBlocks": 200,
   "OceanMinDepth": 8,
   "FloodFillMaxBlocks": 256,
-  "FloodFillMaxRadius": 16
+  "FloodFillMaxRadius": 16,
+  "EnableSpawnDiagnostics": false,
+  "EnableSpawnRegions": true
 }

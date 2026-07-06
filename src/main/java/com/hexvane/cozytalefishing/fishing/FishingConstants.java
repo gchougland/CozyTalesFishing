@@ -74,10 +74,10 @@ public final class FishingConstants {
     public static final float CAST_WHIP_IMPULSE = 0.35f;
 
     /** Rope rest length multiplier relative to tip-to-bobber distance (1 = taut). */
-    public static final float ROPE_SLACK_FACTOR = 1.0f;
+    public static final float ROPE_SLACK_FACTOR = 1.005f;
 
     /** Pulls floating line nodes toward a straight tip-to-bobber line (reeling uses a higher value). */
-    public static final float FLOATING_ROPE_STRAIGHTEN = 0.35f;
+    public static final float FLOATING_ROPE_STRAIGHTEN = 0.05f;
 
     /** Slack while reeling so the line visually tightens toward the rod tip. */
     public static final float REEL_ROPE_SLACK_FACTOR = 1.0f;
@@ -117,6 +117,9 @@ public final class FishingConstants {
     public static final float SEGMENT_JOINT_OVERLAP = 0.08f;
 
     public static final String REEL_IN_LOCAL_SOUND_EVENT_ID = "SFX_CozyFishing_Reel_In_Local";
+
+    /** Below this tip-to-bobber distance, skip sag simulation and pin nodes in a straight line. */
+    public static final float SHORT_LINE_STRAIGHTEN_BLOCKS = 4.0f;
 
     private FishingConstants() {}
 

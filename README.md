@@ -41,6 +41,12 @@ Fishing rod **visual cycle** is implemented (charge, cast, Verlet string segment
 
 Tuning values live in [`FishingConstants.java`](src/main/java/com/hexvane/cozytalefishing/fishing/FishingConstants.java) (cast distance, launch force, bob amplitude, rod tip offset).
 
+## Custom world setup
+
+If you are building a public custom world with handmade ponds, rivers, or oceans, use **spawn regions** so fish shadows match the intended biome/zone even when worldgen data does not.
+
+See **[Custom World Spawn Regions](docs/custom-world-spawn-regions.md)** for copy-paste `/cozyfish region create` commands and preset tables.
+
 ## Prerequisites
 
 - **Java 25** (JetBrains Runtime recommended for hot reload during development)

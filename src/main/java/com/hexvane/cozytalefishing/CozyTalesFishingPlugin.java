@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.HytaleServer;
 import com.hypixel.hytale.server.core.asset.AssetModule;
 import com.hypixel.hytale.server.core.asset.AssetPackRegisterEvent;
 import com.hexvane.cozytalefishing.fish.FishingModConfig;
+import com.hexvane.cozytalefishing.fish.FishingSpawnRegionRegistry;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.Universe;
@@ -67,6 +68,8 @@ public final class CozyTalesFishingPlugin extends JavaPlugin {
         }
 
         FishBootstrap.cleanupLoadedWorlds();
+        FishingModConfig.bind(fishingModConfig.get());
+        FishingSpawnRegionRegistry.initialize(getDataDirectory());
 
         if (!this.getManifest().includesAssetPack()) {
             return;
