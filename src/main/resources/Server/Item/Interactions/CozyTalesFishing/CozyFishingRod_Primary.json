@@ -1,5 +1,6 @@
 {
   "Type": "CozyFishingPrimary",
   "ChargeRoot": "Root_Cozy_Fishing_Rod_Charge_Only",
+  "ReelRoot": "Root_Cozy_Fishing_Rod_Reel",
   "RecallRoot": "Root_Cozy_Fishing_Rod_Recall"
 }

@@ -1,0 +1,19 @@
+{
+  "ShadowType": "Large",
+  "ItemId": "Fish_Lobster_Item",
+  "Rarity": "Uncommon",
+  "SpawnWeight": 5,
+  "SpawnLocation": {"Environments":["Env_Zone1_Shores","Env_Zone2_Shores"]},
+  "WaterBodyTypes": ["Ocean"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 5,
+  "VisionAngleDegrees": 125,
+  "PokeReachBlocks": 0.5,
+  "SizeRangeCm": [20, 45],
+  "ShadowScaleRange": [1, 1.3],
+  "SwimSpeed": 0.8,
+  "FleePlayerRange": 4,
+  "FightSwimSpeed": 1.3
+}

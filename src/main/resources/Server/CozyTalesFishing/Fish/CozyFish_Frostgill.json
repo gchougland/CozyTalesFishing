@@ -1,0 +1,19 @@
+{
+  "ShadowType": "Tiny",
+  "ItemId": "Fish_Frostgill_Item",
+  "Rarity": "Rare",
+  "SpawnWeight": 4,
+  "SpawnLocation": {"Environments":["Env_Zone3_Glacial","Env_Zone0_Cold","Env_Zone3_Caves_Tundra","Env_Zone3_Caves_Forests","Env_Zone3_Caves_Glacial","Env_Zone3_Caves_Mountains","Env_Zone3_Caves"]},
+  "WaterBodyTypes": ["River", "Pond", "Ocean"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": true,
+  "VisionRange": 3.5,
+  "VisionAngleDegrees": 95,
+  "PokeReachBlocks": 0.2,
+  "SizeRangeCm": [8, 18],
+  "ShadowScaleRange": [0.7, 0.95],
+  "SwimSpeed": 1,
+  "FleePlayerRange": 3.5,
+  "FightSwimSpeed": 1.3
+}

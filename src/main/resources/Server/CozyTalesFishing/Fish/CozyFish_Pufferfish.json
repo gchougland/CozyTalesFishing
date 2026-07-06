@@ -1,0 +1,19 @@
+{
+  "ShadowType": "Medium",
+  "ItemId": "Fish_Pufferfish_Item",
+  "Rarity": "Uncommon",
+  "SpawnWeight": 6,
+  "SpawnLocation": {"Environments":["Env_Zone1_Shores","Env_Zone2_Shores"]},
+  "WaterBodyTypes": ["Ocean"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 4.5,
+  "VisionAngleDegrees": 120,
+  "PokeReachBlocks": 0.4,
+  "SizeRangeCm": [15, 35],
+  "ShadowScaleRange": [0.9, 1.2],
+  "SwimSpeed": 0.9,
+  "FleePlayerRange": 3.5,
+  "FightSwimSpeed": 1.2
+}

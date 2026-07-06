@@ -1,0 +1,19 @@
+{
+  "ShadowType": "MediumSmall",
+  "ItemId": "Fish_Trout_Rainbow_Item",
+  "Rarity": "Common",
+  "SpawnWeight": 8,
+  "SpawnLocation": {"Environments":["Env_Zone1_Forests","Env_Zone1_Mountains","Env_Zone1_Autumn"]},
+  "WaterBodyTypes": ["River"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 4.5,
+  "VisionAngleDegrees": 115,
+  "PokeReachBlocks": 0.35,
+  "SizeRangeCm": [20, 45],
+  "ShadowScaleRange": [0.85, 1.15],
+  "SwimSpeed": 1.2,
+  "FleePlayerRange": 3.5,
+  "FightSwimSpeed": 1.5
+}

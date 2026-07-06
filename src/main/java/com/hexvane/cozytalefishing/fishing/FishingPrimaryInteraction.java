@@ -32,6 +32,15 @@ public final class FishingPrimaryInteraction extends SimpleInstantInteraction {
             .addValidatorLate(() -> RootInteraction.VALIDATOR_CACHE.getValidator().late())
             .add()
             .appendInherited(
+                new KeyedCodec<>("ReelRoot", Codec.STRING),
+                (interaction, root) -> interaction.reelRoot = root,
+                interaction -> interaction.reelRoot,
+                (interaction, parent) -> interaction.reelRoot = parent.reelRoot
+            )
+            .addValidator(Validators.nonNull())
+            .addValidatorLate(() -> RootInteraction.VALIDATOR_CACHE.getValidator().late())
+            .add()
+            .appendInherited(
                 new KeyedCodec<>("RecallRoot", Codec.STRING),
                 (interaction, root) -> interaction.recallRoot = root,
                 interaction -> interaction.recallRoot,
@@ -43,6 +52,7 @@ public final class FishingPrimaryInteraction extends SimpleInstantInteraction {
             .build();
 
     protected String chargeRoot;
+    protected String reelRoot;
     protected String recallRoot;
 
     @Override
@@ -56,13 +66,12 @@ public final class FishingPrimaryInteraction extends SimpleInstantInteraction {
         context.getState().state = InteractionState.Finished;
 
         if (commandBuffer != null && FishingLineService.hasCastOut(commandBuffer, playerRef)) {
-            if (recallRoot == null) {
-                FishingDebugLog.warn("Primary click: no RecallRoot configured, recalling without animation");
-                FishingLineService.recallCastOut(commandBuffer, playerRef);
+            if (reelRoot == null) {
+                FishingDebugLog.warn("Primary click: no ReelRoot configured, cannot reel");
                 return;
             }
-            FishingDebugLog.info("Primary click: starting recall root %s", recallRoot);
-            context.execute(RootInteraction.getRootInteractionOrUnknown(recallRoot));
+            FishingDebugLog.info("Primary click: starting reel root %s", reelRoot);
+            context.execute(RootInteraction.getRootInteractionOrUnknown(reelRoot));
             return;
         }
 

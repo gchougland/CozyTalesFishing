@@ -1,0 +1,19 @@
+{
+  "ShadowType": "Tiny",
+  "ItemId": "Fish_Minnow_Item",
+  "Rarity": "Common",
+  "SpawnWeight": 10,
+  "SpawnLocation": {"Zone":"Zone1"},
+  "WaterBodyTypes": ["Pond", "River"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 3,
+  "VisionAngleDegrees": 90,
+  "PokeReachBlocks": 0.2,
+  "SizeRangeCm": [5, 12],
+  "ShadowScaleRange": [0.7, 0.95],
+  "SwimSpeed": 1,
+  "FleePlayerRange": 3,
+  "FightSwimSpeed": 1.2
+}

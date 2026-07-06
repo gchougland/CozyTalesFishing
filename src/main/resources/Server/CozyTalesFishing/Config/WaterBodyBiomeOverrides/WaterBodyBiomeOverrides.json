@@ -1,0 +1,7 @@
+{
+  "BiomePatterns": {
+    "*River*": "River",
+    "*Pond*": "Pond",
+    "*Oasis*": "Pond"
+  }
+}

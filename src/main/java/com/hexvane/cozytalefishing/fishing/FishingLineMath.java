@@ -18,8 +18,61 @@ public final class FishingLineMath {
     }
 
     public static float ropeSegmentLength(float tipToBobberDistance, float maxLength) {
-        float ropeLength = Math.min(tipToBobberDistance * FishingConstants.ROPE_SLACK_FACTOR, maxLength);
+        return ropeSegmentLength(tipToBobberDistance, maxLength, FishingConstants.ROPE_SLACK_FACTOR);
+    }
+
+    public static float ropeSegmentLength(float tipToBobberDistance, float maxLength, float slackFactor) {
+        float ropeLength = Math.min(tipToBobberDistance * slackFactor, maxLength);
         return Math.max(ropeLength / FishingConstants.SEGMENT_COUNT, FishingConstants.BASE_SEGMENT_LENGTH * 0.1f);
+    }
+
+    /** How many fixed-length segment props should be visible along the line. */
+    public static int visibleSegmentCount(float spanLengthBlocks) {
+        if (spanLengthBlocks < 1.0e-4f) {
+            return 0;
+        }
+        int count = (int) Math.ceil(spanLengthBlocks / FishingConstants.BASE_SEGMENT_LENGTH * FishingConstants.SEGMENT_VISUAL_DENSITY);
+        return Math.max(1, Math.min(FishingConstants.SEGMENT_COUNT, count));
+    }
+
+    /** Maps a visible segment index to the rope node index it starts at (evenly spaced along the line). */
+    public static int segmentStartNode(int visibleSegmentIndex, int visibleSegmentCount) {
+        if (visibleSegmentCount <= 0) {
+            return 0;
+        }
+        return (visibleSegmentIndex * (FishingConstants.NODE_COUNT - 1)) / visibleSegmentCount;
+    }
+
+    /** Maps a visible segment index to the rope node index it ends at. */
+    public static int segmentEndNode(int visibleSegmentIndex, int visibleSegmentCount) {
+        if (visibleSegmentCount <= 0) {
+            return 1;
+        }
+        int end = ((visibleSegmentIndex + 1) * (FishingConstants.NODE_COUNT - 1)) / visibleSegmentCount;
+        return Math.min(FishingConstants.NODE_COUNT - 1, Math.max(end, segmentStartNode(visibleSegmentIndex, visibleSegmentCount) + 1));
+    }
+
+    /** Pulls intermediate rope nodes toward a straight line while reeling. */
+    public static void straightenIntermediateNodes(
+        @Nonnull Vector3d[] nodes,
+        @Nonnull Vector3d tip,
+        @Nonnull Vector3d bobber,
+        int nodeCount,
+        float strength
+    ) {
+        if (nodeCount <= 2 || strength <= 0.0f) {
+            return;
+        }
+        for (int i = 1; i < nodeCount - 1; i++) {
+            double t = i / (double) (nodeCount - 1);
+            double targetX = tip.x + (bobber.x - tip.x) * t;
+            double targetY = tip.y + (bobber.y - tip.y) * t;
+            double targetZ = tip.z + (bobber.z - tip.z) * t;
+            Vector3d node = nodes[i];
+            node.x += (targetX - node.x) * strength;
+            node.y += (targetY - node.y) * strength;
+            node.z += (targetZ - node.z) * strength;
+        }
     }
 
     /**

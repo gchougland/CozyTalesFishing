@@ -1,0 +1,19 @@
+{
+  "ShadowType": "Thin",
+  "ItemId": "Fish_Eel_Moray_Item",
+  "Rarity": "Uncommon",
+  "SpawnWeight": 5,
+  "SpawnLocation": {"Environments":["Env_Zone0_Warm","Env_Zone2_Savanna"]},
+  "WaterBodyTypes": ["Ocean", "River"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 5,
+  "VisionAngleDegrees": 80,
+  "PokeReachBlocks": 0.55,
+  "SizeRangeCm": [30, 120],
+  "ShadowScaleRange": [1, 1.4],
+  "SwimSpeed": 1.1,
+  "FleePlayerRange": 4,
+  "FightSwimSpeed": 1.5
+}

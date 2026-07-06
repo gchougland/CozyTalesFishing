@@ -1,5 +1,11 @@
 package com.hexvane.cozytalefishing.fishing;
 
+import com.hexvane.cozytalefishing.fish.FishCatchService;
+import com.hexvane.cozytalefishing.fish.FishShadowComponent;
+import com.hexvane.cozytalefishing.fish.FishShadowEntityPool;
+import com.hexvane.cozytalefishing.fish.FishSpeciesAsset;
+import com.hexvane.cozytalefishing.fish.FishSpeciesRegistry;
+import com.hexvane.cozytalefishing.fish.FishingModConfig;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -11,6 +17,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.joml.Vector3d;
 
 /** Verlet simulation and segment prop placement for active fishing lines. */
@@ -59,6 +66,26 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
         }
         bobberPos.y = FishingLineService.getBobberWorldY(commandBuffer, bobberRef, bobberState);
 
+        FishingModConfig config = FishingModConfig.get();
+        if (line.isReeling()) {
+            if (line.getPhase() == FishingLinePhase.FLOATING || line.getPhase() == FishingLinePhase.REELING) {
+                applySlowReel(line, tip, bobberPos, bobberRef, bobberTransform, config, dt);
+                if (line.getMaxLength() <= config.getRecallLineLengthBlocks()) {
+                    FishingLineService.recallCastOut(commandBuffer, playerRef);
+                    return;
+                }
+            } else if (line.getPhase() == FishingLinePhase.FIGHTING) {
+                applyFightLineReel(line, config, dt);
+            }
+        }
+
+        if (line.getPhase() == FishingLinePhase.FIGHTING) {
+            tryCompleteCatch(commandBuffer, playerRef, line, config);
+            if (!line.isActive()) {
+                return;
+            }
+        }
+
         if (line.getPhase() == FishingLinePhase.CASTING && bobberState != null && bobberState.getPhase() == FishingBobberPhase.FLOATING) {
             line.setPhase(FishingLinePhase.FLOATING);
         }
@@ -67,7 +94,11 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
         Vector3d[] oldNodes = line.getNodeOldPositions();
 
         float gravity =
-            line.getPhase() == FishingLinePhase.FLOATING ? FishingConstants.FLOATING_GRAVITY : FishingConstants.GRAVITY;
+            line.getPhase() == FishingLinePhase.FLOATING
+                || line.getPhase() == FishingLinePhase.REELING
+                || line.getPhase() == FishingLinePhase.FIGHTING
+                ? FishingConstants.FLOATING_GRAVITY
+                : FishingConstants.GRAVITY;
         FishingLineMath.integrateVerlet(nodes, oldNodes, FishingConstants.NODE_COUNT, gravity, dt);
 
         if (line.getWhipTicksRemaining() > 0) {
@@ -79,8 +110,19 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
         nodes[FishingConstants.NODE_COUNT - 1].set(bobberPos);
 
         float tipToBobber = (float) tip.distance(bobberPos);
-        float segmentLength = FishingLineMath.ropeSegmentLength(tipToBobber, line.getMaxLength());
+        boolean tighteningLine =
+            line.isReeling()
+                || line.getPhase() == FishingLinePhase.REELING
+                || (line.getPhase() == FishingLinePhase.FIGHTING && line.isReeling());
+        float slackFactor = tighteningLine ? FishingConstants.REEL_ROPE_SLACK_FACTOR : FishingConstants.ROPE_SLACK_FACTOR;
+        float effectiveMaxLength = tighteningLine ? Math.min(line.getMaxLength(), tipToBobber) : line.getMaxLength();
+        float segmentLength = FishingLineMath.ropeSegmentLength(tipToBobber, effectiveMaxLength, slackFactor);
         FishingLineMath.satisfyDistanceConstraints(nodes, FishingConstants.NODE_COUNT, segmentLength, FishingConstants.CONSTRAINT_ITERATIONS);
+
+        if (tighteningLine) {
+            FishingLineMath.straightenIntermediateNodes(nodes, tip, bobberPos, FishingConstants.NODE_COUNT, 0.45f);
+            FishingLineMath.satisfyDistanceConstraints(nodes, FishingConstants.NODE_COUNT, segmentLength, 4);
+        }
 
         nodes[0].set(tip);
         nodes[FishingConstants.NODE_COUNT - 1].set(bobberPos);
@@ -123,6 +165,84 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
         }
 
         FishingLineService.updateSegmentVisuals(commandBuffer, playerRef, line);
+    }
+
+    private static void applySlowReel(
+        @Nonnull FishingLineComponent line,
+        @Nonnull Vector3d tip,
+        @Nonnull Vector3d bobberPos,
+        @Nonnull Ref<EntityStore> bobberRef,
+        @Nullable TransformComponent bobberTransform,
+        @Nonnull FishingModConfig config,
+        float dt
+    ) {
+        float shrink = shrinkLineLength(line, config.getReelSpeedBlocksPerSecond(), dt);
+
+        Vector3d toTip = new Vector3d(tip).sub(bobberPos);
+        double distance = toTip.length();
+        if (distance > 1.0e-6) {
+            toTip.normalize().mul(Math.min(shrink, distance));
+            bobberPos.add(toTip);
+            if (bobberTransform != null) {
+                bobberTransform.setPosition(new Vector3d(bobberPos));
+            }
+        }
+    }
+
+    private static void applyFightLineReel(
+        @Nonnull FishingLineComponent line,
+        @Nonnull FishingModConfig config,
+        float dt
+    ) {
+        float shrink = shrinkLineLength(line, config.getReelSpeedBlocksPerSecond(), dt);
+        line.addReeledDuringFight(shrink);
+    }
+
+    /** Returns how much line length was removed this tick. */
+    private static float shrinkLineLength(
+        @Nonnull FishingLineComponent line,
+        float reelSpeedBlocksPerSecond,
+        float dt
+    ) {
+        float previous = line.getMaxLength();
+        float shrink = reelSpeedBlocksPerSecond * dt;
+        line.setMaxLength(Math.max(0.5f, previous - shrink));
+        return previous - line.getMaxLength();
+    }
+
+    private static void tryCompleteCatch(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> playerRef,
+        @Nonnull FishingLineComponent line,
+        @Nonnull FishingModConfig config
+    ) {
+        Ref<EntityStore> shadowRef = line.getHookedShadowRef();
+        if (shadowRef == null || !shadowRef.isValid()) {
+            return;
+        }
+        TransformComponent shadowTransform = commandBuffer.getComponent(shadowRef, TransformComponent.getComponentType());
+        FishShadowComponent shadow = commandBuffer.getComponent(shadowRef, FishShadowComponent.getComponentType());
+        if (shadowTransform == null || shadow == null) {
+            return;
+        }
+
+        if (line.getMaxLength() > config.getCatchDistanceBlocks()) {
+            return;
+        }
+        if (line.getReeledDuringFightBlocks() < config.getCatchMinReelBlocks()) {
+            return;
+        }
+
+        FishSpeciesAsset species = FishSpeciesRegistry.getSpecies(shadow.getSpeciesId());
+        if (species == null) {
+            FishingLineService.recallCastOut(commandBuffer, playerRef);
+            return;
+        }
+
+        float sizeCm = line.getRolledSizeCm() > 0.0f ? line.getRolledSizeCm() : FishCatchService.rollSizeCm(species);
+        FishCatchService.completeCatch(commandBuffer, playerRef, species, sizeCm, shadow, shadowTransform.getPosition());
+        FishShadowEntityPool.despawn(commandBuffer, shadowRef);
+        FishingLineService.recallCastOut(commandBuffer, playerRef);
     }
 
     private static void applyCastWhip(@Nonnull FishingLineComponent line, @Nonnull Vector3d[] nodes, @Nonnull Vector3d tip) {

@@ -6,43 +6,37 @@ import com.hypixel.hytale.protocol.InteractionState;
 import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.server.core.entity.InteractionContext;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
-import com.hypixel.hytale.server.core.modules.interaction.interaction.config.SimpleInteraction;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.SimpleInstantInteraction;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
 
-/** Recalls an active fishing line and despawns bobber + string segments. */
-public final class FishingRecallInteraction extends SimpleInteraction {
+/** Instantly recalls an active fishing line and despawns bobber + string segments. */
+public final class FishingRecallInteraction extends SimpleInstantInteraction {
     @Nonnull
     public static final BuilderCodec<FishingRecallInteraction> CODEC =
-        BuilderCodec.builder(FishingRecallInteraction.class, FishingRecallInteraction::new, SimpleInteraction.CODEC)
-            .documentation("Recalls the active cozy fishing line.")
+        BuilderCodec.builder(FishingRecallInteraction.class, FishingRecallInteraction::new, SimpleInstantInteraction.CODEC)
+            .documentation("Instantly recalls the active cozy fishing line.")
             .build();
 
     @Override
-    protected void tick0(
-        boolean firstRun,
-        float time,
+    protected void firstRun(
         @Nonnull InteractionType type,
         @Nonnull InteractionContext context,
         @Nonnull CooldownHandler cooldownHandler
     ) {
+        context.getState().state = InteractionState.Finished;
         var commandBuffer = context.getCommandBuffer();
-        if (firstRun && commandBuffer != null) {
-            Ref<EntityStore> playerRef = context.getEntity();
-            FishingLineService.recallCastOut(commandBuffer, playerRef);
+        if (commandBuffer == null) {
+            return;
         }
-
-        if (time >= 0.25f) {
-            context.getState().state = InteractionState.Finished;
-        } else {
-            context.getState().state = InteractionState.NotFinished;
+        Ref<EntityStore> playerRef = context.getEntity();
+        if (FishingLineService.recallCastOut(commandBuffer, playerRef)) {
+            FishingDebugLog.info("Secondary click: instant recall");
         }
     }
 
     @Override
-    protected void simulateTick0(
-        boolean firstRun,
-        float time,
+    protected void simulateFirstRun(
         @Nonnull InteractionType type,
         @Nonnull InteractionContext context,
         @Nonnull CooldownHandler cooldownHandler

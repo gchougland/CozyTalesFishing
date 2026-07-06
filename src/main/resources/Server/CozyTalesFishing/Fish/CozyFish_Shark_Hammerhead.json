@@ -1,0 +1,19 @@
+{
+  "ShadowType": "Fin",
+  "ItemId": "Fish_Shark_Hammerhead_Item",
+  "Rarity": "Legendary",
+  "SpawnWeight": 1,
+  "SpawnLocation": {"Environments":["Env_Zone0_Warm"]},
+  "WaterBodyTypes": ["Ocean"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 10,
+  "VisionAngleDegrees": 160,
+  "PokeReachBlocks": 0.55,
+  "SizeRangeCm": [150, 400],
+  "ShadowScaleRange": [1.3, 1.8],
+  "SwimSpeed": 1.5,
+  "FleePlayerRange": 6,
+  "FightSwimSpeed": 2
+}

@@ -1,0 +1,19 @@
+{
+  "ShadowType": "MediumSmall",
+  "ItemId": "Fish_Salmon_Item",
+  "Rarity": "Uncommon",
+  "SpawnWeight": 6,
+  "SpawnLocation": {"Environments":["Env_Zone3_Forests","Env_Zone0_Cold"]},
+  "WaterBodyTypes": ["River", "Ocean"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 5,
+  "VisionAngleDegrees": 120,
+  "PokeReachBlocks": 0.35,
+  "SizeRangeCm": [30, 70],
+  "ShadowScaleRange": [0.9, 1.2],
+  "SwimSpeed": 1.3,
+  "FleePlayerRange": 4,
+  "FightSwimSpeed": 1.6
+}

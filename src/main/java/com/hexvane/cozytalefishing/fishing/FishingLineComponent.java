@@ -33,9 +33,18 @@ public final class FishingLineComponent implements Component<EntityStore> {
     private int whipTicksRemaining;
     private boolean loggedStretchDebug;
     private boolean castSetupPending;
+    private boolean reeling;
+    private float rolledSizeCm;
+    /** Line max length when the fish was hooked; used for reel-to-catch progress. */
+    private float fightStartMaxLength;
+    /** How much line length has been reeled in during the current fight. */
+    private float reeledDuringFightBlocks;
 
     @Nullable
     private Ref<EntityStore> bobberRef;
+
+    @Nullable
+    private Ref<EntityStore> hookedShadowRef;
 
     @Nonnull
     private final Vector3d[] nodePositions = new Vector3d[FishingConstants.NODE_COUNT];
@@ -116,6 +125,56 @@ public final class FishingLineComponent implements Component<EntityStore> {
         this.bobberRef = bobberRef;
     }
 
+    public boolean isReeling() {
+        return reeling;
+    }
+
+    public void setReeling(boolean reeling) {
+        this.reeling = reeling;
+        if (reeling && phase == FishingLinePhase.FLOATING) {
+            phase = FishingLinePhase.REELING;
+        } else if (!reeling && phase == FishingLinePhase.REELING) {
+            phase = FishingLinePhase.FLOATING;
+        }
+    }
+
+    @Nullable
+    public Ref<EntityStore> getHookedShadowRef() {
+        return hookedShadowRef;
+    }
+
+    public void setHookedShadowRef(@Nullable Ref<EntityStore> hookedShadowRef) {
+        this.hookedShadowRef = hookedShadowRef;
+    }
+
+    public float getRolledSizeCm() {
+        return rolledSizeCm;
+    }
+
+    public void setRolledSizeCm(float rolledSizeCm) {
+        this.rolledSizeCm = rolledSizeCm;
+    }
+
+    public float getFightStartMaxLength() {
+        return fightStartMaxLength;
+    }
+
+    public void setFightStartMaxLength(float fightStartMaxLength) {
+        this.fightStartMaxLength = fightStartMaxLength;
+    }
+
+    public float getReeledDuringFightBlocks() {
+        return reeledDuringFightBlocks;
+    }
+
+    public void setReeledDuringFightBlocks(float reeledDuringFightBlocks) {
+        this.reeledDuringFightBlocks = reeledDuringFightBlocks;
+    }
+
+    public void addReeledDuringFight(float blocks) {
+        this.reeledDuringFightBlocks += blocks;
+    }
+
     @Nonnull
     public Vector3d[] getNodePositions() {
         return nodePositions;
@@ -138,7 +197,12 @@ public final class FishingLineComponent implements Component<EntityStore> {
         whipTicksRemaining = 0;
         loggedStretchDebug = false;
         castSetupPending = false;
+        reeling = false;
+        rolledSizeCm = 0.0f;
+        fightStartMaxLength = 0.0f;
+        reeledDuringFightBlocks = 0.0f;
         bobberRef = null;
+        hookedShadowRef = null;
         for (int i = 0; i < segmentRefs.length; i++) {
             segmentRefs[i] = null;
         }
@@ -154,7 +218,12 @@ public final class FishingLineComponent implements Component<EntityStore> {
         copy.whipTicksRemaining = whipTicksRemaining;
         copy.loggedStretchDebug = loggedStretchDebug;
         copy.castSetupPending = castSetupPending;
+        copy.reeling = reeling;
+        copy.rolledSizeCm = rolledSizeCm;
+        copy.fightStartMaxLength = fightStartMaxLength;
+        copy.reeledDuringFightBlocks = reeledDuringFightBlocks;
         copy.bobberRef = bobberRef;
+        copy.hookedShadowRef = hookedShadowRef;
         for (int i = 0; i < FishingConstants.NODE_COUNT; i++) {
             copy.nodePositions[i].set(nodePositions[i]);
             copy.nodeOldPositions[i].set(nodeOldPositions[i]);

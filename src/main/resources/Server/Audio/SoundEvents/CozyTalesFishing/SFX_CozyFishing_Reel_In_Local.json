@@ -1,0 +1,15 @@
+{
+  "Layers": [
+    {
+      "Files": [
+        "Sounds/CozyTalesFishing/Fishing_Reel_In.ogg"
+      ],
+      "Looping": true,
+      "StartDelay": 0,
+      "Volume": 0.0
+    }
+  ],
+  "Volume": -14.0,
+  "PreventSoundInterruption": true,
+  "Parent": "SFX_Attn_ExtremelyQuiet"
+}

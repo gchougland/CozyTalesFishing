@@ -1,0 +1,60 @@
+{
+  "RenderMode": "Erosion",
+  "ParticleRotationInfluence": "Billboard",
+  "LinearFiltering": false,
+  "LightInfluence": 1,
+  "ParticleLifeSpan": {
+    "Min": 0.35,
+    "Max": 0.55
+  },
+  "SpawnRate": {
+    "Min": 1,
+    "Max": 1
+  },
+  "TotalParticles": {
+    "Min": 1,
+    "Max": 1
+  },
+  "MaxConcurrentParticles": 4,
+  "ParticleRotateWithSpawner": true,
+  "Particle": {
+    "Texture": "Particles/Textures/Rnd/Water_Splash_Small4.png",
+    "FrameSize": {
+      "Width": 64,
+      "Height": 64
+    },
+    "ScaleRatioConstraint": "None",
+    "Animation": {
+      "0": {
+        "Opacity": 0.0,
+        "Scale": {
+          "X": { "Min": 0.2, "Max": 0.2 },
+          "Y": { "Min": 0.2, "Max": 0.2 }
+        }
+      },
+      "20": {
+        "Opacity": 0.7,
+        "Scale": {
+          "X": { "Min": 0.8, "Max": 1.0 },
+          "Y": { "Min": 0.8, "Max": 1.0 }
+        }
+      },
+      "100": {
+        "Opacity": 0.0,
+        "Scale": {
+          "X": { "Min": 1.6, "Max": 2.0 },
+          "Y": { "Min": 1.6, "Max": 2.0 }
+        }
+      }
+    },
+    "InitialAnimationFrame": {
+      "Opacity": 0.6,
+      "Scale": {
+        "X": { "Min": 0.15, "Max": 0.2 },
+        "Y": { "Min": 0.15, "Max": 0.2 }
+      },
+      "FrameIndex": { "Min": 0, "Max": 3 }
+    }
+  },
+  "SpawnBurst": true
+}

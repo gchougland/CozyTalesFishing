@@ -1,0 +1,19 @@
+{
+  "ShadowType": "Large",
+  "ItemId": "Fish_Whale_Humpback_Item",
+  "Rarity": "Legendary",
+  "SpawnWeight": 1,
+  "SpawnLocation": {"Environments":["Env_Zone0_Temperate"]},
+  "WaterBodyTypes": ["Ocean"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 8,
+  "VisionAngleDegrees": 140,
+  "PokeReachBlocks": 0.5,
+  "SizeRangeCm": [800, 1500],
+  "ShadowScaleRange": [1.5, 2],
+  "SwimSpeed": 1.2,
+  "FleePlayerRange": 8,
+  "FightSwimSpeed": 1.8
+}

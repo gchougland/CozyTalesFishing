@@ -66,6 +66,7 @@ public final class FishingLineService {
         UUID ownerUuid = uuidComponent != null ? uuidComponent.getUuid() : null;
 
         Ref<EntityStore> bobberRef = line != null ? line.getBobberRef() : null;
+        Ref<EntityStore> hookedShadowRef = line != null ? line.getHookedShadowRef() : null;
         Ref<EntityStore>[] segmentRefs = copySegmentRefs(line);
 
         if (line != null) {
@@ -74,6 +75,7 @@ public final class FishingLineService {
         }
 
         Ref<EntityStore> deferredPlayerRef = playerRef;
+        Ref<EntityStore> deferredHookedShadow = hookedShadowRef;
         commandBuffer.run(
             store ->
                 finishTeardown(
@@ -81,7 +83,8 @@ public final class FishingLineService {
                     deferredPlayerRef,
                     bobberRef,
                     segmentRefs,
-                    ownerUuid
+                    ownerUuid,
+                    deferredHookedShadow
                 )
         );
         FishingDebugLog.info("Recall scheduled");
@@ -105,7 +108,8 @@ public final class FishingLineService {
         @Nonnull Ref<EntityStore> playerRef,
         @Nullable Ref<EntityStore> bobberRef,
         @Nullable Ref<EntityStore>[] segmentRefs,
-        @Nullable UUID ownerUuid
+        @Nullable UUID ownerUuid,
+        @Nullable Ref<EntityStore> hookedShadowRef
     ) {
         int removedSegments = 0;
         if (segmentRefs != null) {
@@ -125,6 +129,10 @@ public final class FishingLineService {
 
         if (ownerUuid != null) {
             removedBobber |= removeAllOwnedBobbers(store, ownerUuid);
+        }
+
+        if (hookedShadowRef != null && hookedShadowRef.isValid()) {
+            store.removeEntity(hookedShadowRef, RemoveReason.REMOVE);
         }
 
         FishingLineComponent line = store.getComponent(playerRef, FishingLineComponent.getComponentType());
@@ -357,6 +365,7 @@ public final class FishingLineService {
         UUIDComponent uuidComponent = store.getComponent(playerRef, UUIDComponent.getComponentType());
         UUID ownerUuid = uuidComponent != null ? uuidComponent.getUuid() : null;
         Ref<EntityStore> bobberRef = line != null ? line.getBobberRef() : null;
+        Ref<EntityStore> hookedShadowRef = line != null ? line.getHookedShadowRef() : null;
         Ref<EntityStore>[] segmentRefs = copySegmentRefs(line);
 
         if (line != null) {
@@ -364,7 +373,7 @@ public final class FishingLineService {
             store.putComponent(playerRef, FishingLineComponent.getComponentType(), line);
         }
 
-        finishTeardown(store, playerRef, bobberRef, segmentRefs, ownerUuid);
+        finishTeardown(store, playerRef, bobberRef, segmentRefs, ownerUuid, hookedShadowRef);
     }
 
     public static void teardownLine(
@@ -404,14 +413,26 @@ public final class FishingLineService {
         Rotation3f rotation = new Rotation3f();
         Vector3d position = new Vector3d();
         Vector3d rodTip = new Vector3d();
+        RodTipUtil.getRodTipPosition(playerRef, commandBuffer, rodTip);
 
-        for (int i = 0; i < FishingConstants.SEGMENT_COUNT; i++) {
-            Vector3d end = nodes[i + 1];
-            Vector3d start = nodes[i];
-            if (i == 0) {
-                RodTipUtil.getRodTipPosition(playerRef, commandBuffer, rodTip);
-                start = rodTip;
+        Vector3d bobberNode = nodes[FishingConstants.NODE_COUNT - 1];
+        float tipToBobber = (float) rodTip.distance(bobberNode);
+        float spanLength = Math.min(tipToBobber, line.getMaxLength());
+        int visibleCount = FishingLineMath.visibleSegmentCount(spanLength);
+
+        for (int i = visibleCount; i < FishingConstants.SEGMENT_COUNT; i++) {
+            Ref<EntityStore> excess = segmentRefs[i];
+            if (excess != null) {
+                SegmentEntityPool.despawnSegment(commandBuffer, excess);
+                segmentRefs[i] = null;
             }
+        }
+
+        for (int i = 0; i < visibleCount; i++) {
+            int startNodeIndex = FishingLineMath.segmentStartNode(i, visibleCount);
+            int endNodeIndex = FishingLineMath.segmentEndNode(i, visibleCount);
+            Vector3d end = nodes[endNodeIndex];
+            Vector3d start = startNodeIndex == 0 ? rodTip : nodes[startNodeIndex];
 
             dir.set(end).sub(start);
             float dist = (float) dir.length();
@@ -442,7 +463,6 @@ public final class FishingLineService {
             if (segmentRef == null || !segmentRef.isValid()) {
                 segmentRef = SegmentEntityPool.spawnSegment(commandBuffer, position, rotation, i);
                 segmentRefs[i] = segmentRef;
-                // Ref from commandBuffer.addEntity is not valid until the buffer flushes; spawn already set pose.
                 continue;
             }
             SegmentEntityPool.updateSegment(commandBuffer, segmentRef, position, rotation);

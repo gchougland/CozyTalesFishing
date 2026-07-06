@@ -1,0 +1,19 @@
+{
+  "ShadowType": "Thin",
+  "ItemId": "Fish_Trilobite_Item",
+  "Rarity": "Rare",
+  "SpawnWeight": 4,
+  "SpawnLocation": {"Environments":["Env_Zone3_Glacial","Env_Zone3_Caves_Tundra","Env_Zone3_Caves_Forests","Env_Zone3_Caves_Glacial","Env_Zone3_Caves_Mountains","Env_Zone3_Caves"]},
+  "WaterBodyTypes": ["River", "Pond"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": true,
+  "VisionRange": 4.5,
+  "VisionAngleDegrees": 90,
+  "PokeReachBlocks": 0.55,
+  "SizeRangeCm": [8, 22],
+  "ShadowScaleRange": [0.75, 1],
+  "SwimSpeed": 0.9,
+  "FleePlayerRange": 3.5,
+  "FightSwimSpeed": 1.3
+}

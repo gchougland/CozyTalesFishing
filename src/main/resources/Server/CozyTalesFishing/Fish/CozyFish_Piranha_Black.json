@@ -1,0 +1,19 @@
+{
+  "ShadowType": "Medium",
+  "ItemId": "Fish_Piranha_Black_Item",
+  "Rarity": "Rare",
+  "SpawnWeight": 4,
+  "SpawnLocation": {"Environments":["Env_Zone1_Azure","Env_Zone2_Deserts"]},
+  "WaterBodyTypes": ["River", "Pond"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 6,
+  "VisionAngleDegrees": 130,
+  "PokeReachBlocks": 0.4,
+  "SizeRangeCm": [40, 100],
+  "ShadowScaleRange": [0.95, 1.25],
+  "SwimSpeed": 1.3,
+  "FleePlayerRange": 4,
+  "FightSwimSpeed": 1.6
+}

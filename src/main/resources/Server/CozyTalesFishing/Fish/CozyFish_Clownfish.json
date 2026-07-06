@@ -1,0 +1,19 @@
+{
+  "ShadowType": "Small",
+  "ItemId": "Fish_Clownfish_Item",
+  "Rarity": "Common",
+  "SpawnWeight": 10,
+  "SpawnLocation": {"Environments":["Env_Zone1_Shores","Env_Zone2_Shores"]},
+  "WaterBodyTypes": ["Ocean"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 4,
+  "VisionAngleDegrees": 110,
+  "PokeReachBlocks": 0.3,
+  "SizeRangeCm": [8, 18],
+  "ShadowScaleRange": [0.75, 1],
+  "SwimSpeed": 1,
+  "FleePlayerRange": 3,
+  "FightSwimSpeed": 1.3
+}

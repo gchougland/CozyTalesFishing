@@ -122,6 +122,12 @@ public final class SegmentEntityPool {
         }
     }
 
+    public static void despawnSegment(@Nonnull CommandBuffer<EntityStore> commandBuffer, @Nullable Ref<EntityStore> segmentRef) {
+        if (segmentRef != null && segmentRef.isValid()) {
+            commandBuffer.removeEntity(segmentRef, RemoveReason.REMOVE);
+        }
+    }
+
     public static void despawnAll(@Nonnull Store<EntityStore> store, @Nonnull FishingLineComponent line) {
         int removed = 0;
         for (Ref<EntityStore> segmentRef : line.getSegmentRefs()) {

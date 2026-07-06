@@ -49,6 +49,9 @@ public final class FishingBobberFloatSystem extends EntityTickingSystem<EntitySt
         }
 
         if (bobber.getPhase() == FishingBobberPhase.FLOATING) {
+            if (bobber.isSubmerged()) {
+                return;
+            }
             bobber.setBobPhase(bobber.getBobPhase() + dt * FishingConstants.BOB_FREQUENCY);
             double y = bobber.getLatchedSurfaceY() + Math.sin(bobber.getBobPhase()) * FishingConstants.BOB_AMPLITUDE;
             Vector3d pos = transform.getPosition();

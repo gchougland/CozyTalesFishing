@@ -4,5 +4,7 @@ public enum FishingLinePhase {
     INACTIVE,
     CASTING,
     FLOATING,
+    REELING,
+    FIGHTING,
     RECALLING
 }

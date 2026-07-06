@@ -1,2 +1,4 @@
 items.Tool_Cozy_Fishing_Rod.name = Cozy Fishing Rod
-items.Tool_Cozy_Fishing_Rod.description = Hold to charge your cast, release to throw the bobber. Use secondary to reel in.
+items.Tool_Cozy_Fishing_Rod.description = Hold to charge your cast, release to throw the bobber. Hold primary to reel in, secondary to recall.
+cozytalefishing.catch.success = You caught a {fish} ({size} cm)!
+cozytalefishing.catch.personal_best = New personal best!

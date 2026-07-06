@@ -14,7 +14,12 @@ public final class FishingConstants {
 
     public static final String SPLASH_PARTICLE_SYSTEM_ID = "CozyFishing_Bobber_Splash_System";
 
+    public static final String RIPPLE_PARTICLE_SYSTEM_ID = "CozyFishing_Bobber_Ripple_System";
+
     public static final String ROD_ITEM_ID = "Tool_Cozy_Fishing_Rod";
+
+    /** Alias used by fish spawn checks. */
+    public static final String FISHING_ROD_ITEM_ID = ROD_ITEM_ID;
 
     public static final String ROD_MODEL_PATH = "Items/Fishing/CozyFishingRod.blockymodel";
 
@@ -26,13 +31,16 @@ public final class FishingConstants {
 
      */
 
-    public static final int SEGMENT_COUNT = 32;
+    public static final int SEGMENT_COUNT = 64;
 
     public static final int NODE_COUNT = SEGMENT_COUNT + 1;
 
     /** Fixed world-space length of one segment prop at unit scale (see model HitBox). */
 
     public static final float BASE_SEGMENT_LENGTH = 0.5f;
+
+    /** Visible segment props per block of line length (2 = twice as dense as one prop per BASE_SEGMENT_LENGTH). */
+    public static final int SEGMENT_VISUAL_DENSITY = 2;
 
 
 
@@ -69,6 +77,10 @@ public final class FishingConstants {
 
     public static final float ROPE_SLACK_FACTOR = 1.01f;
 
+    /** Slack while reeling so the line visually tightens toward the rod tip. */
+
+    public static final float REEL_ROPE_SLACK_FACTOR = 1.0f;
+
     /** Minimum clearance above terrain for simulated line nodes. */
 
     public static final double GROUND_CLEARANCE = 0.1;
@@ -102,6 +114,8 @@ public final class FishingConstants {
 
     /** Pulls segment i&gt;0 slightly back along its edge so props overlap at rope nodes. */
     public static final float SEGMENT_JOINT_OVERLAP = 0.08f;
+
+    public static final String REEL_IN_LOCAL_SOUND_EVENT_ID = "SFX_CozyFishing_Reel_In_Local";
 
     private FishingConstants() {}
 

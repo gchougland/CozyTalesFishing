@@ -1,0 +1,19 @@
+{
+  "ShadowType": "MediumSmall",
+  "ItemId": "Fish_Tang_Sailfin_Item",
+  "Rarity": "Uncommon",
+  "SpawnWeight": 6,
+  "SpawnLocation": {"Environments":["Env_Zone1_Shores","Env_Zone2_Shores"]},
+  "WaterBodyTypes": ["Ocean"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 4.5,
+  "VisionAngleDegrees": 115,
+  "PokeReachBlocks": 0.35,
+  "SizeRangeCm": [12, 25],
+  "ShadowScaleRange": [0.85, 1.1],
+  "SwimSpeed": 1.1,
+  "FleePlayerRange": 3.5,
+  "FightSwimSpeed": 1.4
+}

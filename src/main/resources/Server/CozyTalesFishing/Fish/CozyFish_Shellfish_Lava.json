@@ -1,0 +1,19 @@
+{
+  "ShadowType": "Medium",
+  "ItemId": "Fish_Shellfish_Lava_Item",
+  "Rarity": "Legendary",
+  "SpawnWeight": 1,
+  "SpawnLocation": {"Environments":["Env_Zone3_Caves_Volcanic","Env_Zone3_Caves"]},
+  "WaterBodyTypes": ["Pond"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": true,
+  "VisionRange": 4,
+  "VisionAngleDegrees": 110,
+  "PokeReachBlocks": 0.4,
+  "SizeRangeCm": [30, 80],
+  "ShadowScaleRange": [1, 1.3],
+  "SwimSpeed": 0.8,
+  "FleePlayerRange": 3.5,
+  "FightSwimSpeed": 1.2
+}

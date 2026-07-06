@@ -1,0 +1,19 @@
+{
+  "ShadowType": "Large",
+  "ItemId": "Fish_Jellyfish_Yellow_Item",
+  "Rarity": "Uncommon",
+  "SpawnWeight": 5,
+  "SpawnLocation": {"Environments":["Env_Zone2_Shores"]},
+  "WaterBodyTypes": ["Ocean"],
+  "DayTimeRange": [6, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 5,
+  "VisionAngleDegrees": 130,
+  "PokeReachBlocks": 0.5,
+  "SizeRangeCm": [15, 40],
+  "ShadowScaleRange": [1, 1.4],
+  "SwimSpeed": 0.7,
+  "FleePlayerRange": 4,
+  "FightSwimSpeed": 1.1
+}

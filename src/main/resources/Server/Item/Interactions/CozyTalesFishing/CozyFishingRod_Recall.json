@@ -1,6 +1,5 @@
 {
   "Type": "CozyFishingRecall",
-  "RunTime": 0.25,
   "Effects": {
     "ItemAnimationId": "ReelIn",
     "ClearAnimationOnFinish": true,
