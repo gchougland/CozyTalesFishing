@@ -9,6 +9,36 @@
   "PlayerAnimationsId": "CozyFishingRod",
   "Quality": "Common",
   "ItemLevel": 1,
+  "Recipe": {
+    "TimeSeconds": 3,
+    "Input": [
+      {
+        "ItemId": "Ingredient_Stick",
+        "Quantity": 3
+      },
+      {
+        "ItemId": "Deco_Rope",
+        "Quantity": 3
+      },
+      {
+        "ItemId": "Ingredient_Bar_Iron",
+        "Quantity": 2
+      },
+      {
+        "ItemId": "Ingredient_Leather_Light",
+        "Quantity": 1
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "Workbench",
+        "Type": "Crafting",
+        "Categories": [
+          "Workbench_Tools"
+        ]
+      }
+    ]
+  },
   "Categories": [
     "Items.Tools"
   ],
