@@ -22,7 +22,7 @@ import org.joml.Vector3d;
 
 public final class FishShadowSpawnHelper {
     /** Small offset below the top face of the surface water block (keeps shadows under ripples). */
-    public static final double SURFACE_Y_OFFSET = -0.01;
+    public static final double SURFACE_Y_OFFSET = 0.1;
 
     private static final Pattern ZONE_PREFIX_PATTERN = Pattern.compile("zone(\\d+)", Pattern.CASE_INSENSITIVE);
 
