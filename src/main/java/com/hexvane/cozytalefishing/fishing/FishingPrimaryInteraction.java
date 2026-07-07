@@ -76,14 +76,20 @@ public final class FishingPrimaryInteraction extends SimpleInstantInteraction {
         if (FishingLineService.hasCastOut(commandBuffer, playerRef)) {
             if (reelRoot != null) {
                 FishingDebugLog.info("Primary click: starting reel root %s", reelRoot);
-                context.execute(RootInteraction.getRootInteractionOrUnknown(reelRoot));
+                var reelRootInteraction = RootInteraction.getAssetMap().getAsset(reelRoot);
+                if (reelRootInteraction != null) {
+                    context.execute(reelRootInteraction);
+                }
             }
             return;
         }
 
         if (chargeRoot != null) {
             FishingDebugLog.info("Primary click: starting charge root %s", chargeRoot);
-            context.execute(RootInteraction.getRootInteractionOrUnknown(chargeRoot));
+            var chargeRootInteraction = RootInteraction.getAssetMap().getAsset(chargeRoot);
+            if (chargeRootInteraction != null) {
+                context.execute(chargeRootInteraction);
+            }
         }
     }
 
