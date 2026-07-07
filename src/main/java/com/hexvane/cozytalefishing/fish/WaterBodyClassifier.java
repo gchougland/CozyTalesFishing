@@ -241,7 +241,7 @@ public final class WaterBodyClassifier {
         if (sectionRef == null) {
             return false;
         }
-        FluidSection fluidSection = chunkStore.getStore().getComponent(sectionRef, FluidSection.getComponentType());
+        FluidSection fluidSection = chunkStore.getStore().getComponentConcurrent(sectionRef, FluidSection.getComponentType());
         if (fluidSection == null) {
             return false;
         }

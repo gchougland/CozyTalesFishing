@@ -387,14 +387,14 @@ public final class FishingLineService {
         boolean[] removed = {false};
         store.forEachEntityParallel(
             FishingBobberComponent.getComponentType(),
-            (index, chunk, ignored) -> {
+            (index, chunk, parallelBuffer) -> {
                 FishingBobberComponent bobber = chunk.getComponent(index, FishingBobberComponent.getComponentType());
                 if (bobber == null || !ownerUuid.equals(bobber.getOwnerUuid())) {
                     return;
                 }
                 Ref<EntityStore> ref = chunk.getReferenceTo(index);
                 if (ref.isValid()) {
-                    store.removeEntity(ref, RemoveReason.REMOVE);
+                    parallelBuffer.removeEntity(ref, RemoveReason.REMOVE);
                     removed[0] = true;
                 }
             }

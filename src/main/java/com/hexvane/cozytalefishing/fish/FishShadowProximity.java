@@ -3,7 +3,6 @@ package com.hexvane.cozytalefishing.fish;
 import com.hexvane.cozytalefishing.fishing.FishingConstants;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
@@ -26,24 +25,20 @@ public final class FishShadowProximity {
         @Nonnull Vector3d position,
         float radiusBlocks
     ) {
-        return hasRodHolderNear(commandBuffer.getStore(), position, radiusBlocks);
-    }
-
-    public static boolean hasRodHolderNear(@Nonnull Store<EntityStore> store, @Nonnull Vector3d position, float radiusBlocks) {
         double radiusSq = radiusBlocks * radiusBlocks;
         boolean[] found = {false};
-        store.forEachEntityParallel(
+        commandBuffer.getStore().forEachEntityParallel(
             Player.getComponentType(),
-            (idx, chunk, ignored) -> {
+            (idx, chunk, parallelBuffer) -> {
                 if (found[0]) {
                     return;
                 }
-                Ref<EntityStore> playerRef = chunk.getReferenceTo(idx);
                 TransformComponent transform = chunk.getComponent(idx, TransformComponent.getComponentType());
                 if (transform == null) {
                     return;
                 }
-                ItemStack held = InventoryComponent.getItemInHand(store, playerRef);
+                Ref<EntityStore> playerRef = chunk.getReferenceTo(idx);
+                ItemStack held = InventoryComponent.getItemInHand(parallelBuffer, playerRef);
                 if (held == null || held.isEmpty() || !FishingConstants.FISHING_ROD_ITEM_ID.equals(held.getItemId())) {
                     return;
                 }

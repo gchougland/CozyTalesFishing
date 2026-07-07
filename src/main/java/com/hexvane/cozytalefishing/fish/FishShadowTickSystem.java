@@ -11,13 +11,11 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
-import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -575,7 +573,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
                         return;
                     }
                     Vector3d playerPos = playerTransform.getPosition();
-                    if (!isInWater(world, playerPos)) {
+                    if (!FishShadowSpawnHelper.isInWater(world, playerPos)) {
                         return;
                     }
                     double dx = playerPos.x - position.x;
@@ -911,21 +909,5 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
 
     private static void snapShadowToWaterSurface(@Nullable World world, @Nonnull Vector3d position) {
         FishShadowSpawnHelper.snapShadowToWaterSurface(world, position);
-    }
-
-    private static boolean isInWater(@Nonnull World world, @Nonnull Vector3d pos) {
-        return isWaterAt(world, (int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z));
-    }
-
-    private static boolean isWaterAt(@Nonnull World world, int x, int y, int z) {
-        var sectionRef = world.getChunkStore().getChunkSectionReferenceAtBlock(x, y, z);
-        if (sectionRef == null) {
-            return false;
-        }
-        FluidSection fluidSection = world.getChunkStore().getStore().getComponent(sectionRef, FluidSection.getComponentType());
-        if (fluidSection == null) {
-            return false;
-        }
-        return fluidSection.getFluidId(x, y, z) != Fluid.EMPTY_ID;
     }
 }

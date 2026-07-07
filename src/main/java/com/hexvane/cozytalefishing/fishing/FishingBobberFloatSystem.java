@@ -137,7 +137,7 @@ public final class FishingBobberFloatSystem extends EntityTickingSystem<EntitySt
         if (sectionRef == null) {
             return false;
         }
-        var fluidSection = chunkStore.getStore().getComponent(sectionRef, FluidSection.getComponentType());
+        var fluidSection = chunkStore.getStore().getComponentConcurrent(sectionRef, FluidSection.getComponentType());
         if (fluidSection == null) {
             return false;
         }

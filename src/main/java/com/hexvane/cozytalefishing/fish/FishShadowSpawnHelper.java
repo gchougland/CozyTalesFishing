@@ -510,11 +510,16 @@ public final class FishShadowSpawnHelper {
         if (sectionRef == null) {
             return false;
         }
-        FluidSection fluidSection = world.getChunkStore().getStore().getComponent(sectionRef, FluidSection.getComponentType());
+        FluidSection fluidSection = world.getChunkStore().getStore().getComponentConcurrent(sectionRef, FluidSection.getComponentType());
         if (fluidSection == null) {
             return false;
         }
         return fluidSection.getFluidId(x, y, z) != Fluid.EMPTY_ID;
+    }
+
+    /** Thread-safe fluid check for use from parallel entity iteration or the world thread. */
+    public static boolean isInWater(@Nonnull World world, @Nonnull Vector3d pos) {
+        return isWaterAt(world, (int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z));
     }
 
     public record WaterColumn(int blockX, int blockZ, int surfaceY, float spawnY, int depth) {}
