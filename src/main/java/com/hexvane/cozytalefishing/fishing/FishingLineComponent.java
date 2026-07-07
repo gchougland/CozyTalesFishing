@@ -130,6 +130,10 @@ public final class FishingLineComponent implements Component<EntityStore> {
     }
 
     public void setReeling(boolean reeling) {
+        if (reeling && !isActive() && !castSetupPending) {
+            this.reeling = false;
+            return;
+        }
         this.reeling = reeling;
         if (reeling && phase == FishingLinePhase.FLOATING) {
             phase = FishingLinePhase.REELING;

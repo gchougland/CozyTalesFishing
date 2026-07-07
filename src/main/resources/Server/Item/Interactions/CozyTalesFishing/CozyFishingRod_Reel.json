@@ -2,7 +2,7 @@
   "Type": "CozyFishingReel",
   "AllowIndefiniteHold": true,
   "DisplayProgress": false,
-  "CancelOnOtherClick": false,
+  "CancelOnOtherClick": true,
   "RunTime": 30.0,
   "Effects": {
     "ClearSoundEventOnFinish": true,

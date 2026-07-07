@@ -26,10 +26,12 @@ public final class FishingRecallInteraction extends SimpleInstantInteraction {
     ) {
         context.getState().state = InteractionState.Finished;
         var commandBuffer = context.getCommandBuffer();
-        if (commandBuffer == null) {
+        Ref<EntityStore> playerRef = context.getEntity();
+        if (commandBuffer == null || playerRef == null) {
             return;
         }
-        Ref<EntityStore> playerRef = context.getEntity();
+        FishingLineService.sanitizeStaleLineState(commandBuffer, playerRef);
+        FishingReelHold.clearReeling(context);
         if (FishingLineService.recallCastOut(commandBuffer, playerRef)) {
             FishingDebugLog.info("Secondary click: instant recall");
         }

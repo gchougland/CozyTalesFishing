@@ -15,13 +15,14 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
 
 /**
- * Primary fishing rod click: reel in when a line is active, otherwise start the charge/cast chain.
+ * Primary fishing rod click: delegates to the hold-to-reel root when a line is active,
+ * otherwise starts the charge/cast chain.
  */
 public final class FishingPrimaryInteraction extends SimpleInstantInteraction {
     @Nonnull
     public static final BuilderCodec<FishingPrimaryInteraction> CODEC =
         BuilderCodec.builder(FishingPrimaryInteraction.class, FishingPrimaryInteraction::new, SimpleInstantInteraction.CODEC)
-            .documentation("Primary cozy fishing rod interaction — recall if cast out, else charge to cast.")
+            .documentation("Primary cozy fishing rod interaction — reel root if cast out, else charge to cast.")
             .appendInherited(
                 new KeyedCodec<>("ChargeRoot", Codec.STRING),
                 (interaction, root) -> interaction.chargeRoot = root,
@@ -65,23 +66,25 @@ public final class FishingPrimaryInteraction extends SimpleInstantInteraction {
         Ref<EntityStore> playerRef = context.getEntity();
         context.getState().state = InteractionState.Finished;
 
-        if (commandBuffer != null && FishingLineService.hasCastOut(commandBuffer, playerRef)) {
-            if (reelRoot == null) {
-                FishingDebugLog.warn("Primary click: no ReelRoot configured, cannot reel");
-                return;
+        if (commandBuffer == null || playerRef == null) {
+            return;
+        }
+
+        FishingLineService.sanitizeStaleLineState(commandBuffer, playerRef);
+        FishingReelHold.clearReeling(context);
+
+        if (FishingLineService.hasCastOut(commandBuffer, playerRef)) {
+            if (reelRoot != null) {
+                FishingDebugLog.info("Primary click: starting reel root %s", reelRoot);
+                context.execute(RootInteraction.getRootInteractionOrUnknown(reelRoot));
             }
-            FishingDebugLog.info("Primary click: starting reel root %s", reelRoot);
-            context.execute(RootInteraction.getRootInteractionOrUnknown(reelRoot));
             return;
         }
 
-        if (chargeRoot == null) {
-            FishingDebugLog.warn("Primary click: no ChargeRoot configured, cannot start charge");
-            return;
+        if (chargeRoot != null) {
+            FishingDebugLog.info("Primary click: starting charge root %s", chargeRoot);
+            context.execute(RootInteraction.getRootInteractionOrUnknown(chargeRoot));
         }
-
-        FishingDebugLog.info("Primary click: starting charge root %s", chargeRoot);
-        context.execute(RootInteraction.getRootInteractionOrUnknown(chargeRoot));
     }
 
     @Override
@@ -91,5 +94,6 @@ public final class FishingPrimaryInteraction extends SimpleInstantInteraction {
         @Nonnull CooldownHandler cooldownHandler
     ) {
         context.getState().state = InteractionState.Finished;
+        FishingReelHold.clearReeling(context);
     }
 }

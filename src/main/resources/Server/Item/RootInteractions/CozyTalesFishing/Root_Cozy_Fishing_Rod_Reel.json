@@ -1,5 +1,5 @@
 {
-  "RequireNewClick": true,
+  "RequireNewClick": false,
   "Interactions": [
     "CozyFishingRod_Reel"
   ]

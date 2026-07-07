@@ -50,6 +50,8 @@ public final class FishShadowComponent implements Component<EntityStore> {
     private double bobberAnchorX;
     private double bobberAnchorZ;
     private boolean bobberAnchorInitialized;
+    /** Horizontal fish-to-player distance when the fight started; escape uses extra run beyond this. */
+    private float fightStartPlayerDistance = -1.0f;
 
     @Nullable
     private Ref<EntityStore> targetBobberRef;
@@ -224,6 +226,18 @@ public final class FishShadowComponent implements Component<EntityStore> {
         this.bobberAnchorInitialized = false;
     }
 
+    public float getFightStartPlayerDistance() {
+        return fightStartPlayerDistance;
+    }
+
+    public void setFightStartPlayerDistance(float fightStartPlayerDistance) {
+        this.fightStartPlayerDistance = fightStartPlayerDistance;
+    }
+
+    public void clearFightStartPlayerDistance() {
+        this.fightStartPlayerDistance = -1.0f;
+    }
+
     @Nonnull
     @Override
     public Component<EntityStore> clone() {
@@ -248,6 +262,7 @@ public final class FishShadowComponent implements Component<EntityStore> {
         copy.bobberAnchorX = bobberAnchorX;
         copy.bobberAnchorZ = bobberAnchorZ;
         copy.bobberAnchorInitialized = bobberAnchorInitialized;
+        copy.fightStartPlayerDistance = fightStartPlayerDistance;
         return copy;
     }
 }

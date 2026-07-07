@@ -3,6 +3,7 @@ items.CozyFishing_Fishing_Rod.description = Hold to charge your cast, release to
 items.CozyFishing_Fishing_Journal.name = Fishing Journal
 items.CozyFishing_Fishing_Journal.description = A worn journal for recording every fish in the waters. Use it to browse your discoveries and study their habits.
 cozytalefishing.catch.success = You caught a {fish} ({size} cm)!
+cozytalefishing.catch.escape = The {fish} got away!
 cozytalefishing.catch.personal_best = New personal best!
 cozytalefishing.journal.title = Fishing Journal
 cozytalefishing.journal.filter_title = Waters

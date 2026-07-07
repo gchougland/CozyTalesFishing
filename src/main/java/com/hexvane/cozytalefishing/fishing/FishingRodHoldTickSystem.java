@@ -37,6 +37,9 @@ public final class FishingRodHoldTickSystem extends EntityTickingSystem<EntitySt
             if (commandBuffer.getComponent(playerRef, FishingRodHoldComponent.getComponentType()) != null) {
                 commandBuffer.removeComponent(playerRef, FishingRodHoldComponent.getComponentType());
             }
+            if (FishingLineService.hasCastOut(commandBuffer, playerRef)) {
+                FishingLineService.recallCastOut(commandBuffer, playerRef);
+            }
             return;
         }
 

@@ -363,11 +363,11 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         FishShadowEntityPool.updateTransform(commandBuffer, shadowRef, position, yaw, shadow.getCurrentScale());
 
         if (dist <= pokeReach) {
-            beginFight(commandBuffer, shadowRef, shadow, species);
+            beginFight(commandBuffer, shadowRef, shadow, species, position);
         } else if (!moved) {
             shadow.setPokeTimer(shadow.getPokeTimer() + dt);
             if (shadow.getPokeTimer() >= POKE_RETREAT_STUCK_SECONDS || dist <= POKE_LURK_DISTANCE * 1.2f) {
-                beginFight(commandBuffer, shadowRef, shadow, species);
+                beginFight(commandBuffer, shadowRef, shadow, species, position);
             }
         } else {
             shadow.setPokeTimer(0.0f);
@@ -426,7 +426,8 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         @Nonnull CommandBuffer<EntityStore> commandBuffer,
         @Nonnull Ref<EntityStore> shadowRef,
         @Nonnull FishShadowComponent shadow,
-        @Nonnull FishSpeciesAsset species
+        @Nonnull FishSpeciesAsset species,
+        @Nonnull Vector3d position
     ) {
         Ref<EntityStore> bobberRef = resolveHookBobber(commandBuffer, shadow);
         if (bobberRef == null) {
@@ -451,8 +452,9 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         UUID ownerUuid = bobber.getOwnerUuid();
         shadow.setHookedPlayerUuid(ownerUuid);
         PlayerRef playerRef = Universe.get().getPlayer(ownerUuid);
+        Ref<EntityStore> ownerEntity = null;
         if (playerRef != null) {
-            Ref<EntityStore> ownerEntity = playerRef.getReference();
+            ownerEntity = playerRef.getReference();
             if (ownerEntity != null && ownerEntity.isValid()) {
                 FishingLineComponent line = commandBuffer.getComponent(ownerEntity, FishingLineComponent.getComponentType());
                 if (line != null) {
@@ -468,6 +470,15 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         commandBuffer.putComponent(bobberRef, FishingBobberComponent.getComponentType(), bobber);
 
         pinBobberSubmerged(commandBuffer, shadow, bobberRef, bobber);
+        if (ownerEntity != null && ownerEntity.isValid()) {
+            TransformComponent ownerTransform = commandBuffer.getComponent(ownerEntity, TransformComponent.getComponentType());
+            if (ownerTransform != null) {
+                Vector3d ownerPos = ownerTransform.getPosition();
+                double dx = position.x - ownerPos.x;
+                double dz = position.z - ownerPos.z;
+                shadow.setFightStartPlayerDistance((float) Math.sqrt(dx * dx + dz * dz));
+            }
+        }
         shadow.setState(FishShadowState.FIGHTING);
         shadow.setStateTimer(FIGHT_SPLASH_INTERVAL * 0.5f);
     }
@@ -526,6 +537,17 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
 
         FishShadowEntityPool.updateTransform(commandBuffer, shadowRef, position, yaw, shadow.getCurrentScale());
 
+        if (shadow.getFightStartPlayerDistance() >= 0.0f) {
+            double dx = position.x - ownerPos.x;
+            double dz = position.z - ownerPos.z;
+            double currentPlayerDistance = Math.sqrt(dx * dx + dz * dz);
+            double extraRun = currentPlayerDistance - shadow.getFightStartPlayerDistance();
+            if (extraRun > species.getFightEscapeDistanceBlocks(config)) {
+                triggerFightEscape(commandBuffer, shadowRef, shadow, species, world, ownerEntity, ownerPos, position);
+                return;
+            }
+        }
+
         if (reeling) {
             shadow.setStateTimer(shadow.getStateTimer() - dt);
             if (shadow.getStateTimer() <= 0.0f) {
@@ -553,6 +575,34 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
                 bobberTransform.setPosition(new Vector3d(newX, submergedY, newZ));
             }
         }
+    }
+
+    private static void triggerFightEscape(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> shadowRef,
+        @Nonnull FishShadowComponent shadow,
+        @Nonnull FishSpeciesAsset species,
+        @Nullable World world,
+        @Nonnull Ref<EntityStore> ownerEntity,
+        @Nonnull Vector3d ownerPos,
+        @Nonnull Vector3d position
+    ) {
+        FishCatchService.notifyEscape(commandBuffer, ownerEntity, species);
+        FishShadowEffects.playFightSplash(commandBuffer, position);
+
+        shadow.setWanderDirection(FishShadowVision.yawToward(ownerPos, position));
+        shadow.setHookedPlayerUuid(null);
+        clearBobberTarget(shadow);
+        shadow.setState(FishShadowState.FLEEING);
+        shadow.setFleeTimer(0.0f);
+
+        FishingLineComponent line = commandBuffer.getComponent(ownerEntity, FishingLineComponent.getComponentType());
+        if (line != null) {
+            line.setHookedShadowRef(null);
+            line.setReeling(false);
+            commandBuffer.putComponent(ownerEntity, FishingLineComponent.getComponentType(), line);
+        }
+        FishingLineService.recallCastOut(commandBuffer, ownerEntity);
     }
 
     private static void tickFleeing(
@@ -671,6 +721,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         shadow.setTargetBobberRef(null);
         shadow.setTargetBobberOwnerUuid(null);
         shadow.clearBobberAnchor();
+        shadow.clearFightStartPlayerDistance();
         shadow.setPokePhase(FishShadowPokePhase.LURK);
     }
 

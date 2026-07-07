@@ -72,6 +72,18 @@ public final class FishingModConfig {
             .append(new KeyedCodec<>("FleeShrinkDurationSeconds", Codec.DOUBLE), (a, v) -> a.fleeShrinkDurationSeconds = v.floatValue(), a -> (double) a.fleeShrinkDurationSeconds)
             .add()
             .append(
+                new KeyedCodec<>("FightEscapeDistanceEasyBlocks", Codec.DOUBLE),
+                (a, v) -> a.fightEscapeDistanceEasyBlocks = v.floatValue(),
+                a -> (double) a.fightEscapeDistanceEasyBlocks
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("FightEscapeDistanceHardBlocks", Codec.DOUBLE),
+                (a, v) -> a.fightEscapeDistanceHardBlocks = v.floatValue(),
+                a -> (double) a.fightEscapeDistanceHardBlocks
+            )
+            .add()
+            .append(
                 new KeyedCodec<>("ShadowIdleDespawnSeconds", Codec.DOUBLE),
                 (a, v) -> a.shadowIdleDespawnSeconds = v.floatValue(),
                 a -> (double) a.shadowIdleDespawnSeconds
@@ -206,6 +218,10 @@ public final class FishingModConfig {
     /** Line max length at which an empty bobber is recalled while reeling. */
     private float recallLineLengthBlocks = 1.5f;
     private float fleeShrinkDurationSeconds = 0.8f;
+    /** Max extra horizontal run from the player (beyond hook distance) before a Common fish breaks line during a fight. */
+    private float fightEscapeDistanceEasyBlocks = 4.0f;
+    /** Max extra horizontal run from the player (beyond hook distance) before a Legendary fish breaks line during a fight. */
+    private float fightEscapeDistanceHardBlocks = 1.5f;
     /** Wandering shadows shrink/despawn after this long with no rod-holder in spawn radius. 0 disables. */
     private float shadowIdleDespawnSeconds = 90.0f;
     private int waterBodyCacheSize = 512;
@@ -293,6 +309,14 @@ public final class FishingModConfig {
 
     public float getFleeShrinkDurationSeconds() {
         return fleeShrinkDurationSeconds;
+    }
+
+    public float getFightEscapeDistanceEasyBlocks() {
+        return fightEscapeDistanceEasyBlocks;
+    }
+
+    public float getFightEscapeDistanceHardBlocks() {
+        return fightEscapeDistanceHardBlocks;
     }
 
     public float getShadowIdleDespawnSeconds() {

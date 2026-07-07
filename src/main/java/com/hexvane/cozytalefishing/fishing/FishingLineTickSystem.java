@@ -41,8 +41,19 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
         @Nonnull CommandBuffer<EntityStore> commandBuffer
     ) {
         Ref<EntityStore> playerRef = archetypeChunk.getReferenceTo(index);
-        FishingLineComponent line = archetypeChunk.getComponent(index, FishingLineComponent.getComponentType());
-        if (line == null || !line.isActive()) {
+        FishingLineService.sanitizeStaleLineState(commandBuffer, playerRef);
+
+        FishingLineComponent line = commandBuffer.getComponent(playerRef, FishingLineComponent.getComponentType());
+        if (line == null) {
+            return;
+        }
+
+        if (!line.isActive() && line.isReeling()) {
+            line.setReeling(false);
+            commandBuffer.putComponent(playerRef, FishingLineComponent.getComponentType(), line);
+        }
+
+        if (!line.isActive()) {
             return;
         }
 

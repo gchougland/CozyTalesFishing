@@ -235,6 +235,18 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
         return fightSwimSpeed;
     }
 
+    /** Extra horizontal run away from the player (beyond the hook distance) before the line breaks; scales with rarity. */
+    public float getFightEscapeDistanceBlocks(@Nonnull FishingModConfig config) {
+        float easy = config.getFightEscapeDistanceEasyBlocks();
+        float hard = config.getFightEscapeDistanceHardBlocks();
+        int maxOrdinal = FishRarity.values().length - 1;
+        if (maxOrdinal <= 0) {
+            return easy;
+        }
+        float t = rarity.ordinal() / (float) maxOrdinal;
+        return easy + (hard - easy) * t;
+    }
+
     public int[] getAllowedEnvironmentIndices() {
         return allowedEnvironmentIndices;
     }

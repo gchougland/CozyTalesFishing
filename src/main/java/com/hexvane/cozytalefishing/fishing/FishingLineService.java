@@ -41,16 +41,62 @@ public final class FishingLineService {
 
     public static boolean hasActiveLine(@Nonnull CommandBuffer<EntityStore> commandBuffer, @Nonnull Ref<EntityStore> playerRef) {
         FishingLineComponent line = getLine(commandBuffer, playerRef);
-        return line != null && line.isActive();
+        return line != null && line.isActive() && hasLiveBobber(line);
     }
 
-    /** True when the player has an active line or a bobber entity still owned by them. */
+    /** True when the player has a live bobber out or a cast is still being set up. */
     public static boolean hasCastOut(@Nonnull CommandBuffer<EntityStore> commandBuffer, @Nonnull Ref<EntityStore> playerRef) {
-        if (hasActiveLine(commandBuffer, playerRef)) {
-            return true;
+        FishingLineComponent line = getLine(commandBuffer, playerRef);
+        if (line != null) {
+            if (line.isCastSetupPending()) {
+                Ref<EntityStore> bobberRef = line.getBobberRef();
+                return bobberRef == null || bobberRef.isValid();
+            }
+            if (line.isActive() && hasLiveBobber(line)) {
+                return true;
+            }
         }
+
         UUIDComponent uuidComponent = commandBuffer.getComponent(playerRef, UUIDComponent.getComponentType());
-        return uuidComponent != null && findBobberForOwner(commandBuffer, uuidComponent.getUuid()) != null;
+        if (uuidComponent == null) {
+            return false;
+        }
+        Ref<EntityStore> orphanBobber = findBobberForOwner(commandBuffer, uuidComponent.getUuid());
+        return orphanBobber != null && orphanBobber.isValid();
+    }
+
+    /** Clears stale reel/cast state left behind when entities were removed without a full reset. */
+    public static void sanitizeStaleLineState(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> playerRef
+    ) {
+        FishingLineComponent line = getLine(commandBuffer, playerRef);
+        if (line == null) {
+            return;
+        }
+
+        if (hasCastOut(commandBuffer, playerRef)) {
+            return;
+        }
+
+        boolean changed = false;
+        if (line.isReeling()) {
+            line.setReeling(false);
+            changed = true;
+        }
+        if (line.isActive() || line.isCastSetupPending()) {
+            line.reset();
+            changed = true;
+        }
+
+        if (changed) {
+            commandBuffer.putComponent(playerRef, FishingLineComponent.getComponentType(), line);
+        }
+    }
+
+    private static boolean hasLiveBobber(@Nonnull FishingLineComponent line) {
+        Ref<EntityStore> bobberRef = line.getBobberRef();
+        return bobberRef != null && bobberRef.isValid();
     }
 
     public static boolean recallCastOut(
@@ -73,6 +119,8 @@ public final class FishingLineService {
             line.reset();
             commandBuffer.putComponent(playerRef, FishingLineComponent.getComponentType(), line);
         }
+
+        sanitizeStaleLineState(commandBuffer, playerRef);
 
         Ref<EntityStore> deferredPlayerRef = playerRef;
         Ref<EntityStore> deferredHookedShadow = hookedShadowRef;

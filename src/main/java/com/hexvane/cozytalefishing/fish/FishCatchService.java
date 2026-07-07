@@ -24,6 +24,21 @@ public final class FishCatchService {
         return min + (float) Math.random() * (max - min);
     }
 
+    public static void notifyEscape(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> playerRef,
+        @Nonnull FishSpeciesAsset species
+    ) {
+        PlayerRef playerRefComponent = commandBuffer.getComponent(playerRef, PlayerRef.getComponentType());
+        if (playerRefComponent != null) {
+            playerRefComponent.sendMessage(
+                Message
+                    .translation("server.cozytalefishing.catch.escape")
+                    .param("fish", FishSpeciesDisplayNames.resolve(species))
+            );
+        }
+    }
+
     public static void completeCatch(
         @Nonnull CommandBuffer<EntityStore> commandBuffer,
         @Nonnull Ref<EntityStore> playerRef,
