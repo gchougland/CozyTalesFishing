@@ -3,7 +3,7 @@
     "Name": "server.items.CozyFishing_Fishing_Journal.name",
     "Description": "server.items.CozyFishing_Fishing_Journal.description"
   },
-  "Icon": "Icons/ItemsGenerated/Fishing_Journal.png",
+  "Icon": "Icons/ItemsGenerated/CozyFishing_Fishing_Journal.png",
   "Categories": [
     "Items.Tools"
   ],
@@ -13,14 +13,14 @@
   "Scale": 1.2,
   "IconProperties": {
     "Scale": 0.745,
-    "Translation": [
-      -7.8,
-      -7.8
-    ],
     "Rotation": [
       45,
       90,
       0
+    ],
+    "Translation": [
+      -7.8,
+      -7.8
     ]
   },
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",

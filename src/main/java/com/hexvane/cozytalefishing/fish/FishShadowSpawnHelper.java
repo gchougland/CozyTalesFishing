@@ -21,8 +21,8 @@ import javax.annotation.Nullable;
 import org.joml.Vector3d;
 
 public final class FishShadowSpawnHelper {
-    /** Small offset above the top face of the surface water block. */
-    public static final double SURFACE_Y_OFFSET = 0.02;
+    /** Small offset below the top face of the surface water block (keeps shadows under ripples). */
+    public static final double SURFACE_Y_OFFSET = -0.01;
 
     private static final Pattern ZONE_PREFIX_PATTERN = Pattern.compile("zone(\\d+)", Pattern.CASE_INSENSITIVE);
 
