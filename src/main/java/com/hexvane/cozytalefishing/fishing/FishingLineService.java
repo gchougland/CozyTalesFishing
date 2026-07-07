@@ -413,7 +413,7 @@ public final class FishingLineService {
         Rotation3f rotation = new Rotation3f();
         Vector3d position = new Vector3d();
         Vector3d rodTip = new Vector3d();
-        RodTipUtil.getRodTipPosition(playerRef, commandBuffer, rodTip);
+        RodTipUtil.getAnchoredRodTipPosition(playerRef, commandBuffer, line, rodTip);
 
         Vector3d bobberNode = nodes[FishingConstants.NODE_COUNT - 1];
         float tipToBobber = (float) rodTip.distance(bobberNode);
@@ -482,7 +482,9 @@ public final class FishingLineService {
             return 0.0;
         }
         double y = transform.getPosition().y;
-        if (bobberState != null && bobberState.getPhase() == FishingBobberPhase.FLOATING) {
+        if (bobberState != null
+            && bobberState.getPhase() == FishingBobberPhase.FLOATING
+            && !bobberState.isSubmerged()) {
             y =
                 bobberState.getLatchedSurfaceY()
                     + Math.sin(bobberState.getBobPhase()) * FishingConstants.BOB_AMPLITUDE;

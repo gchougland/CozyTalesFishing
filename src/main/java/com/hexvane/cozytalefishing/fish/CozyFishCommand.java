@@ -5,6 +5,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.environment.config.Environment;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
+import com.hypixel.hytale.server.core.command.system.basecommands.CommandBase;
 import com.hypixel.hytale.server.core.command.system.arguments.system.FlagArg;
 import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
@@ -35,6 +36,128 @@ public final class CozyFishCommand extends AbstractCommandCollection {
         setPermissionGroups(HytalePermissionsProvider.GROUP_ADMIN);
         requirePermission(HytalePermissions.fromCommand("cozyfish"));
         addSubCommand(new FishingSpawnRegionCommand());
+        addSubCommand(new FishingJournalCommand());
+        addSubCommand(new ReloadConfigCommand());
+    }
+
+    static final class ReloadConfigCommand extends CommandBase {
+        ReloadConfigCommand() {
+            super("reloadconfig", "Reload FishingModConfig.json from disk.");
+            requirePermission(HytalePermissions.fromCommand("cozyfish.reloadconfig"));
+        }
+
+        @Override
+        protected void executeSync(@Nonnull CommandContext context) {
+            var plugin = com.hexvane.cozytalefishing.CozyTalesFishingPlugin.get();
+            if (plugin == null) {
+                context.sendMessage(Message.raw("CozyTalesFishing plugin is not loaded."));
+                return;
+            }
+            plugin.reloadFishingModConfig();
+            FishingModConfig config = FishingModConfig.get();
+            context.sendMessage(
+                Message.raw(
+                    String.format(
+                        Locale.US,
+                        "Reloaded FishingModConfig.%n"
+                            + "RodTipBob: amplitude=%.3f frequency=%.2f viewUpWeight=%.2f phaseOffset=%.3f reelAnimSpeed=%.2f seedWorldTime=%s%n"
+                            + "RodTipAttach: horizontal=%.3f vertical=%.3f shaftScale=%.3f lift=%.3f",
+                        config.getRodTipBobAmplitude(),
+                        config.getRodTipBobFrequency(),
+                        config.getRodTipBobViewUpWeight(),
+                        config.getRodTipBobPhaseOffset(),
+                        config.getRodTipBobReelAnimSpeed(),
+                        config.isRodTipBobSeedFromWorldTime(),
+                        config.getRodTipAttachHorizontal(),
+                        config.getRodTipAttachVertical(),
+                        config.getRodTipShaftLengthScale(),
+                        config.getRodTipVerticalLift()
+                    )
+                )
+            );
+        }
+    }
+
+    static final class FishingJournalCommand extends AbstractCommandCollection {
+        FishingJournalCommand() {
+            super("journal", "Cozy Tales fishing journal admin commands.");
+            requirePermission(HytalePermissions.fromCommand("cozyfish.journal"));
+            addSubCommand(new JournalOpenCommand());
+            addSubCommand(new JournalUnlockCommand());
+        }
+    }
+
+    static final class JournalOpenCommand extends AbstractPlayerCommand {
+        JournalOpenCommand() {
+            super("open", "Open the fishing journal UI.");
+            requirePermission(HytalePermissions.fromCommand("cozyfish.journal"));
+        }
+
+        @Override
+        protected void execute(
+            @Nonnull CommandContext context,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull PlayerRef playerRef,
+            @Nonnull World world
+        ) {
+            Player player = store.getComponent(ref, Player.getComponentType());
+            if (player == null) {
+                return;
+            }
+            if (player.getPageManager().getCustomPage() != null) {
+                context.sendMessage(Message.translation("server.cozytalefishing.journal.command.page_busy"));
+                return;
+            }
+            player.getPageManager().openCustomPage(ref, store, new com.hexvane.cozytalefishing.journal.FishingJournalPage(playerRef));
+        }
+    }
+
+    static final class JournalUnlockCommand extends AbstractPlayerCommand {
+        @Nonnull
+        private final OptionalArg<String> speciesArg =
+            withOptionalArg("speciesId", "Species id to unlock (e.g. CozyFish_Lobster). Omit to unlock all.", STRING);
+
+        JournalUnlockCommand() {
+            super("unlock", "Unlock fishing journal entries for testing.");
+            requirePermission(HytalePermissions.fromCommand("cozyfish.journal"));
+        }
+
+        @Override
+        protected void execute(
+            @Nonnull CommandContext context,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull PlayerRef playerRef,
+            @Nonnull World world
+        ) {
+            FishCatchRecordComponent records = store.getComponent(ref, FishCatchRecordComponent.getComponentType());
+            if (records == null) {
+                records = new FishCatchRecordComponent();
+            }
+
+            String speciesId = speciesArg.get(context);
+            if (speciesId == null || speciesId.isBlank()) {
+                List<FishSpeciesAsset> allSpecies = FishSpeciesRegistry.getAllSpecies();
+                records.discoverAll(allSpecies.stream().map(FishSpeciesAsset::getId).toList());
+                store.putComponent(ref, FishCatchRecordComponent.getComponentType(), records);
+                context.sendMessage(
+                    Message.translation("server.cozytalefishing.journal.command.unlocked_all")
+                        .param("count", allSpecies.size())
+                );
+                return;
+            }
+
+            String trimmed = speciesId.trim();
+            if (FishSpeciesRegistry.getSpecies(trimmed) == null) {
+                context.sendMessage(Message.translation("server.cozytalefishing.journal.command.unknown_species").param("id", trimmed));
+                return;
+            }
+
+            records.discover(trimmed);
+            store.putComponent(ref, FishCatchRecordComponent.getComponentType(), records);
+            context.sendMessage(Message.translation("server.cozytalefishing.journal.command.unlocked_one").param("id", trimmed));
+        }
     }
 
     static final class FishingSpawnRegionCommand extends AbstractCommandCollection {

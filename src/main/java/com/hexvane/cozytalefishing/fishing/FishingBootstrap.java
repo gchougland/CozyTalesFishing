@@ -14,6 +14,7 @@ public final class FishingBootstrap {
 
     public static void register(@Nonnull CozyTalesFishingPlugin plugin) {
         FishingLineComponent.register(plugin.getEntityStoreRegistry());
+        FishingRodHoldComponent.register(plugin.getEntityStoreRegistry());
         FishingBobberComponent.register(plugin.getEntityStoreRegistry());
 
         plugin
@@ -29,6 +30,7 @@ public final class FishingBootstrap {
             .getCodecRegistry(Interaction.CODEC)
             .register("CozyFishingRecall", FishingRecallInteraction.class, FishingRecallInteraction.CODEC);
 
+        plugin.getEntityStoreRegistry().registerSystem(new FishingRodHoldTickSystem());
         plugin.getEntityStoreRegistry().registerSystem(new FishingLineTickSystem());
         plugin.getEntityStoreRegistry().registerSystem(new FishingBobberFloatSystem());
 

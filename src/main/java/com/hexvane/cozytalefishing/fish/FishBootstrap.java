@@ -8,7 +8,10 @@ import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.server.core.asset.HytaleAssetStore;
 import com.hypixel.hytale.server.core.asset.type.environment.config.Environment;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
+import com.hexvane.cozytalefishing.journal.FishingJournalConstants;
+import com.hexvane.cozytalefishing.journal.FishingJournalPage;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.server.OpenCustomUIInteraction;
 import com.hypixel.hytale.server.core.event.events.BootEvent;
 import com.hypixel.hytale.server.core.universe.world.events.AddWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
@@ -42,6 +45,13 @@ public final class FishBootstrap {
         plugin
             .getCodecRegistry(Interaction.CODEC)
             .register("CozyFishingReel", FishingReelInteraction.class, FishingReelInteraction.CODEC);
+
+        OpenCustomUIInteraction.registerSimple(
+            plugin,
+            FishingJournalPage.class,
+            FishingJournalConstants.PAGE_ID,
+            FishingJournalPage::new
+        );
 
         plugin.getEntityStoreRegistry().registerSystem(new FishShadowSpawnSystem());
         plugin.getEntityStoreRegistry().registerSystem(new FishShadowTickSystem());

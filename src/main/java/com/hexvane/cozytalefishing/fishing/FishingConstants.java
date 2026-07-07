@@ -16,10 +16,12 @@ public final class FishingConstants {
 
     public static final String RIPPLE_PARTICLE_SYSTEM_ID = "CozyFishing_Bobber_Ripple_System";
 
-    public static final String ROD_ITEM_ID = "Tool_Cozy_Fishing_Rod";
+    public static final String ROD_ITEM_ID = "CozyFishing_Fishing_Rod";
 
     /** Alias used by fish spawn checks. */
     public static final String FISHING_ROD_ITEM_ID = ROD_ITEM_ID;
+
+    public static final String FISHING_JOURNAL_ITEM_ID = "CozyFishing_Fishing_Journal";
 
     public static final String ROD_MODEL_PATH = "Items/Fishing/CozyFishingRod.blockymodel";
 

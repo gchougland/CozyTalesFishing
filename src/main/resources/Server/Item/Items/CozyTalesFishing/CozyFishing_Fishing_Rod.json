@@ -1,7 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Tool_Cozy_Fishing_Rod.name",
-    "Description": "server.items.Tool_Cozy_Fishing_Rod.description"
+    "Name": "server.items.CozyFishing_Fishing_Rod.name",
+    "Description": "server.items.CozyFishing_Fishing_Rod.description"
   },
   "Icon": "Icons/ItemsGenerated/Tool_Cozy_Fishing_Rod.png",
   "Model": "Items/Fishing/CozyFishingRod.blockymodel",

@@ -39,6 +39,7 @@ public final class FishCatchService {
         if (records == null) {
             records = new FishCatchRecordComponent();
         }
+        records.discover(species.getId());
         boolean personalBest = records.updateLargest(species.getId(), sizeCm);
         commandBuffer.putComponent(playerRef, FishCatchRecordComponent.getComponentType(), records);
 
@@ -47,7 +48,7 @@ public final class FishCatchService {
             Message message =
                 Message
                     .translation("server.cozytalefishing.catch.success")
-                    .param("fish", fishDisplayName(species))
+                    .param("fish", FishSpeciesDisplayNames.resolve(species))
                     .param("size", String.format("%.1f", sizeCm));
             playerRefComponent.sendMessage(message);
             if (personalBest) {
@@ -73,21 +74,4 @@ public final class FishCatchService {
         completeCatch(commandBuffer, playerRef, species, sizeCm, null, null);
     }
 
-    @Nonnull
-    private static String fishDisplayName(@Nonnull FishSpeciesAsset species) {
-        var item = com.hypixel.hytale.server.core.asset.type.item.config.Item.getAssetMap().getAsset(species.getItemId());
-        if (item != null && item.getTranslationProperties() != null) {
-            String nameKey = item.getTranslationProperties().getName();
-            if (nameKey != null && !nameKey.isBlank()) {
-                var i18n = com.hypixel.hytale.server.core.modules.i18n.I18nModule.get();
-                if (i18n != null) {
-                    String resolved = i18n.getMessage(com.hypixel.hytale.server.core.modules.i18n.I18nModule.DEFAULT_LANGUAGE, nameKey);
-                    if (resolved != null && !resolved.isBlank()) {
-                        return resolved;
-                    }
-                }
-            }
-        }
-        return species.getItemId();
-    }
 }

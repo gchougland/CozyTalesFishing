@@ -91,4 +91,11 @@ public final class CozyTalesFishingPlugin extends JavaPlugin {
             Universe.get().broadcastPacketNoCache(new RequestCommonAssetsRebuild());
         }
     }
+
+    /** Reloads {@code FishingModConfig.json} from disk and applies it without restarting. */
+    public void reloadFishingModConfig() {
+        fishingModConfig.load().join();
+        FishingModConfig.bind(fishingModConfig.get());
+        getLogger().atInfo().log("Reloaded FishingModConfig from %s", getDataDirectory().resolve("FishingModConfig.json"));
+    }
 }

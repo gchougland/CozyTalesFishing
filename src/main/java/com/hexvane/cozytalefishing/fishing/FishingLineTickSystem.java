@@ -56,7 +56,7 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
         }
 
         Vector3d tip = new Vector3d();
-        RodTipUtil.getRodTipPosition(playerRef, commandBuffer, tip);
+        RodTipUtil.getAnchoredRodTipPosition(playerRef, commandBuffer, line, tip);
 
         FishingBobberComponent bobberState = commandBuffer.getComponent(bobberRef, FishingBobberComponent.getComponentType());
         Vector3d bobberPos = new Vector3d();

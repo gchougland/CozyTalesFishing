@@ -1,0 +1,70 @@
+$C = "../Common.ui";
+
+@FishCellSize = 76;
+@FishIconSize = 52;
+@LockIconSize = 28;
+
+Group #FishingJournalFishCell {
+  Anchor: (Width: @FishCellSize, Height: @FishCellSize, Right: 8, Bottom: 8);
+
+  Button #SelectButton {
+    LayoutMode: Full;
+    Anchor: (Full: 0);
+    TextTooltipStyle: $C.@DefaultTextTooltipStyle;
+    TextTooltipShowDelay: 0.1;
+    Style: (
+      Default: (Background: #1e2430(0.90)),
+      Hovered: (Background: #2a3448(0.96)),
+      Pressed: (Background: #354058),
+      Disabled: (Background: #1e2430(0.90))
+    );
+
+    Group #IconFrame {
+      LayoutMode: Full;
+      Anchor: (Full: 0);
+      Padding: (Full: 4);
+      Background: #141c28;
+      HitTestVisible: false;
+
+      Group #IconInner {
+        LayoutMode: Full;
+        Anchor: (Full: 0);
+        Padding: (Full: 3);
+        Background: #1c2230;
+        HitTestVisible: false;
+
+        AssetImage #FishIcon {
+          Anchor: (Full: 0);
+          HitTestVisible: false;
+        }
+      }
+
+      Group #DimOverlay {
+        Visible: false;
+        LayoutMode: Full;
+        Anchor: (Full: 0);
+        Background: #000000(0.62);
+        HitTestVisible: false;
+      }
+
+      Group #LockIconWrap {
+        Visible: false;
+        LayoutMode: Center;
+        Anchor: (Full: 0);
+        HitTestVisible: false;
+
+        AssetImage #LockIcon {
+          Anchor: (Width: @LockIconSize, Height: @LockIconSize);
+          AssetPath: "UI/Custom/padlock.png";
+        }
+      }
+    }
+  }
+
+  Group #SelectHilite {
+    Visible: false;
+    Anchor: (Full: 0);
+    Background: #c8a060(0.35);
+    HitTestVisible: false;
+  }
+}

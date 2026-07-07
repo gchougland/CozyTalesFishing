@@ -109,6 +109,66 @@ public final class FishingModConfig {
             .add()
             .append(new KeyedCodec<>("EnableSpawnRegions", Codec.BOOLEAN), (a, v) -> a.enableSpawnRegions = v, a -> a.enableSpawnRegions)
             .add()
+            .append(
+                new KeyedCodec<>("RodTipBobAmplitude", Codec.DOUBLE),
+                (a, v) -> a.rodTipBobAmplitude = v.floatValue(),
+                a -> (double) a.rodTipBobAmplitude
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("RodTipBobFrequency", Codec.DOUBLE),
+                (a, v) -> a.rodTipBobFrequency = v.floatValue(),
+                a -> (double) a.rodTipBobFrequency
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("RodTipBobViewUpWeight", Codec.DOUBLE),
+                (a, v) -> a.rodTipBobViewUpWeight = v.floatValue(),
+                a -> (double) a.rodTipBobViewUpWeight
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("RodTipBobPhaseOffset", Codec.DOUBLE),
+                (a, v) -> a.rodTipBobPhaseOffset = v.floatValue(),
+                a -> (double) a.rodTipBobPhaseOffset
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("RodTipBobReelAnimSpeed", Codec.DOUBLE),
+                (a, v) -> a.rodTipBobReelAnimSpeed = v.floatValue(),
+                a -> (double) a.rodTipBobReelAnimSpeed
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("RodTipBobSeedFromWorldTime", Codec.BOOLEAN),
+                (a, v) -> a.rodTipBobSeedFromWorldTime = v,
+                a -> a.rodTipBobSeedFromWorldTime
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("RodTipAttachHorizontal", Codec.DOUBLE),
+                (a, v) -> a.rodTipAttachHorizontal = v,
+                a -> a.rodTipAttachHorizontal
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("RodTipAttachVertical", Codec.DOUBLE),
+                (a, v) -> a.rodTipAttachVertical = v,
+                a -> a.rodTipAttachVertical
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("RodTipShaftLengthScale", Codec.DOUBLE),
+                (a, v) -> a.rodTipShaftLengthScale = v,
+                a -> a.rodTipShaftLengthScale
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("RodTipVerticalLift", Codec.DOUBLE),
+                (a, v) -> a.rodTipVerticalLift = v,
+                a -> a.rodTipVerticalLift
+            )
+            .add()
             .build();
 
     @Nullable
@@ -162,6 +222,22 @@ public final class FishingModConfig {
     private int floodFillMaxRadius = 16;
     private boolean enableSpawnDiagnostics = false;
     private boolean enableSpawnRegions = true;
+    /** Temporary tuning values for rod-tip idle bob; move to constants once dialed in. */
+    private float rodTipBobAmplitude = 0.1f;
+    private float rodTipBobFrequency = 0.5f;
+    /** 1 = camera view-up, 0 = world Y. */
+    private float rodTipBobViewUpWeight = 1.0f;
+    /** Phase offset in cycles (0–1). Shifts bob timing to match the held rod animation. */
+    private float rodTipBobPhaseOffset = 0.25f;
+    /** Matches {@code ReelIn.Speed} in CozyFishingRod.json while the player is reeling. */
+    private float rodTipBobReelAnimSpeed = 1.0f;
+    /** Seed bob phase from server time when the rod is first equipped. */
+    private boolean rodTipBobSeedFromWorldTime = true;
+    /** Temporary rod-tip attach tuning; move to constants once dialed in. */
+    private double rodTipAttachHorizontal = 0.3;
+    private double rodTipAttachVertical = -0.18;
+    private double rodTipShaftLengthScale = 0.7;
+    private double rodTipVerticalLift = 0.85;
 
     public int getShadowsPerPlayerCap() {
         return shadowsPerPlayerCap;
@@ -277,5 +353,45 @@ public final class FishingModConfig {
 
     public boolean isEnableSpawnRegions() {
         return enableSpawnRegions;
+    }
+
+    public float getRodTipBobAmplitude() {
+        return rodTipBobAmplitude;
+    }
+
+    public float getRodTipBobFrequency() {
+        return rodTipBobFrequency;
+    }
+
+    public float getRodTipBobViewUpWeight() {
+        return rodTipBobViewUpWeight;
+    }
+
+    public float getRodTipBobPhaseOffset() {
+        return rodTipBobPhaseOffset;
+    }
+
+    public float getRodTipBobReelAnimSpeed() {
+        return rodTipBobReelAnimSpeed;
+    }
+
+    public boolean isRodTipBobSeedFromWorldTime() {
+        return rodTipBobSeedFromWorldTime;
+    }
+
+    public double getRodTipAttachHorizontal() {
+        return rodTipAttachHorizontal;
+    }
+
+    public double getRodTipAttachVertical() {
+        return rodTipAttachVertical;
+    }
+
+    public double getRodTipShaftLengthScale() {
+        return rodTipShaftLengthScale;
+    }
+
+    public double getRodTipVerticalLift() {
+        return rodTipVerticalLift;
     }
 }

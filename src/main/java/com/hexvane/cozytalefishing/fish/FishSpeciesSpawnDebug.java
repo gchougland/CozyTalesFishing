@@ -11,7 +11,6 @@ import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.joml.Vector3d;
@@ -50,14 +49,14 @@ public final class FishSpeciesSpawnDebug {
         text.append(", weight=").append(species.getSpawnWeight());
         text.append(", shadow=").append(species.getShadowType().name());
         text.append('\n');
-        text.append("  waterBodyTypes=").append(formatWaterBodyTypes(species.getWaterBodyTypes()));
+        text.append("  waterBodyTypes=").append(FishSpeciesMetadataFormatter.formatWaterBodyTypes(species.getWaterBodyTypes()));
         text.append('\n');
         text.append("  undergroundOnly=").append(species.isUndergroundOnly());
         text.append('\n');
 
         float[] dayRange = species.getDayTimeRange();
         if (dayRange != null && dayRange.length >= 2) {
-            text.append("  dayTimeRange=").append(formatFloatRange(dayRange));
+            text.append("  dayTimeRange=").append(FishSpeciesMetadataFormatter.formatFloatRange(dayRange));
             text.append('\n');
         }
 
@@ -187,18 +186,5 @@ public final class FishSpeciesSpawnDebug {
             return -1;
         }
         return worldChunk.getBlockChunk().getEnvironment(blockX, blockY, blockZ);
-    }
-
-    @Nonnull
-    private static String formatWaterBodyTypes(@Nonnull WaterBodyType[] types) {
-        if (types.length == 0) {
-            return "[]";
-        }
-        return Arrays.stream(types).map(WaterBodyType::name).collect(Collectors.joining(", ", "[", "]"));
-    }
-
-    @Nonnull
-    private static String formatFloatRange(@Nonnull float[] range) {
-        return String.format(Locale.US, "[%.1f, %.1f]", range[0], range[1]);
     }
 }
