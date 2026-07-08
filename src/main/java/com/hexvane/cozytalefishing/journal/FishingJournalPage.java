@@ -58,7 +58,7 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
         FishingJournalUi.applyStaticLabels(commandBuilder);
 
         FishCatchRecordComponent records = store.getComponent(ref, FishCatchRecordComponent.getComponentType());
-        List<FishSpeciesAsset> allSpecies = FishSpeciesRegistry.getAllSpecies();
+        List<FishSpeciesAsset> allSpecies = FishSpeciesRegistry.getJournalSpecies();
         int discoveredCount = records != null ? records.getDiscoveredCount() : 0;
 
         commandBuilder.set(

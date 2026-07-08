@@ -35,6 +35,16 @@ public final class FishingRodRegistry {
     return itemId != null && BY_ITEM_ID.containsKey(itemId);
   }
 
+  public static float getTrashSpawnChance(@Nullable String rodId, @Nonnull FishingModConfig config) {
+    if (WOODEN_ROD_ID.equals(rodId)) {
+      return config.getWoodenTrashSpawnChance();
+    }
+    if (IRON_ROD_ID.equals(rodId)) {
+      return config.getIronTrashSpawnChance();
+    }
+    return 0.0f;
+  }
+
   @Nonnull
   public static FishingRodStats getStats(@Nonnull String itemId, @Nonnull FishingModConfig config) {
     FishingRodStats stats = BY_ITEM_ID.get(itemId);

@@ -217,6 +217,18 @@ public final class FishingModConfig {
                 a -> a.rodTipVerticalLift
             )
             .add()
+            .append(
+                new KeyedCodec<>("WoodenTrashSpawnChance", Codec.DOUBLE),
+                (a, v) -> a.woodenTrashSpawnChance = v.floatValue(),
+                a -> (double) a.woodenTrashSpawnChance
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("IronTrashSpawnChance", Codec.DOUBLE),
+                (a, v) -> a.ironTrashSpawnChance = v.floatValue(),
+                a -> (double) a.ironTrashSpawnChance
+            )
+            .add()
             .build();
 
     @Nullable
@@ -297,6 +309,8 @@ public final class FishingModConfig {
     private double rodTipAttachVertical = -0.18;
     private double rodTipShaftLengthScale = 0.7;
     private double rodTipVerticalLift = 0.85;
+    private float woodenTrashSpawnChance = 0.15f;
+    private float ironTrashSpawnChance = 0.05f;
 
     public int getShadowsPerPlayerCap() {
         return shadowsPerPlayerCap;
@@ -484,5 +498,13 @@ public final class FishingModConfig {
 
     public double getRodTipVerticalLift() {
         return rodTipVerticalLift;
+    }
+
+    public float getWoodenTrashSpawnChance() {
+        return woodenTrashSpawnChance;
+    }
+
+    public float getIronTrashSpawnChance() {
+        return ironTrashSpawnChance;
     }
 }

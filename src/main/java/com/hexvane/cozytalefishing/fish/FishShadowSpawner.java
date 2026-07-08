@@ -3,6 +3,7 @@ package com.hexvane.cozytalefishing.fish;
 
 
 import com.hexvane.cozytalefishing.fishing.FishingDebugLog;
+import com.hexvane.cozytalefishing.fishing.FishingRodRegistry;
 
 import com.hypixel.hytale.component.CommandBuffer;
 
@@ -130,6 +131,8 @@ public final class FishShadowSpawner {
             FishSpeciesAsset species =
 
                 pickSpecies(
+                    commandBuffer,
+                    playerRef,
                     bodyType,
                     blockX,
                     blockZ,
@@ -387,6 +390,10 @@ public final class FishShadowSpawner {
 
     private static FishSpeciesAsset pickSpecies(
 
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+
+        @Nonnull Ref<EntityStore> playerRef,
+
         @Nonnull WaterBodyType bodyType,
 
         int blockX,
@@ -433,8 +440,36 @@ public final class FishShadowSpawner {
                 );
         }
 
+        if (eligible.isEmpty()) {
+            return pickTrash(bodyType, config, random);
+        }
+
+        FishingRodRegistry.FishingRodStats rodStats = FishingRodRegistry.getStatsFromHeld(commandBuffer, playerRef, config);
+        float trashChance = FishingRodRegistry.getTrashSpawnChance(rodStats.itemId(), config);
+        if (trashChance > 0.0f && random.nextFloat() < trashChance) {
+            FishSpeciesAsset trash = pickTrash(bodyType, config, random);
+            if (trash != null) {
+                return trash;
+            }
+        }
+
         return weightedPick(eligible, config.getGlobalSpawnWeightMultiplier(), random);
 
+    }
+
+    @Nullable
+    private static FishSpeciesAsset pickTrash(
+        @Nonnull WaterBodyType bodyType,
+        @Nonnull FishingModConfig config,
+        @Nonnull ThreadLocalRandom random
+    ) {
+        List<FishSpeciesAsset> eligible = new ArrayList<>();
+        for (FishSpeciesAsset species : FishSpeciesRegistry.getTrashSpecies()) {
+            if (species.matchesWaterBody(bodyType)) {
+                eligible.add(species);
+            }
+        }
+        return weightedPick(eligible, config.getGlobalSpawnWeightMultiplier(), random);
     }
 
 
@@ -456,6 +491,9 @@ public final class FishShadowSpawner {
             FishShadowSpawnHelper.resolveSpawnConditions(world, environmentIndex);
 
         for (FishSpeciesAsset species : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType)) {
+            if (species.isTrash()) {
+                continue;
+            }
             if (!species.matchesWaterBody(bodyType)) {
                 continue;
             }

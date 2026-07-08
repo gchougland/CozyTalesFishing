@@ -18,6 +18,8 @@ public final class FishSpeciesRegistry {
     private static final IntSet OCEAN_ENVIRONMENT_INDICES = new IntOpenHashSet();
     private static final Int2ObjectMap<String> ENVIRONMENT_ZONE_PREFIX = new Int2ObjectOpenHashMap<>();
     private static final Map<WaterBodyType, List<FishSpeciesAsset>> BY_WATER_BODY = new EnumMap<>(WaterBodyType.class);
+    private static final List<FishSpeciesAsset> TRASH_SPECIES = new ArrayList<>();
+    private static final List<FishSpeciesAsset> JOURNAL_SPECIES = new ArrayList<>();
     private static final Map<String, FishSpeciesAsset> BY_ID = new HashMap<>();
     private static volatile boolean initialized;
 
@@ -27,6 +29,8 @@ public final class FishSpeciesRegistry {
         OCEAN_ENVIRONMENT_INDICES.clear();
         ENVIRONMENT_ZONE_PREFIX.clear();
         BY_WATER_BODY.clear();
+        TRASH_SPECIES.clear();
+        JOURNAL_SPECIES.clear();
         BY_ID.clear();
         for (WaterBodyType type : WaterBodyType.values()) {
             BY_WATER_BODY.put(type, new ArrayList<>());
@@ -57,8 +61,13 @@ public final class FishSpeciesRegistry {
             }
             species.allowedEnvironmentIndices = resolveEnvironmentIndices(species);
             BY_ID.put(species.getId(), species);
-            for (WaterBodyType bodyType : species.getWaterBodyTypes()) {
-                BY_WATER_BODY.get(bodyType).add(species);
+            if (species.isTrash()) {
+                TRASH_SPECIES.add(species);
+            } else {
+                JOURNAL_SPECIES.add(species);
+                for (WaterBodyType bodyType : species.getWaterBodyTypes()) {
+                    BY_WATER_BODY.get(bodyType).add(species);
+                }
             }
         }
         initialized = true;
@@ -92,6 +101,18 @@ public final class FishSpeciesRegistry {
     public static List<FishSpeciesAsset> getAllSpecies() {
         ensureInitialized();
         return new ArrayList<>(BY_ID.values());
+    }
+
+    @Nonnull
+    public static List<FishSpeciesAsset> getTrashSpecies() {
+        ensureInitialized();
+        return new ArrayList<>(TRASH_SPECIES);
+    }
+
+    @Nonnull
+    public static List<FishSpeciesAsset> getJournalSpecies() {
+        ensureInitialized();
+        return new ArrayList<>(JOURNAL_SPECIES);
     }
 
     @Nullable

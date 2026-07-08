@@ -15,6 +15,9 @@ public final class FishCatchService {
     private FishCatchService() {}
 
     public static float rollSizeCm(@Nonnull FishSpeciesAsset species) {
+        if (species.isTrash()) {
+            return 0.0f;
+        }
         float[] range = species.getSizeRangeCm();
         if (range.length < 2) {
             return range.length == 1 ? range[0] : 10.0f;
@@ -50,6 +53,18 @@ public final class FishCatchService {
         ItemStack stack = new ItemStack(species.getItemId(), 1);
         Player.giveItem(stack, playerRef, commandBuffer);
 
+        PlayerRef playerRefComponent = commandBuffer.getComponent(playerRef, PlayerRef.getComponentType());
+        if (species.isTrash()) {
+            if (playerRefComponent != null) {
+                playerRefComponent.sendMessage(
+                    Message
+                        .translation("server.cozytalefishing.catch.trash_success")
+                        .param("fish", FishSpeciesDisplayNames.resolve(species))
+                );
+            }
+            return;
+        }
+
         FishCatchRecordComponent records = commandBuffer.getComponent(playerRef, FishCatchRecordComponent.getComponentType());
         if (records == null) {
             records = new FishCatchRecordComponent();
@@ -58,7 +73,6 @@ public final class FishCatchService {
         boolean personalBest = records.updateLargest(species.getId(), sizeCm);
         commandBuffer.putComponent(playerRef, FishCatchRecordComponent.getComponentType(), records);
 
-        PlayerRef playerRefComponent = commandBuffer.getComponent(playerRef, PlayerRef.getComponentType());
         if (playerRefComponent != null) {
             Message message =
                 Message

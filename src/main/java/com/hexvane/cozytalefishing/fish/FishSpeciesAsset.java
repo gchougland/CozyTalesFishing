@@ -60,6 +60,7 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
             )
             .add()
             .append(new KeyedCodec<>("UndergroundOnly", Codec.BOOLEAN), (a, v) -> a.undergroundOnly = v, a -> a.undergroundOnly).add()
+            .append(new KeyedCodec<>("IsTrash", Codec.BOOLEAN), (a, v) -> a.isTrash = v, a -> a.isTrash).add()
             .append(new KeyedCodec<>("VisionRange", Codec.DOUBLE), (a, v) -> a.visionRange = v.floatValue(), a -> (double) a.visionRange).add()
             .append(new KeyedCodec<>("VisionAngleDegrees", Codec.DOUBLE), (a, v) -> a.visionAngleDegrees = v.floatValue(), a -> (double) a.visionAngleDegrees).add()
             .append(new KeyedCodec<>("PokeReachBlocks", Codec.DOUBLE), (a, v) -> a.pokeReachBlocks = v.floatValue(), a -> (double) a.pokeReachBlocks).add()
@@ -108,6 +109,7 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
     @Nullable
     private String[] weatherIds = new String[0];
     private boolean undergroundOnly;
+    private boolean isTrash;
     private float visionRange = 4.0f;
     private float visionAngleDegrees = 110.0f;
     private float pokeReachBlocks = 0.35f;
@@ -240,6 +242,10 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
 
     public boolean isUndergroundOnly() {
         return undergroundOnly;
+    }
+
+    public boolean isTrash() {
+        return isTrash;
     }
 
     public float getVisionRange() {

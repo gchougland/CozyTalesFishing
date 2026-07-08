@@ -1,0 +1,19 @@
+{
+  "IsTrash": true,
+  "ShadowType": "Large",
+  "ItemId": "Deco_Trash_Pile_Large",
+  "Rarity": "Common",
+  "SpawnWeight": 9,
+  "SpawnLocation": {"Zone": "Zone1"},
+  "WaterBodyTypes": ["Ocean", "River", "Pond"],
+  "DayTimeRange": [0, 24],
+  "Weather": [],
+  "UndergroundOnly": false,
+  "VisionRange": 4.0,
+  "VisionAngleDegrees": 110,
+  "PokeReachBlocks": 0.35,
+  "ShadowScaleRange": [0.9, 1.1],
+  "SwimSpeed": 0.8,
+  "FleePlayerRange": 8.0,
+  "FightSwimSpeed": 0.4
+}
