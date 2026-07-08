@@ -1,5 +1,5 @@
 {
-  "ShadowType": "Large",
+  "ShadowType": "Fin",
   "ItemId": "Fish_Whale_Humpback_Item",
   "Rarity": "Legendary",
   "SpawnWeight": 1,
@@ -15,5 +15,5 @@
   "ShadowScaleRange": [1.5, 2],
   "SwimSpeed": 1.2,
   "FleePlayerRange": 8,
-  "FightSwimSpeed": 1.8
+  "FightSwimSpeed": 1.4
 }

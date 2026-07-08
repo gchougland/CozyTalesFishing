@@ -172,6 +172,8 @@ public final class FishShadowSpawnDiagnostics {
         private int bodyPoolSize;
         private int rejectedEnvironment;
         private int rejectedUnderground;
+        private int rejectedDayTime;
+        private int rejectedWeather;
         private int strictEligible;
         private int relaxedEligible;
         private int fallbackEligible;
@@ -186,6 +188,14 @@ public final class FishShadowSpawnDiagnostics {
 
         public int rejectedUnderground() {
             return rejectedUnderground;
+        }
+
+        public int rejectedDayTime() {
+            return rejectedDayTime;
+        }
+
+        public int rejectedWeather() {
+            return rejectedWeather;
         }
 
         public int strictEligible() {
@@ -204,13 +214,15 @@ public final class FishShadowSpawnDiagnostics {
         public String summarize() {
             return String.format(
                 Locale.US,
-                "pool=%d strict=%d relaxed=%d fallback=%d rejectedEnv=%d rejectedUnderground=%d",
+                "pool=%d strict=%d relaxed=%d fallback=%d rejectedEnv=%d rejectedUnderground=%d rejectedDayTime=%d rejectedWeather=%d",
                 bodyPoolSize,
                 strictEligible,
                 relaxedEligible,
                 fallbackEligible,
                 rejectedEnvironment,
-                rejectedUnderground
+                rejectedUnderground,
+                rejectedDayTime,
+                rejectedWeather
             );
         }
     }
@@ -235,6 +247,8 @@ public final class FishShadowSpawnDiagnostics {
     ) {
         SpeciesFilterStats stats = new SpeciesFilterStats();
         stats.bodyPoolSize = FishSpeciesRegistry.getSpeciesForWaterBody(bodyType).size();
+        FishShadowSpawnHelper.SpawnConditions spawnConditions =
+            FishShadowSpawnHelper.resolveSpawnConditions(world, environmentIndex);
 
         for (FishSpeciesAsset species : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType)) {
             if (!species.matchesWaterBody(bodyType)) {
@@ -257,6 +271,13 @@ public final class FishShadowSpawnDiagnostics {
             if (!FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species, regionContext)) {
                 stats.rejectedUnderground++;
                 continue;
+            }
+            if (!FishShadowSpawnHelper.matchesDayTimeRange(species, spawnConditions.worldTime())) {
+                stats.rejectedDayTime++;
+                continue;
+            }
+            if (!FishShadowSpawnHelper.matchesWeather(species, spawnConditions.weatherIndex())) {
+                stats.rejectedWeather++;
             }
         }
 
@@ -297,6 +318,8 @@ public final class FishShadowSpawnDiagnostics {
         @Nullable FishingSpawnRegionContext regionContext
     ) {
         int count = 0;
+        FishShadowSpawnHelper.SpawnConditions spawnConditions =
+            FishShadowSpawnHelper.resolveSpawnConditions(world, environmentIndex);
         for (FishSpeciesAsset species : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType)) {
             if (!species.matchesWaterBody(bodyType)) {
                 continue;
@@ -313,6 +336,9 @@ public final class FishShadowSpawnDiagnostics {
                 continue;
             }
             if (!FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species, regionContext)) {
+                continue;
+            }
+            if (!FishShadowSpawnHelper.matchesSpawnConditions(species, spawnConditions)) {
                 continue;
             }
             count++;

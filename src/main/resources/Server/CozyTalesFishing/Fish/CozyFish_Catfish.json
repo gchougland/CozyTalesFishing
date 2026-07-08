@@ -1,12 +1,12 @@
 {
   "ShadowType": "Medium",
   "ItemId": "Fish_Catfish_Item",
-  "Rarity": "Common",
+  "Rarity": "Uncommon",
   "SpawnWeight": 10,
   "SpawnLocation": {"Environments":["Env_Zone1_Forests","Env_Zone2_Savanna"]},
   "WaterBodyTypes": ["River", "Pond"],
   "DayTimeRange": [6, 24],
-  "Weather": [],
+  "Weather": ["Zone1_Rain", "Zone1_Rain_Light", "Zone1_Storm", "Zone2_Thunder_Storm"],
   "UndergroundOnly": false,
   "VisionRange": 5,
   "VisionAngleDegrees": 120,
@@ -15,5 +15,5 @@
   "ShadowScaleRange": [0.9, 1.2],
   "SwimSpeed": 0.9,
   "FleePlayerRange": 4,
-  "FightSwimSpeed": 1.3
+  "FightSwimSpeed": 1.2
 }

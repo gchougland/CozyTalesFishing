@@ -16,10 +16,15 @@ public final class FishingConstants {
 
     public static final String RIPPLE_PARTICLE_SYSTEM_ID = "CozyFishing_Bobber_Ripple_System";
 
-    public static final String ROD_ITEM_ID = "CozyFishing_Fishing_Rod";
+    public static final String WOODEN_ROD_ITEM_ID = FishingRodRegistry.WOODEN_ROD_ID;
 
-    /** Alias used by fish spawn checks. */
-    public static final String FISHING_ROD_ITEM_ID = ROD_ITEM_ID;
+    /** @deprecated Use {@link FishingRodRegistry#isFishingRod(String)} */
+    @Deprecated
+    public static final String ROD_ITEM_ID = WOODEN_ROD_ITEM_ID;
+
+    /** @deprecated Use {@link FishingRodRegistry#isFishingRod(String)} */
+    @Deprecated
+    public static final String FISHING_ROD_ITEM_ID = WOODEN_ROD_ITEM_ID;
 
     public static final String FISHING_JOURNAL_ITEM_ID = "CozyFishing_Fishing_Journal";
 

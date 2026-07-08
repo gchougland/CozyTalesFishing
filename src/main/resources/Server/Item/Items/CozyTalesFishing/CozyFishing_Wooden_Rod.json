@@ -1,0 +1,45 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.CozyFishing_Wooden_Rod.name",
+    "Description": "server.items.CozyFishing_Wooden_Rod.description"
+  },
+  "Parent": "Template_CozyFishing_Rod",
+  "Icon": "Icons/ItemsGenerated/CozyFishing_Wooden_Rod.png",
+  "Texture": "Items/Tools/Fishing_Rod/FishingRod_Texture.png",
+  "Quality": "Common",
+  "ItemLevel": 1,
+  "Recipe": {
+    "TimeSeconds": 3,
+    "Input": [
+      {
+        "ItemId": "Ingredient_Stick",
+        "Quantity": 3
+      },
+      {
+        "ItemId": "Deco_Rope",
+        "Quantity": 3
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "Workbench",
+        "Type": "Crafting",
+        "Categories": [
+          "Workbench_Tools"
+        ]
+      }
+    ]
+  },
+  "IconProperties": {
+    "Scale": 0.3,
+    "Rotation": [
+      57,
+      45,
+      0
+    ],
+    "Translation": [
+      -31,
+      -36
+    ]
+  }
+}

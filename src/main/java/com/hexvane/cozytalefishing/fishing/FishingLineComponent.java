@@ -39,6 +39,14 @@ public final class FishingLineComponent implements Component<EntityStore> {
     private float fightStartMaxLength;
     /** How much line length has been reeled in during the current fight. */
     private float reeledDuringFightBlocks;
+    /** Fishing-specific stamina during a fight; unrelated to player stamina. */
+    private float fishingStamina;
+    /** Max fishing stamina for the current fight (from rod tier at hook time). */
+    private float fishingStaminaMax;
+    /** Stamina regen per second for the current fight (from rod tier at hook time). */
+    private float fishingStaminaRegenPerSecond;
+    /** Cached difficulty multiplier for the hooked species. */
+    private float fightDifficulty = 1.0f;
 
     @Nullable
     private Ref<EntityStore> bobberRef;
@@ -179,6 +187,43 @@ public final class FishingLineComponent implements Component<EntityStore> {
         this.reeledDuringFightBlocks += blocks;
     }
 
+    public float getFishingStamina() {
+        return fishingStamina;
+    }
+
+    public void setFishingStamina(float fishingStamina) {
+        this.fishingStamina = fishingStamina;
+    }
+
+    public float getFishingStaminaMax() {
+        return fishingStaminaMax;
+    }
+
+    public void setFishingStaminaMax(float fishingStaminaMax) {
+        this.fishingStaminaMax = fishingStaminaMax;
+    }
+
+    public float getFishingStaminaRegenPerSecond() {
+        return fishingStaminaRegenPerSecond;
+    }
+
+    public void setFishingStaminaRegenPerSecond(float fishingStaminaRegenPerSecond) {
+        this.fishingStaminaRegenPerSecond = fishingStaminaRegenPerSecond;
+    }
+
+    public float getFightDifficulty() {
+        return fightDifficulty;
+    }
+
+    public void setFightDifficulty(float fightDifficulty) {
+        this.fightDifficulty = fightDifficulty;
+    }
+
+    /** True when the player is holding reel and has stamina left to fight the fish. */
+    public boolean isFightReelingActive() {
+        return reeling && fishingStamina > 0.0f;
+    }
+
     @Nonnull
     public Vector3d[] getNodePositions() {
         return nodePositions;
@@ -205,6 +250,10 @@ public final class FishingLineComponent implements Component<EntityStore> {
         rolledSizeCm = 0.0f;
         fightStartMaxLength = 0.0f;
         reeledDuringFightBlocks = 0.0f;
+        fishingStamina = 0.0f;
+        fishingStaminaMax = 0.0f;
+        fishingStaminaRegenPerSecond = 0.0f;
+        fightDifficulty = 1.0f;
         bobberRef = null;
         hookedShadowRef = null;
         for (int i = 0; i < segmentRefs.length; i++) {
@@ -226,6 +275,10 @@ public final class FishingLineComponent implements Component<EntityStore> {
         copy.rolledSizeCm = rolledSizeCm;
         copy.fightStartMaxLength = fightStartMaxLength;
         copy.reeledDuringFightBlocks = reeledDuringFightBlocks;
+        copy.fishingStamina = fishingStamina;
+        copy.fishingStaminaMax = fishingStaminaMax;
+        copy.fishingStaminaRegenPerSecond = fishingStaminaRegenPerSecond;
+        copy.fightDifficulty = fightDifficulty;
         copy.bobberRef = bobberRef;
         copy.hookedShadowRef = hookedShadowRef;
         for (int i = 0; i < FishingConstants.NODE_COUNT; i++) {

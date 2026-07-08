@@ -6,11 +6,13 @@ import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.modules.projectile.ProjectileModule;
 import com.hypixel.hytale.server.core.modules.projectile.config.ProjectileConfig;
 import com.hypixel.hytale.server.core.modules.projectile.config.StandardPhysicsProvider;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -110,6 +112,12 @@ public final class FishingLineService {
         FishingLineComponent line = getLine(commandBuffer, playerRef);
         UUIDComponent uuidComponent = commandBuffer.getComponent(playerRef, UUIDComponent.getComponentType());
         UUID ownerUuid = uuidComponent != null ? uuidComponent.getUuid() : null;
+
+        if (line != null && line.getPhase() == FishingLinePhase.FIGHTING) {
+            Player player = commandBuffer.getComponent(playerRef, Player.getComponentType());
+            PlayerRef playerRefComponent = commandBuffer.getComponent(playerRef, PlayerRef.getComponentType());
+            FishingFightHudService.hide(player, playerRefComponent);
+        }
 
         Ref<EntityStore> bobberRef = line != null ? line.getBobberRef() : null;
         Ref<EntityStore> hookedShadowRef = line != null ? line.getHookedShadowRef() : null;
@@ -412,6 +420,13 @@ public final class FishingLineService {
         FishingLineComponent line = store.getComponent(playerRef, FishingLineComponent.getComponentType());
         UUIDComponent uuidComponent = store.getComponent(playerRef, UUIDComponent.getComponentType());
         UUID ownerUuid = uuidComponent != null ? uuidComponent.getUuid() : null;
+
+        if (line != null && line.getPhase() == FishingLinePhase.FIGHTING) {
+            Player player = store.getComponent(playerRef, Player.getComponentType());
+            PlayerRef playerRefComponent = store.getComponent(playerRef, PlayerRef.getComponentType());
+            FishingFightHudService.hide(player, playerRefComponent);
+        }
+
         Ref<EntityStore> bobberRef = line != null ? line.getBobberRef() : null;
         Ref<EntityStore> hookedShadowRef = line != null ? line.getHookedShadowRef() : null;
         Ref<EntityStore>[] segmentRefs = copySegmentRefs(line);

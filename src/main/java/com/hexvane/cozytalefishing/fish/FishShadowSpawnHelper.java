@@ -1,10 +1,13 @@
 package com.hexvane.cozytalefishing.fish;
 
+import com.hypixel.hytale.assetstore.map.AssetMapWithIndexes;
+import com.hypixel.hytale.builtin.weather.resources.WeatherResource;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.worldgen.IWorldGen;
@@ -12,6 +15,7 @@ import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.worldgen.chunk.ChunkGenerator;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -331,6 +335,50 @@ public final class FishShadowSpawnHelper {
         @Nonnull FishSpeciesAsset species
     ) {
         return matchesUndergroundFilter(world, x, z, surfaceY, species, null);
+    }
+
+    /** World time and weather at a spawn column's environment index. */
+    public record SpawnConditions(@Nonnull WorldTimeResource worldTime, int weatherIndex) {}
+
+    @Nonnull
+    public static SpawnConditions resolveSpawnConditions(@Nonnull World world, int environmentIndex) {
+        var store = world.getEntityStore().getStore();
+        WorldTimeResource worldTime = store.getResource(WorldTimeResource.getResourceType());
+        WeatherResource weatherResource = store.getResource(WeatherResource.getResourceType());
+        int weatherIndex =
+            weatherResource != null
+                ? weatherResource.getWeatherIndexForEnvironment(environmentIndex)
+                : AssetMapWithIndexes.NOT_FOUND;
+        return new SpawnConditions(worldTime, weatherIndex);
+    }
+
+    public static boolean matchesDayTimeRange(@Nonnull FishSpeciesAsset species, @Nonnull WorldTimeResource worldTime) {
+        float[] range = species.getDayTimeRange();
+        if (range == null || range.length < 2) {
+            return true;
+        }
+        double minTime = range[0] / (double) WorldTimeResource.HOURS_PER_DAY;
+        double maxTime = range[1] / (double) WorldTimeResource.HOURS_PER_DAY;
+        return worldTime.isScaledDayTimeWithinRange(minTime, maxTime);
+    }
+
+    public static boolean matchesWeather(@Nonnull FishSpeciesAsset species, int currentWeatherIndex) {
+        int[] allowed = species.getWeatherIndexes();
+        if (allowed.length == 0) {
+            return true;
+        }
+        if (currentWeatherIndex == AssetMapWithIndexes.NOT_FOUND) {
+            return false;
+        }
+        return Arrays.binarySearch(allowed, currentWeatherIndex) >= 0;
+    }
+
+    public static boolean matchesSpawnConditions(
+        @Nonnull FishSpeciesAsset species,
+        @Nonnull SpawnConditions conditions
+    ) {
+        return matchesDayTimeRange(species, conditions.worldTime())
+            && matchesWeather(species, conditions.weatherIndex());
     }
 
     @Nullable

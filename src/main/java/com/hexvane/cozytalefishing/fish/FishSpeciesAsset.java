@@ -3,6 +3,7 @@ package com.hexvane.cozytalefishing.fish;
 import com.hypixel.hytale.assetstore.AssetExtraInfo;
 import com.hypixel.hytale.assetstore.AssetRegistry;
 import com.hypixel.hytale.assetstore.codec.AssetBuilderCodec;
+import com.hypixel.hytale.assetstore.map.AssetMapWithIndexes;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.assetstore.map.JsonAssetWithMap;
 import com.hypixel.hytale.codec.Codec;
@@ -10,6 +11,8 @@ import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.codecs.array.ArrayCodec;
 import com.hypixel.hytale.codec.validation.Validators;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
+import com.hypixel.hytale.server.core.asset.type.weather.config.Weather;
+import java.util.Arrays;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -122,6 +125,7 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
     private WaterBodyType[] waterBodyTypes = new WaterBodyType[0];
 
     int[] allowedEnvironmentIndices = new int[0];
+    int[] weatherIndexes = new int[0];
     boolean requiresUnderground;
     boolean requiresSurface;
 
@@ -142,6 +146,34 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
         }
         asset.requiresUnderground = asset.undergroundOnly;
         asset.requiresSurface = !asset.undergroundOnly;
+        asset.weatherIndexes = resolveWeatherIndexes(asset.weatherIds);
+    }
+
+    @Nonnull
+    private static int[] resolveWeatherIndexes(@Nullable String[] weatherIds) {
+        if (weatherIds == null || weatherIds.length == 0) {
+            return new int[0];
+        }
+        int[] indexes = new int[weatherIds.length];
+        int count = 0;
+        for (String weatherId : weatherIds) {
+            if (weatherId == null || weatherId.isEmpty()) {
+                continue;
+            }
+            int index = Weather.getAssetMap().getIndex(weatherId);
+            if (index == AssetMapWithIndexes.NOT_FOUND) {
+                continue;
+            }
+            indexes[count++] = index;
+        }
+        if (count == 0) {
+            return new int[0];
+        }
+        if (count < indexes.length) {
+            indexes = Arrays.copyOf(indexes, count);
+        }
+        Arrays.sort(indexes);
+        return indexes;
     }
 
     @Override
@@ -197,6 +229,15 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
         return weatherIds;
     }
 
+    @Nonnull
+    public int[] getWeatherIndexes() {
+        return weatherIndexes;
+    }
+
+    public boolean hasWeatherRequirement() {
+        return weatherIndexes.length > 0;
+    }
+
     public boolean isUndergroundOnly() {
         return undergroundOnly;
     }
@@ -233,6 +274,14 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
 
     public float getFightSwimSpeed() {
         return fightSwimSpeed;
+    }
+
+    /** Combined fight difficulty from swim speed and rarity. */
+    public float getFightDifficulty(@Nonnull FishingModConfig config) {
+        float baseline = config.getFightDifficultyBaselineSwimSpeed();
+        float speedFactor = baseline > 0.0f ? fightSwimSpeed / baseline : fightSwimSpeed;
+        float rarityFactor = 1.0f + rarity.ordinal() * config.getFightDifficultyRarityStep();
+        return speedFactor * rarityFactor;
     }
 
     /** Extra horizontal run away from the player (beyond the hook distance) before the line breaks; scales with rarity. */

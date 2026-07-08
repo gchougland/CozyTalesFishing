@@ -1,6 +1,6 @@
 package com.hexvane.cozytalefishing.fish;
 
-import com.hexvane.cozytalefishing.fishing.FishingConstants;
+import com.hexvane.cozytalefishing.fishing.FishingRodRegistry;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.entity.entities.Player;
@@ -16,7 +16,7 @@ public final class FishShadowProximity {
 
     public static boolean isHoldingFishingRod(@Nonnull CommandBuffer<EntityStore> commandBuffer, @Nonnull Ref<EntityStore> playerRef) {
         ItemStack held = InventoryComponent.getItemInHand(commandBuffer, playerRef);
-        return held != null && !held.isEmpty() && FishingConstants.FISHING_ROD_ITEM_ID.equals(held.getItemId());
+        return held != null && !held.isEmpty() && FishingRodRegistry.isFishingRod(held.getItemId());
     }
 
     /** True when any player holding the fishing rod is within horizontal range of the position. */
@@ -39,7 +39,7 @@ public final class FishShadowProximity {
                 }
                 Ref<EntityStore> playerRef = chunk.getReferenceTo(idx);
                 ItemStack held = InventoryComponent.getItemInHand(parallelBuffer, playerRef);
-                if (held == null || held.isEmpty() || !FishingConstants.FISHING_ROD_ITEM_ID.equals(held.getItemId())) {
+                if (held == null || held.isEmpty() || !FishingRodRegistry.isFishingRod(held.getItemId())) {
                     return;
                 }
                 Vector3d playerPos = transform.getPosition();

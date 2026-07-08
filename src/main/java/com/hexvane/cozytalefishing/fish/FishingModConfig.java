@@ -52,6 +52,42 @@ public final class FishingModConfig {
             )
             .add()
             .append(
+                new KeyedCodec<>("MaxFishingStamina", Codec.DOUBLE),
+                (a, v) -> a.maxFishingStamina = v.floatValue(),
+                a -> (double) a.maxFishingStamina
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("FishingStaminaDrainPerSecond", Codec.DOUBLE),
+                (a, v) -> a.fishingStaminaDrainPerSecond = v.floatValue(),
+                a -> (double) a.fishingStaminaDrainPerSecond
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("FishingStaminaRegenPerSecond", Codec.DOUBLE),
+                (a, v) -> a.fishingStaminaRegenPerSecond = v.floatValue(),
+                a -> (double) a.fishingStaminaRegenPerSecond
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("FightDifficultyBaselineSwimSpeed", Codec.DOUBLE),
+                (a, v) -> a.fightDifficultyBaselineSwimSpeed = v.floatValue(),
+                a -> (double) a.fightDifficultyBaselineSwimSpeed
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("FightDifficultyRarityStep", Codec.DOUBLE),
+                (a, v) -> a.fightDifficultyRarityStep = v.floatValue(),
+                a -> (double) a.fightDifficultyRarityStep
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("FightReelCounterPullFactor", Codec.DOUBLE),
+                (a, v) -> a.fightReelCounterPullFactor = v.floatValue(),
+                a -> (double) a.fightReelCounterPullFactor
+            )
+            .add()
+            .append(
                 new KeyedCodec<>("CatchDistanceBlocks", Codec.DOUBLE),
                 (a, v) -> a.catchDistanceBlocks = v.floatValue(),
                 a -> (double) a.catchDistanceBlocks
@@ -211,6 +247,13 @@ public final class FishingModConfig {
     private float fightReelSpeedBlocksPerSecond = 2.5f;
     /** Fraction of fight swim speed applied as resistance while the player reels. */
     private float fightReelResistanceFactor = 0.35f;
+    private float maxFishingStamina = 100.0f;
+    private float fishingStaminaDrainPerSecond = 25.0f;
+    private float fishingStaminaRegenPerSecond = 20.0f;
+    private float fightDifficultyBaselineSwimSpeed = 1.0f;
+    private float fightDifficultyRarityStep = 0.08f;
+    /** Fraction of fight swim speed applied as away-from-player pull while reeling. */
+    private float fightReelCounterPullFactor = 0.25f;
     /** Line max length at which a hooked fish is landed (not player distance). */
     private float catchDistanceBlocks = 2.5f;
     /** Minimum line reeled in during a fight before a catch can complete. */
@@ -293,6 +336,30 @@ public final class FishingModConfig {
 
     public float getFightReelResistanceFactor() {
         return fightReelResistanceFactor;
+    }
+
+    public float getMaxFishingStamina() {
+        return maxFishingStamina;
+    }
+
+    public float getFishingStaminaDrainPerSecond() {
+        return fishingStaminaDrainPerSecond;
+    }
+
+    public float getFishingStaminaRegenPerSecond() {
+        return fishingStaminaRegenPerSecond;
+    }
+
+    public float getFightDifficultyBaselineSwimSpeed() {
+        return fightDifficultyBaselineSwimSpeed;
+    }
+
+    public float getFightDifficultyRarityStep() {
+        return fightDifficultyRarityStep;
+    }
+
+    public float getFightReelCounterPullFactor() {
+        return fightReelCounterPullFactor;
     }
 
     public float getCatchDistanceBlocks() {

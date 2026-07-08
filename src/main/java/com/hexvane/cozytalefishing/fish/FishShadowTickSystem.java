@@ -2,9 +2,12 @@ package com.hexvane.cozytalefishing.fish;
 
 import com.hexvane.cozytalefishing.fishing.FishingBobberComponent;
 import com.hexvane.cozytalefishing.fishing.FishingBobberPhase;
+import com.hexvane.cozytalefishing.fishing.FishingFightHudService;
 import com.hexvane.cozytalefishing.fishing.FishingLineComponent;
 import com.hexvane.cozytalefishing.fishing.FishingLinePhase;
 import com.hexvane.cozytalefishing.fishing.FishingLineService;
+import com.hexvane.cozytalefishing.fishing.FishingRodRegistry;
+import com.hexvane.cozytalefishing.fishing.FishingStaminaResolver;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -458,12 +461,25 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
             if (ownerEntity != null && ownerEntity.isValid()) {
                 FishingLineComponent line = commandBuffer.getComponent(ownerEntity, FishingLineComponent.getComponentType());
                 if (line != null) {
+                    FishingModConfig config = FishingModConfig.get();
+                    FishingRodRegistry.FishingRodStats rodStats =
+                        FishingStaminaResolver.resolveRodStats(commandBuffer, ownerEntity, config);
+                    float difficulty = species.getFightDifficulty(config);
                     line.setPhase(FishingLinePhase.FIGHTING);
                     line.setHookedShadowRef(shadowRef);
                     line.setRolledSizeCm(FishCatchService.rollSizeCm(species));
                     line.setFightStartMaxLength(line.getMaxLength());
                     line.setReeledDuringFightBlocks(0.0f);
+                    line.setFishingStaminaMax(rodStats.maxStamina());
+                    line.setFishingStamina(rodStats.maxStamina());
+                    line.setFishingStaminaRegenPerSecond(rodStats.regenPerSecond());
+                    line.setFightDifficulty(difficulty);
                     commandBuffer.putComponent(ownerEntity, FishingLineComponent.getComponentType(), line);
+
+                    Player player = commandBuffer.getComponent(ownerEntity, Player.getComponentType());
+                    if (player != null) {
+                        FishingFightHudService.show(player, playerRef, rodStats.maxStamina());
+                    }
                 }
             }
         }
@@ -506,18 +522,20 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
 
         Vector3d ownerPos = ownerTransform.getPosition();
         FishingLineComponent line = commandBuffer.getComponent(ownerEntity, FishingLineComponent.getComponentType());
-        boolean reeling = line != null && line.isReeling();
+        boolean reeling = line != null && line.isFightReelingActive();
         FishingModConfig config = FishingModConfig.get();
+        float difficulty = line != null ? Math.max(0.1f, line.getFightDifficulty()) : 1.0f;
 
-        float fleeSpeed = species.getFightSwimSpeed();
+        float fleeSpeed = species.getFightSwimSpeed() * difficulty;
         float pullSpeed = config.getFightReelSpeedBlocksPerSecond();
         float resist = fleeSpeed * config.getFightReelResistanceFactor();
+        float counterPull = fleeSpeed * config.getFightReelCounterPullFactor() * difficulty;
 
         Vector3d moveDir = new Vector3d();
         float moveSpeed;
         if (reeling) {
             moveDir.set(ownerPos.x - position.x, 0.0, ownerPos.z - position.z);
-            moveSpeed = Math.max(0.85f, pullSpeed - resist);
+            moveSpeed = Math.max(0.85f, pullSpeed - resist - counterPull);
         } else {
             moveDir.set(position.x - ownerPos.x, 0.0, position.z - ownerPos.z);
             moveSpeed = fleeSpeed;
@@ -602,6 +620,11 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
             line.setReeling(false);
             commandBuffer.putComponent(ownerEntity, FishingLineComponent.getComponentType(), line);
         }
+
+        Player player = commandBuffer.getComponent(ownerEntity, Player.getComponentType());
+        PlayerRef playerRefComponent = commandBuffer.getComponent(ownerEntity, PlayerRef.getComponentType());
+        FishingFightHudService.hide(player, playerRefComponent);
+
         FishingLineService.recallCastOut(commandBuffer, ownerEntity);
     }
 

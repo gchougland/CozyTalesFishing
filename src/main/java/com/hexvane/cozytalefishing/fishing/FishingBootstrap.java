@@ -6,6 +6,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
 
@@ -53,6 +54,8 @@ public final class FishingBootstrap {
             if (!ref.isValid()) {
                 return;
             }
+            Player player = store.getComponent(ref, Player.getComponentType());
+            FishingFightHudService.hide(player, event.getPlayerRef());
             FishingLineComponent line = store.getComponent(ref, FishingLineComponent.getComponentType());
             if (line != null && line.isActive()) {
                 FishingDebugLog.info("Disconnect cleanup: tearing down active line for player");

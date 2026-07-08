@@ -1,0 +1,49 @@
+$C = "../Common.ui";
+
+@BarWidth = 34;
+@BarHeight = 102;
+@BarPadding = 7;
+@BottomPadding = 3;
+@TextHeight = 12;
+@FillGap = 4;
+@FillInnerWidth = 20;
+@FillMaxHeight = 76;
+
+Group {
+  LayoutMode: CenterMiddle;
+  Anchor: (Full: 0);
+
+  Group #FightStaminaRoot {
+    LayoutMode: Top;
+    Anchor: (Left: 54, Width: @BarWidth);
+
+    Group #BarFrame {
+      LayoutMode: Top;
+      Anchor: (Width: @BarWidth, Height: @BarHeight);
+      Padding: (Horizontal: @BarPadding, Top: @BarPadding, Bottom: @BottomPadding);
+      Background: (TexturePath: "../Common/CheckBoxFrame.png", Border: 7);
+
+      Group #BarFillArea {
+        LayoutMode: Bottom;
+        Anchor: (Height: @FillMaxHeight, Bottom: @FillGap);
+
+        Group #StaminaFill {
+          Anchor: (Width: @FillInnerWidth, Height: @FillMaxHeight);
+          Background: #4caf50;
+        }
+      }
+
+      Label #StaminaText {
+        Anchor: (Height: @TextHeight);
+        Style: (
+          FontSize: 10,
+          TextColor: #d8e8d8,
+          HorizontalAlignment: Center,
+          VerticalAlignment: Center,
+          RenderBold: true
+        );
+        Text: "100";
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
@@ -144,6 +145,8 @@ public final class FishSpeciesSpawnDebug {
         text.append('\n');
 
         if (surfaceY >= 0) {
+            FishShadowSpawnHelper.SpawnConditions spawnConditions =
+                FishShadowSpawnHelper.resolveSpawnConditions(world, catchEnvironmentIndex);
             boolean envMatch =
                 FishShadowSpawnHelper.matchesSpawnEnvironment(
                     species,
@@ -156,13 +159,25 @@ public final class FishSpeciesSpawnDebug {
                 );
             boolean undergroundMatch =
                 FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species, regionContext);
+            boolean dayTimeMatch = FishShadowSpawnHelper.matchesDayTimeRange(species, spawnConditions.worldTime());
+            boolean weatherMatch = FishShadowSpawnHelper.matchesWeather(species, spawnConditions.weatherIndex());
             boolean waterBodyMatch = species.matchesWaterBody(shadow.getWaterBodyType());
             text.append("  matches: waterBody=")
                 .append(waterBodyMatch)
                 .append(", environment=")
                 .append(envMatch)
                 .append(", underground=")
-                .append(undergroundMatch);
+                .append(undergroundMatch)
+                .append(", dayTime=")
+                .append(dayTimeMatch)
+                .append(", weather=")
+                .append(weatherMatch);
+            text.append('\n');
+            WorldTimeResource worldTime = spawnConditions.worldTime();
+            text.append("  currentHour=")
+                .append(worldTime.getCurrentHour())
+                .append(", weatherIndex=")
+                .append(spawnConditions.weatherIndex());
             text.append('\n');
         }
     }

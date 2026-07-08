@@ -1,0 +1,54 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.CozyFishing_Thorium_Rod.name",
+    "Description": "server.items.CozyFishing_Thorium_Rod.description"
+  },
+  "Parent": "Template_CozyFishing_Rod",
+  "Icon": "Icons/ItemsGenerated/CozyFishing_Thorium_Rod.png",
+  "Texture": "Items/Fishing/FishingRod_Thorium.png",
+  "Quality": "Rare",
+  "ItemLevel": 30,
+  "Recipe": {
+    "TimeSeconds": 4,
+    "Input": [
+      {
+        "ItemId": "Ingredient_Bar_Thorium",
+        "Quantity": 4
+      },
+      {
+        "ItemId": "Deco_Rope",
+        "Quantity": 3
+      },
+      {
+        "ItemId": "Ingredient_Leather_Medium",
+        "Quantity": 2
+      },
+      {
+        "ItemId": "Ingredient_Fabric_Scrap_Linen",
+        "Quantity": 2
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "Workbench",
+        "Type": "Crafting",
+        "Categories": [
+          "Workbench_Tools"
+        ],
+        "RequiredTierLevel": 2
+      }
+    ]
+  },
+  "IconProperties": {
+    "Scale": 0.3,
+    "Rotation": [
+      57,
+      45,
+      0
+    ],
+    "Translation": [
+      -31,
+      -36
+    ]
+  }
+}

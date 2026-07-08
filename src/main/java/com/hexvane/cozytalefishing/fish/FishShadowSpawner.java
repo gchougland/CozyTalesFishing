@@ -452,6 +452,8 @@ public final class FishShadowSpawner {
         @Nullable FishingSpawnRegionContext regionContext
     ) {
         List<FishSpeciesAsset> eligible = new ArrayList<>();
+        FishShadowSpawnHelper.SpawnConditions spawnConditions =
+            FishShadowSpawnHelper.resolveSpawnConditions(world, environmentIndex);
 
         for (FishSpeciesAsset species : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType)) {
             if (!species.matchesWaterBody(bodyType)) {
@@ -469,6 +471,9 @@ public final class FishShadowSpawner {
                 continue;
             }
             if (!FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species, regionContext)) {
+                continue;
+            }
+            if (!FishShadowSpawnHelper.matchesSpawnConditions(species, spawnConditions)) {
                 continue;
             }
             eligible.add(species);

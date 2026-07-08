@@ -29,7 +29,7 @@ Fishing rod **visual cycle** is implemented (charge, cast, Verlet string segment
 ### In-game test
 
 1. Run `.\gradlew.bat runServerNoSync` (recommended while editing assets).
-2. Give yourself the rod: `/give CozyFishing_Fishing_Rod` (or use creative).
+2. Give yourself a rod: `/give CozyFishing_Wooden_Rod` (or iron/thorium/cobalt/adamantite tiers).
 3. Hold **primary** near water to charge (vertical HUD bar), release to cast.
 4. **Secondary** click to reel in / despawn the line.
 

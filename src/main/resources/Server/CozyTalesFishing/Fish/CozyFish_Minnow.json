@@ -15,5 +15,5 @@
   "ShadowScaleRange": [0.7, 0.95],
   "SwimSpeed": 1,
   "FleePlayerRange": 3,
-  "FightSwimSpeed": 1.2
+  "FightSwimSpeed": 1.0
 }
