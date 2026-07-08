@@ -178,6 +178,23 @@ $C.@PageOverlay {
                         AssetPath: "UI/Custom/padlock.png";
                       }
                     }
+
+                    Group #DetailHintIconWrap {
+                      Visible: false;
+                      LayoutMode: Center;
+                      Anchor: (Full: 0);
+
+                      Label #DetailHintIcon {
+                        Style: (
+                          FontSize: 40,
+                          TextColor: #f0e6d2,
+                          HorizontalAlignment: Center,
+                          VerticalAlignment: Center,
+                          RenderBold: true
+                        );
+                        Text: "?";
+                      }
+                    }
                   }
                 }
 
@@ -229,6 +246,13 @@ $C.@PageOverlay {
                 }
 
                 Label #UndiscoveredHint {
+                  Visible: false;
+                  Anchor: (Top: 8);
+                  Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #8a94a8, FontSize: 14, HorizontalAlignment: Center);
+                  Text: "";
+                }
+
+                Label #HintedHint {
                   Visible: false;
                   Anchor: (Top: 8);
                   Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #8a94a8, FontSize: 14, HorizontalAlignment: Center);

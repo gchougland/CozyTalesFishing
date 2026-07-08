@@ -47,6 +47,21 @@ public final class FishCatchRecordComponent implements Component<EntityStore> {
                 component -> component.discoveredSpeciesIds.toArray(String[]::new)
             )
             .add()
+            .append(
+                new KeyedCodec<>("HintedSpeciesIds", new ArrayCodec<>(Codec.STRING, String[]::new)),
+                (component, ids) -> {
+                    component.hintedSpeciesIds.clear();
+                    if (ids != null) {
+                        for (String id : ids) {
+                            if (id != null && !id.isBlank()) {
+                                component.hintedSpeciesIds.add(id);
+                            }
+                        }
+                    }
+                },
+                component -> component.hintedSpeciesIds.toArray(String[]::new)
+            )
+            .add()
             .build();
 
     @Nonnull
@@ -71,6 +86,9 @@ public final class FishCatchRecordComponent implements Component<EntityStore> {
     @Nonnull
     private final Set<String> discoveredSpeciesIds = new HashSet<>();
 
+    @Nonnull
+    private final Set<String> hintedSpeciesIds = new HashSet<>();
+
     public float getLargestSizeCm(@Nonnull String speciesId) {
         return largestSizeCmBySpecies.getOrDefault(speciesId, 0.0f);
     }
@@ -88,14 +106,41 @@ public final class FishCatchRecordComponent implements Component<EntityStore> {
         return discoveredSpeciesIds.contains(speciesId);
     }
 
+    public boolean isHinted(@Nonnull String speciesId) {
+        return hintedSpeciesIds.contains(speciesId);
+    }
+
     /** @return true when the species was newly discovered */
     public boolean discover(@Nonnull String speciesId) {
+        hintedSpeciesIds.remove(speciesId);
         return discoveredSpeciesIds.add(speciesId);
+    }
+
+    /** @return true when the species was newly hinted */
+    public boolean hint(@Nonnull String speciesId) {
+        if (discoveredSpeciesIds.contains(speciesId)) {
+            return false;
+        }
+        return hintedSpeciesIds.add(speciesId);
+    }
+
+    public void hintAll(@Nonnull Collection<String> speciesIds) {
+        for (String speciesId : speciesIds) {
+            if (speciesId != null && !speciesId.isBlank() && !discoveredSpeciesIds.contains(speciesId)) {
+                hintedSpeciesIds.add(speciesId);
+            }
+        }
+    }
+
+    @Nonnull
+    public Set<String> getHintedSpeciesIds() {
+        return Set.copyOf(hintedSpeciesIds);
     }
 
     public void discoverAll(@Nonnull Collection<String> speciesIds) {
         for (String speciesId : speciesIds) {
             if (speciesId != null && !speciesId.isBlank()) {
+                hintedSpeciesIds.remove(speciesId);
                 discoveredSpeciesIds.add(speciesId);
             }
         }
@@ -113,6 +158,7 @@ public final class FishCatchRecordComponent implements Component<EntityStore> {
     public void clear() {
         largestSizeCmBySpecies.clear();
         discoveredSpeciesIds.clear();
+        hintedSpeciesIds.clear();
     }
 
     @Nonnull
@@ -121,6 +167,7 @@ public final class FishCatchRecordComponent implements Component<EntityStore> {
         FishCatchRecordComponent copy = new FishCatchRecordComponent();
         copy.largestSizeCmBySpecies.putAll(largestSizeCmBySpecies);
         copy.discoveredSpeciesIds.addAll(discoveredSpeciesIds);
+        copy.hintedSpeciesIds.addAll(hintedSpeciesIds);
         return copy;
     }
 }

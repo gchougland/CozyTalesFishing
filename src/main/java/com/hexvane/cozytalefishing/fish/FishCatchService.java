@@ -21,7 +21,7 @@ public final class FishCatchService {
     private FishCatchService() {}
 
     public static float rollSizeCm(@Nonnull FishSpeciesAsset species) {
-        if (species.isTrash()) {
+        if (species.excludesFromJournal()) {
             return 0.0f;
         }
         float[] range = species.getSizeRangeCm();
@@ -74,6 +74,17 @@ public final class FishCatchService {
                 playerRefComponent.sendMessage(
                     Message
                         .translation("server.cozytalefishing.catch.trash_success")
+                        .param("fish", FishSpeciesDisplayNames.resolve(species))
+                );
+            }
+            return;
+        }
+
+        if (species.isTreasure()) {
+            if (playerRefComponent != null) {
+                playerRefComponent.sendMessage(
+                    Message
+                        .translation("server.cozytalefishing.catch.treasure_success")
                         .param("fish", FishSpeciesDisplayNames.resolve(species))
                 );
             }

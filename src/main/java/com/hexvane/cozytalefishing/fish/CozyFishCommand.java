@@ -93,6 +93,7 @@ public final class CozyFishCommand extends AbstractCommandCollection {
             requirePermission(HytalePermissions.fromCommand("cozyfish.journal"));
             addSubCommand(new JournalOpenCommand());
             addSubCommand(new JournalUnlockCommand());
+            addSubCommand(new JournalHintCommand());
             addSubCommand(new JournalResetRecordsCommand());
         }
     }
@@ -167,6 +168,58 @@ public final class CozyFishCommand extends AbstractCommandCollection {
             records.discover(trimmed);
             store.putComponent(ref, FishCatchRecordComponent.getComponentType(), records);
             context.sendMessage(Message.translation("server.cozytalefishing.journal.command.unlocked_one").param("id", trimmed));
+        }
+    }
+
+    static final class JournalHintCommand extends AbstractPlayerCommand {
+        @Nonnull
+        private final OptionalArg<String> speciesArg =
+            withOptionalArg("speciesId", "Species id to hint (e.g. CozyFish_Lobster). Omit to hint all undiscovered.", STRING);
+
+        JournalHintCommand() {
+            super("hint", "Hint fishing journal entries for testing.");
+            requirePermission(HytalePermissions.fromCommand("cozyfish.journal"));
+        }
+
+        @Override
+        protected void execute(
+            @Nonnull CommandContext context,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull PlayerRef playerRef,
+            @Nonnull World world
+        ) {
+            FishCatchRecordComponent records = store.getComponent(ref, FishCatchRecordComponent.getComponentType());
+            if (records == null) {
+                records = new FishCatchRecordComponent();
+            }
+
+            String speciesId = speciesArg.get(context);
+            if (speciesId == null || speciesId.isBlank()) {
+                List<String> undiscovered = new ArrayList<>();
+                for (FishSpeciesAsset species : FishSpeciesRegistry.getJournalSpecies()) {
+                    if (!records.isDiscovered(species.getId())) {
+                        undiscovered.add(species.getId());
+                    }
+                }
+                records.hintAll(undiscovered);
+                store.putComponent(ref, FishCatchRecordComponent.getComponentType(), records);
+                context.sendMessage(
+                    Message.translation("server.cozytalefishing.journal.command.hinted_all")
+                        .param("count", undiscovered.size())
+                );
+                return;
+            }
+
+            String trimmed = speciesId.trim();
+            if (FishSpeciesRegistry.getSpecies(trimmed) == null) {
+                context.sendMessage(Message.translation("server.cozytalefishing.journal.command.unknown_species").param("id", trimmed));
+                return;
+            }
+
+            records.hint(trimmed);
+            store.putComponent(ref, FishCatchRecordComponent.getComponentType(), records);
+            context.sendMessage(Message.translation("server.cozytalefishing.journal.command.hinted_one").param("id", trimmed));
         }
     }
 

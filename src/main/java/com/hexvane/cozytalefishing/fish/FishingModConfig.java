@@ -230,6 +230,12 @@ public final class FishingModConfig {
             )
             .add()
             .append(
+                new KeyedCodec<>("TreasureSpawnChance", Codec.DOUBLE),
+                (a, v) -> a.treasureSpawnChance = v.floatValue(),
+                a -> (double) a.treasureSpawnChance
+            )
+            .add()
+            .append(
                 new KeyedCodec<>("SpawnPreferredMissWeightMultiplier", Codec.DOUBLE),
                 (a, v) -> a.spawnPreferredMissWeightMultiplier = v.floatValue(),
                 a -> (double) a.spawnPreferredMissWeightMultiplier
@@ -323,6 +329,7 @@ public final class FishingModConfig {
     private double rodTipVerticalLift = 0.85;
     private float woodenTrashSpawnChance = 0.15f;
     private float ironTrashSpawnChance = 0.05f;
+    private float treasureSpawnChance = 0.03f;
     private float spawnPreferredMissWeightMultiplier = 0.35f;
     private float spawnPreferredMatchWeightMultiplier = 1.25f;
 
@@ -520,6 +527,10 @@ public final class FishingModConfig {
 
     public float getIronTrashSpawnChance() {
         return ironTrashSpawnChance;
+    }
+
+    public float getTreasureSpawnChance() {
+        return treasureSpawnChance;
     }
 
     public float getSpawnPreferredMissWeightMultiplier() {

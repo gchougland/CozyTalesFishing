@@ -48,4 +48,10 @@ public enum FishShadowType {
         }
         return false;
     }
+
+    @Nonnull
+    public static FishShadowType pickRandom(@Nonnull java.util.Random random) {
+        FishShadowType[] types = values();
+        return types[random.nextInt(types.length)];
+    }
 }

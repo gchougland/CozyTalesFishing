@@ -467,7 +467,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
                     float difficulty = species.getFightDifficulty(config);
                     line.setPhase(FishingLinePhase.FIGHTING);
                     line.setHookedShadowRef(shadowRef);
-                    line.setRolledSizeCm(species.isTrash() ? 0.0f : FishCatchService.rollSizeCm(species));
+                    line.setRolledSizeCm(species.excludesFromJournal() ? 0.0f : FishCatchService.rollSizeCm(species));
                     line.setFightStartMaxLength(line.getMaxLength());
                     line.setReeledDuringFightBlocks(0.0f);
                     line.setFishingStaminaMax(rodStats.maxStamina());

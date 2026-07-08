@@ -234,7 +234,7 @@ public final class FishShadowSpawnDiagnostics {
             );
 
         for (FishSpeciesAsset species : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType)) {
-            if (species.isTrash()) {
+            if (species.isTrash() || species.isTreasure()) {
                 continue;
             }
             FishSpawnRulesEvaluator.SpawnRuleResult result =

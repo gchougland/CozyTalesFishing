@@ -19,6 +19,7 @@ import com.hypixel.hytale.server.core.modules.entity.tracker.NetworkId;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.concurrent.ThreadLocalRandom;
 import org.joml.Vector3d;
 
 public final class FishShadowEntityPool {
@@ -33,7 +34,8 @@ public final class FishShadowEntityPool {
         float yawRadians,
         float scale
     ) {
-        ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(species.getShadowType().getModelAssetId());
+        FishShadowType shadowType = species.pickShadowTypeForSpawn(ThreadLocalRandom.current());
+        ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(shadowType.getModelAssetId());
         if (modelAsset == null) {
             return null;
         }
@@ -52,6 +54,7 @@ public final class FishShadowEntityPool {
 
         FishShadowComponent shadow = new FishShadowComponent();
         shadow.setSpeciesId(species.getId());
+        shadow.setShadowType(shadowType);
         shadow.setWaterBodyType(waterBodyType);
         shadow.setBaseScale(scale);
         shadow.setCurrentScale(scale);
@@ -77,7 +80,8 @@ public final class FishShadowEntityPool {
         float yawRadians,
         float scale
     ) {
-        ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(species.getShadowType().getModelAssetId());
+        FishShadowType shadowType = species.pickShadowTypeForSpawn(ThreadLocalRandom.current());
+        ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(shadowType.getModelAssetId());
         if (modelAsset == null) {
             return null;
         }
@@ -96,6 +100,7 @@ public final class FishShadowEntityPool {
 
         FishShadowComponent shadow = new FishShadowComponent();
         shadow.setSpeciesId(species.getId());
+        shadow.setShadowType(shadowType);
         shadow.setWaterBodyType(waterBodyType);
         shadow.setBaseScale(scale);
         shadow.setCurrentScale(scale);
@@ -137,9 +142,7 @@ public final class FishShadowEntityPool {
             FishShadowComponent shadow = commandBuffer.getComponent(shadowRef, FishShadowComponent.getComponentType());
             String modelId =
                 shadow != null
-                    ? FishSpeciesRegistry.getSpecies(shadow.getSpeciesId()) != null
-                        ? FishSpeciesRegistry.getSpecies(shadow.getSpeciesId()).getShadowType().getModelAssetId()
-                        : reference.getModelAssetId()
+                    ? shadow.getShadowType().getModelAssetId()
                     : reference.getModelAssetId();
             persistentModel.setModelReference(new Model.ModelReference(modelId, scale, reference.getRandomAttachmentIds(), reference.isStaticModel()));
         }
@@ -151,9 +154,8 @@ public final class FishShadowEntityPool {
             }
         } else if (modelComponent != null) {
             FishShadowComponent shadow = commandBuffer.getComponent(shadowRef, FishShadowComponent.getComponentType());
-            FishSpeciesAsset species = shadow != null ? FishSpeciesRegistry.getSpecies(shadow.getSpeciesId()) : null;
-            if (species != null) {
-                ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(species.getShadowType().getModelAssetId());
+            if (shadow != null) {
+                ModelAsset modelAsset = ModelAsset.getAssetMap().getAsset(shadow.getShadowType().getModelAssetId());
                 if (modelAsset != null) {
                     commandBuffer.putComponent(
                         shadowRef,

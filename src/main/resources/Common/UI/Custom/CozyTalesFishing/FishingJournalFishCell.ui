@@ -58,6 +58,24 @@ Group #FishingJournalFishCell {
           AssetPath: "UI/Custom/padlock.png";
         }
       }
+
+      Group #HintIconWrap {
+        Visible: false;
+        LayoutMode: Center;
+        Anchor: (Full: 0);
+        HitTestVisible: false;
+
+        Label #HintIcon {
+          Style: (
+            FontSize: 28,
+            TextColor: #f0e6d2,
+            HorizontalAlignment: Center,
+            VerticalAlignment: Center,
+            RenderBold: true
+          );
+          Text: "?";
+        }
+      }
     }
   }
 

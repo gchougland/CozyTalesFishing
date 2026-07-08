@@ -1,0 +1,21 @@
+{
+  "IsTreasure": true,
+  "RandomShadowType": true,
+  "ItemId": "CozyFishing_Sunken_Treasure",
+  "Rarity": "Uncommon",
+  "SpawnWeight": 100,
+  "SpawnRules": {
+    "WaterBody": {"Types": ["Ocean", "River", "Pond"], "Mode": "Required"},
+    "Location": {"Zone": "Zone1", "ZoneMode": "Ignored"},
+    "Underground": {"Only": false, "Mode": "Ignored"},
+    "DayTime": {"Range": [0, 24], "Mode": "Ignored"},
+    "Weather": {"Ids": [], "Mode": "Ignored"}
+  },
+  "SwimSpeed": 0.9,
+  "FightSwimSpeed": 0.52,
+  "FleePlayerRange": 8.0,
+  "VisionRange": 4.0,
+  "VisionAngleDegrees": 110,
+  "PokeReachBlocks": 0.35,
+  "ShadowScaleRange": [0.95, 1.15]
+}

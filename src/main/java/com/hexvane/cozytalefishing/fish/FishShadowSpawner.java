@@ -433,6 +433,16 @@ public final class FishShadowSpawner {
         }
 
         FishingRodRegistry.FishingRodStats rodStats = FishingRodRegistry.getStatsFromHeld(commandBuffer, playerRef, config);
+        float treasureChance = config.getTreasureSpawnChance();
+        if (treasureChance > 0.0f
+            && FishingRodRegistry.isFishingRod(rodStats.itemId())
+            && random.nextFloat() < treasureChance) {
+            FishSpeciesAsset treasure = pickTreasure(bodyType, config, random);
+            if (treasure != null) {
+                return treasure;
+            }
+        }
+
         float trashChance = FishingRodRegistry.getTrashSpawnChance(rodStats.itemId(), config);
         if (trashChance > 0.0f && random.nextFloat() < trashChance) {
             FishSpeciesAsset trash = pickTrash(bodyType, config, random);
@@ -455,6 +465,21 @@ public final class FishShadowSpawner {
     ) {
         List<FishSpeciesAsset> eligible = new ArrayList<>();
         for (FishSpeciesAsset species : FishSpeciesRegistry.getTrashSpecies()) {
+            if (species.matchesWaterBody(bodyType)) {
+                eligible.add(species);
+            }
+        }
+        return weightedPickSpecies(eligible, config.getGlobalSpawnWeightMultiplier(), random);
+    }
+
+    @Nullable
+    private static FishSpeciesAsset pickTreasure(
+        @Nonnull WaterBodyType bodyType,
+        @Nonnull FishingModConfig config,
+        @Nonnull ThreadLocalRandom random
+    ) {
+        List<FishSpeciesAsset> eligible = new ArrayList<>();
+        for (FishSpeciesAsset species : FishSpeciesRegistry.getTreasureSpecies()) {
             if (species.matchesWaterBody(bodyType)) {
                 eligible.add(species);
             }
@@ -490,7 +515,7 @@ public final class FishShadowSpawner {
             );
 
         for (FishSpeciesAsset species : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType)) {
-            if (species.isTrash()) {
+            if (species.isTrash() || species.isTreasure()) {
                 continue;
             }
             FishSpawnRulesEvaluator.SpawnRuleResult result =

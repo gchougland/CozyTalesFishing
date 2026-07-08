@@ -21,6 +21,7 @@ public final class FishingJournalUi {
         commandBuilder.set("#ConditionsHeading.TextSpans", Message.translation("server.cozytalefishing.journal.conditions_heading"));
         commandBuilder.set("#RecordHeading.TextSpans", Message.translation("server.cozytalefishing.journal.record_heading"));
         commandBuilder.set("#UndiscoveredHint.TextSpans", Message.translation("server.cozytalefishing.journal.undiscovered_hint"));
+        commandBuilder.set("#HintedHint.TextSpans", Message.translation("server.cozytalefishing.journal.hinted_hint"));
     }
 
     public static boolean isKnownItemId(@Nullable String itemId) {
@@ -46,16 +47,19 @@ public final class FishingJournalUi {
         @Nonnull UICommandBuilder commandBuilder,
         @Nonnull String buttonSelector,
         @Nonnull String displayName,
-        boolean discovered
+        @Nonnull JournalEntryState state
     ) {
         commandBuilder.set(buttonSelector + ".TextTooltipStyle", DEFAULT_TEXT_TOOLTIP_STYLE);
-        if (discovered) {
-            commandBuilder.set(buttonSelector + ".TooltipTextSpans", Message.raw(displayName));
-            return;
+        switch (state) {
+            case DISCOVERED -> commandBuilder.set(buttonSelector + ".TooltipTextSpans", Message.raw(displayName));
+            case HINTED -> commandBuilder.set(
+                buttonSelector + ".TooltipTextSpans",
+                Message.translation("server.cozytalefishing.journal.hinted_tooltip")
+            );
+            case UNDISCOVERED -> commandBuilder.set(
+                buttonSelector + ".TooltipTextSpans",
+                Message.translation("server.cozytalefishing.journal.undiscovered_tooltip")
+            );
         }
-        commandBuilder.set(
-            buttonSelector + ".TooltipTextSpans",
-            Message.translation("server.cozytalefishing.journal.undiscovered_tooltip")
-        );
     }
 }

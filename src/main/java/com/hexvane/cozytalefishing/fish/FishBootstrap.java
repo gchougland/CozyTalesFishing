@@ -2,6 +2,8 @@ package com.hexvane.cozytalefishing.fish;
 
 import com.hexvane.cozytalefishing.CozyTalesFishingPlugin;
 import com.hexvane.cozytalefishing.fishing.FishingReelInteraction;
+import com.hexvane.cozytalefishing.treasure.OpenMessageInBottleInteraction;
+import com.hexvane.cozytalefishing.treasure.OpenSunkenTreasureInteraction;
 import com.hypixel.hytale.assetstore.AssetRegistry;
 import com.hypixel.hytale.assetstore.event.LoadedAssetsEvent;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
@@ -45,6 +47,12 @@ public final class FishBootstrap {
         plugin
             .getCodecRegistry(Interaction.CODEC)
             .register("CozyFishingReel", FishingReelInteraction.class, FishingReelInteraction.CODEC);
+        plugin
+            .getCodecRegistry(Interaction.CODEC)
+            .register("CozyOpenSunkenTreasure", OpenSunkenTreasureInteraction.class, OpenSunkenTreasureInteraction.CODEC);
+        plugin
+            .getCodecRegistry(Interaction.CODEC)
+            .register("CozyOpenMessageInBottle", OpenMessageInBottleInteraction.class, OpenMessageInBottleInteraction.CODEC);
 
         OpenCustomUIInteraction.registerSimple(
             plugin,

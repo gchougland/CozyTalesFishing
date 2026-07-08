@@ -77,7 +77,7 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
         for (int i = 0; i < visibleSpecies.size(); i++) {
             FishSpeciesAsset species = visibleSpecies.get(i);
             String cell = FISH_GRID + "[" + i + "]";
-            boolean discovered = records != null && records.isDiscovered(species.getId());
+            JournalEntryState state = JournalEntryState.fromRecords(records, species.getId());
             boolean selected = species.getId().equals(selectedSpeciesId);
             String button = cell + " #SelectButton";
             String icon = button + " #IconFrame #IconInner #FishIcon";
@@ -85,13 +85,12 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
             commandBuilder.append(FISH_GRID, "CozyTalesFishing/FishingJournalFishCell.ui");
             commandBuilder.set(cell + " #SelectHilite.Visible", selected);
             FishingJournalUi.setFishIcon(commandBuilder, icon, species.getItemId());
-            commandBuilder.set(button + " #IconFrame #DimOverlay.Visible", !discovered);
-            commandBuilder.set(button + " #IconFrame #LockIconWrap.Visible", !discovered);
+            applyGridEntryState(commandBuilder, button, state);
             FishingJournalUi.setGridCellTooltip(
                 commandBuilder,
                 button,
                 FishSpeciesDisplayNames.resolve(species),
-                discovered
+                state
             );
 
             eventBuilder.addEventBinding(
@@ -202,60 +201,104 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
             commandBuilder.set("#FishName.TextSpans", Message.translation("server.cozytalefishing.journal.no_selection"));
             commandBuilder.set("#DetailInfoScroll.Visible", false);
             commandBuilder.set("#UndiscoveredHint.Visible", false);
+            commandBuilder.set("#HintedHint.Visible", false);
             commandBuilder.set(DETAIL_ICON + ".Visible", false);
             return;
         }
 
-        boolean discovered = records != null && records.isDiscovered(species.getId());
+        JournalEntryState state = JournalEntryState.fromRecords(records, species.getId());
         commandBuilder.set(DETAIL_ICON + ".Visible", true);
         FishingJournalUi.setFishIcon(commandBuilder, DETAIL_ICON + " #DetailFishIcon", species.getItemId());
-        commandBuilder.set(DETAIL_ICON + " #DetailDimOverlay.Visible", !discovered);
-        commandBuilder.set(DETAIL_ICON + " #DetailLockIconWrap.Visible", !discovered);
-        commandBuilder.set("#DetailInfoScroll.Visible", discovered);
-        commandBuilder.set("#UndiscoveredHint.Visible", !discovered);
+        applyDetailEntryState(commandBuilder, state);
 
-        if (discovered) {
-            commandBuilder.set("#FishName.TextSpans", Message.raw(FishSpeciesDisplayNames.resolve(species)));
-
-            commandBuilder.set(
-                "#HabitatBody.TextSpans",
-                Message.raw(
-                    FishSpeciesMetadataFormatter.formatWaterBodyTypes(species.getWaterBodyTypes())
-                        + "\n"
-                        + FishSpeciesMetadataFormatter.formatSpawnLocation(species)
-                        + "\n"
-                        + FishSpeciesMetadataFormatter.formatUnderground(species.isUndergroundOnly())
-                )
-            );
-
-            float[] dayRange = species.getDayTimeRange();
-            String timeOfDay = dayRange != null ? FishSpeciesMetadataFormatter.formatFloatRange(dayRange) : "—";
-            commandBuilder.set(
-                "#ConditionsBody.TextSpans",
-                Message.raw(
-                    "Rarity: "
-                        + FishSpeciesMetadataFormatter.formatRarity(species.getRarity())
-                        + "\nShadow: "
-                        + FishSpeciesMetadataFormatter.formatShadowType(species.getShadowType())
-                        + "\n"
-                        + FishSpeciesMetadataFormatter.formatSpawnRules(species)
-                        + "\nSize: "
-                        + FishSpeciesMetadataFormatter.formatSizeRange(species.getSizeRangeCm())
-                )
-            );
-
-            float personalBest = records != null ? records.getLargestSizeCm(species.getId()) : 0.0f;
-            if (personalBest > 0.0f) {
-                commandBuilder.set(
-                    "#RecordBody.TextSpans",
-                    Message.translation("server.cozytalefishing.journal.record_value")
-                        .param("size", String.format(Locale.US, "%.1f", personalBest))
-                );
-            } else {
-                commandBuilder.set("#RecordBody.TextSpans", Message.translation("server.cozytalefishing.journal.record_none"));
+        switch (state) {
+            case DISCOVERED -> {
+                commandBuilder.set("#FishName.TextSpans", Message.raw(FishSpeciesDisplayNames.resolve(species)));
+                populateHabitatAndConditions(commandBuilder, species);
+                populatePersonalBest(commandBuilder, records, species);
             }
+            case HINTED -> {
+                commandBuilder.set("#FishName.TextSpans", Message.translation("server.cozytalefishing.journal.undiscovered_name"));
+                populateHabitatAndConditions(commandBuilder, species);
+            }
+            case UNDISCOVERED -> commandBuilder.set(
+                "#FishName.TextSpans",
+                Message.translation("server.cozytalefishing.journal.undiscovered_name")
+            );
+        }
+    }
+
+    private static void applyGridEntryState(
+        @Nonnull UICommandBuilder commandBuilder,
+        @Nonnull String button,
+        @Nonnull JournalEntryState state
+    ) {
+        boolean showDim = state != JournalEntryState.DISCOVERED;
+        commandBuilder.set(button + " #IconFrame #DimOverlay.Visible", showDim);
+        commandBuilder.set(button + " #IconFrame #LockIconWrap.Visible", state == JournalEntryState.UNDISCOVERED);
+        commandBuilder.set(button + " #IconFrame #HintIconWrap.Visible", state == JournalEntryState.HINTED);
+    }
+
+    private static void applyDetailEntryState(@Nonnull UICommandBuilder commandBuilder, @Nonnull JournalEntryState state) {
+        boolean showDim = state != JournalEntryState.DISCOVERED;
+        commandBuilder.set(DETAIL_ICON + " #DetailDimOverlay.Visible", showDim);
+        commandBuilder.set(DETAIL_ICON + " #DetailLockIconWrap.Visible", state == JournalEntryState.UNDISCOVERED);
+        commandBuilder.set(DETAIL_ICON + " #DetailHintIconWrap.Visible", state == JournalEntryState.HINTED);
+        commandBuilder.set("#DetailInfoScroll.Visible", state != JournalEntryState.UNDISCOVERED);
+        commandBuilder.set("#UndiscoveredHint.Visible", state == JournalEntryState.UNDISCOVERED);
+        commandBuilder.set("#HintedHint.Visible", state == JournalEntryState.HINTED);
+        commandBuilder.set("#HabitatHeading.Visible", state != JournalEntryState.UNDISCOVERED);
+        commandBuilder.set("#HabitatBody.Visible", state != JournalEntryState.UNDISCOVERED);
+        commandBuilder.set("#ConditionsHeading.Visible", state != JournalEntryState.UNDISCOVERED);
+        commandBuilder.set("#ConditionsBody.Visible", state != JournalEntryState.UNDISCOVERED);
+        commandBuilder.set("#RecordHeading.Visible", state == JournalEntryState.DISCOVERED);
+        commandBuilder.set("#RecordBody.Visible", state == JournalEntryState.DISCOVERED);
+    }
+
+    private static void populateHabitatAndConditions(
+        @Nonnull UICommandBuilder commandBuilder,
+        @Nonnull FishSpeciesAsset species
+    ) {
+        commandBuilder.set(
+            "#HabitatBody.TextSpans",
+            Message.raw(
+                FishSpeciesMetadataFormatter.formatWaterBodyTypes(species.getWaterBodyTypes())
+                    + "\n"
+                    + FishSpeciesMetadataFormatter.formatSpawnLocation(species)
+                    + "\n"
+                    + FishSpeciesMetadataFormatter.formatUnderground(species.isUndergroundOnly())
+            )
+        );
+
+        commandBuilder.set(
+            "#ConditionsBody.TextSpans",
+            Message.raw(
+                "Rarity: "
+                    + FishSpeciesMetadataFormatter.formatRarity(species.getRarity())
+                    + "\nShadow: "
+                    + FishSpeciesMetadataFormatter.formatShadowType(species)
+                    + "\n"
+                    + FishSpeciesMetadataFormatter.formatSpawnRules(species)
+                    + "\nSize: "
+                    + FishSpeciesMetadataFormatter.formatSizeRange(species.getSizeRangeCm())
+            )
+        );
+    }
+
+    private static void populatePersonalBest(
+        @Nonnull UICommandBuilder commandBuilder,
+        @Nullable FishCatchRecordComponent records,
+        @Nonnull FishSpeciesAsset species
+    ) {
+        float personalBest = records != null ? records.getLargestSizeCm(species.getId()) : 0.0f;
+        if (personalBest > 0.0f) {
+            commandBuilder.set(
+                "#RecordBody.TextSpans",
+                Message.translation("server.cozytalefishing.journal.record_value")
+                    .param("size", String.format(Locale.US, "%.1f", personalBest))
+            );
         } else {
-            commandBuilder.set("#FishName.TextSpans", Message.translation("server.cozytalefishing.journal.undiscovered_name"));
+            commandBuilder.set("#RecordBody.TextSpans", Message.translation("server.cozytalefishing.journal.record_none"));
         }
     }
 

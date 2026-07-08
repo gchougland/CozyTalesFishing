@@ -29,6 +29,8 @@ public final class FishShadowComponent implements Component<EntityStore> {
     @Nonnull
     private String speciesId = "";
     @Nonnull
+    private FishShadowType shadowType = FishShadowType.Small;
+    @Nonnull
     private FishShadowState state = FishShadowState.WANDERING;
     @Nonnull
     private WaterBodyType waterBodyType = WaterBodyType.Pond;
@@ -67,6 +69,15 @@ public final class FishShadowComponent implements Component<EntityStore> {
 
     public void setSpeciesId(@Nonnull String speciesId) {
         this.speciesId = speciesId;
+    }
+
+    @Nonnull
+    public FishShadowType getShadowType() {
+        return shadowType;
+    }
+
+    public void setShadowType(@Nonnull FishShadowType shadowType) {
+        this.shadowType = shadowType;
     }
 
     @Nonnull
@@ -243,6 +254,7 @@ public final class FishShadowComponent implements Component<EntityStore> {
     public Component<EntityStore> clone() {
         FishShadowComponent copy = new FishShadowComponent();
         copy.speciesId = speciesId;
+        copy.shadowType = shadowType;
         copy.state = state;
         copy.waterBodyType = waterBodyType;
         copy.pokeCountRemaining = pokeCountRemaining;

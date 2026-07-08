@@ -124,6 +124,14 @@ public final class FishSpeciesMetadataFormatter {
     }
 
     @Nonnull
+    public static String formatShadowType(@Nonnull FishSpeciesAsset species) {
+        if (species.usesRandomShadowType()) {
+            return "Random";
+        }
+        return species.getShadowType().name();
+    }
+
+    @Nonnull
     public static String formatPersonalBest(float largestSizeCm) {
         if (largestSizeCm <= 0.0f) {
             return "—";

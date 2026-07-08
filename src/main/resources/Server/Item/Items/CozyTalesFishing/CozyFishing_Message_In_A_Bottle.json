@@ -1,0 +1,49 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.CozyFishing_Message_In_A_Bottle.name",
+    "Description": "server.items.CozyFishing_Message_In_A_Bottle.description"
+  },
+  "Categories": [
+    "Items.Deco"
+  ],
+  "Icon": "Icons/ItemsGenerated/CozyFishing_Message_In_A_Bottle.png",
+  "IconProperties": {
+    "Scale": 0.8,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      0,
+      -10
+    ]
+  },
+  "Model": "Items/Fishing/Message_In_A_Bottle.blockymodel",
+  "Texture": "Items/Fishing/Message_In_A_Bottle.png",
+  "Scale": 0.85,
+  "PlayerAnimationsId": "Block",
+  "ItemSoundSetId": "ISS_Items_Paper",
+  "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+  "Interactions": {
+    "Primary": {
+      "Interactions": [
+        {
+          "Type": "CozyOpenMessageInBottle"
+        }
+      ]
+    },
+    "Secondary": {
+      "Interactions": [
+        {
+          "Type": "CozyOpenMessageInBottle"
+        }
+      ]
+    }
+  },
+  "Tags": {
+    "Type": [
+      "Deco"
+    ]
+  }
+}

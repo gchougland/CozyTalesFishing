@@ -48,7 +48,7 @@ public final class FishSpeciesSpawnDebug {
     private static void appendSpawnRequirements(@Nonnull StringBuilder text, @Nonnull FishSpeciesAsset species) {
         text.append("  rarity=").append(species.getRarity().name());
         text.append(", weight=").append(species.getSpawnWeight());
-        text.append(", shadow=").append(species.getShadowType().name());
+        text.append(", shadow=").append(FishSpeciesMetadataFormatter.formatShadowType(species));
         text.append('\n');
         text.append("  spawnRules:\n");
         FishSpawnRules rules = species.getSpawnRules();
