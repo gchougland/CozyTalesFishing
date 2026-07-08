@@ -67,6 +67,48 @@ public final class FishSpeciesMetadataFormatter {
     }
 
     @Nonnull
+    public static String formatRuleMode(@Nullable FishSpawnRuleMode mode) {
+        if (mode == null || mode == FishSpawnRuleMode.Ignored) {
+            return "any";
+        }
+        return mode.name().toLowerCase(Locale.US);
+    }
+
+    @Nonnull
+    public static String formatDayTimeRule(@Nonnull FishSpawnRules.DayTimeRule rule) {
+        FishSpawnRuleMode mode = rule.getMode() != null ? rule.getMode() : FishSpawnRuleMode.Ignored;
+        if (mode == FishSpawnRuleMode.Ignored) {
+            return "Any time";
+        }
+        float[] range = rule.getRange();
+        String rangeText = range != null && range.length >= 2 ? formatFloatRange(range) : "—";
+        return rangeText + " (" + formatRuleMode(mode) + ")";
+    }
+
+    @Nonnull
+    public static String formatWeatherRule(@Nonnull FishSpawnRules.WeatherRule rule) {
+        FishSpawnRuleMode mode = rule.getMode() != null ? rule.getMode() : FishSpawnRuleMode.Ignored;
+        if (mode == FishSpawnRuleMode.Ignored || !rule.hasIds()) {
+            return "Any weather";
+        }
+        return formatWeather(rule.getIds()) + " (" + formatRuleMode(mode) + ")";
+    }
+
+    @Nonnull
+    public static String formatSpawnRules(@Nonnull FishSpeciesAsset species) {
+        FishSpawnRules rules = species.getSpawnRules();
+        StringBuilder text = new StringBuilder();
+        text.append("Time: ").append(formatDayTimeRule(rules.getDayTime()));
+        text.append("\nWeather: ").append(formatWeatherRule(rules.getWeather()));
+        FishSpawnRules.UndergroundRule underground = rules.getUnderground();
+        if (underground.getMode() != null && underground.getMode() != FishSpawnRuleMode.Ignored) {
+            text.append("\nDepth: ").append(formatUnderground(underground.getOnly() != null && underground.getOnly()));
+            text.append(" (").append(formatRuleMode(underground.getMode())).append(')');
+        }
+        return text.toString();
+    }
+
+    @Nonnull
     public static String formatUnderground(boolean undergroundOnly) {
         return undergroundOnly ? "Underground / caves" : "Surface";
     }

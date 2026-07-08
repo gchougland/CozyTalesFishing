@@ -3,11 +3,17 @@
   "ItemId": "Fish_Snapjaw_Item",
   "Rarity": "Rare",
   "SpawnWeight": 4,
-  "SpawnLocation": {"Environments":["Env_Zone3_Shores","Env_Zone3_Caves_Tundra","Env_Zone3_Caves_Forests","Env_Zone3_Caves_Glacial","Env_Zone3_Caves_Mountains","Env_Zone3_Caves"]},
-  "WaterBodyTypes": ["River", "Pond"],
-  "DayTimeRange": [6, 24],
-  "Weather": [],
-  "UndergroundOnly": true,
+  "SpawnRules": {
+    "WaterBody": {"Types": ["River", "Pond"], "Mode": "Required"},
+    "Location": {
+      "Environments": ["Env_Zone3_Shores", "Env_Zone3_Caves_Tundra", "Env_Zone3_Caves_Forests", "Env_Zone3_Caves_Glacial", "Env_Zone3_Caves_Mountains", "Env_Zone3_Caves"],
+      "EnvironmentMode": "Required",
+      "ZoneMode": "Required"
+    },
+    "Underground": {"Only": true, "Mode": "Required"},
+    "DayTime": {"Range": [18, 6], "Mode": "Required"},
+    "Weather": {"Ids": [], "Mode": "Ignored"}
+  },
   "VisionRange": 5,
   "VisionAngleDegrees": 80,
   "PokeReachBlocks": 0.55,

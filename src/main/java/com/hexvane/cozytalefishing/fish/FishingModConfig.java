@@ -229,6 +229,18 @@ public final class FishingModConfig {
                 a -> (double) a.ironTrashSpawnChance
             )
             .add()
+            .append(
+                new KeyedCodec<>("SpawnPreferredMissWeightMultiplier", Codec.DOUBLE),
+                (a, v) -> a.spawnPreferredMissWeightMultiplier = v.floatValue(),
+                a -> (double) a.spawnPreferredMissWeightMultiplier
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("SpawnPreferredMatchWeightMultiplier", Codec.DOUBLE),
+                (a, v) -> a.spawnPreferredMatchWeightMultiplier = v.floatValue(),
+                a -> (double) a.spawnPreferredMatchWeightMultiplier
+            )
+            .add()
             .build();
 
     @Nullable
@@ -311,6 +323,8 @@ public final class FishingModConfig {
     private double rodTipVerticalLift = 0.85;
     private float woodenTrashSpawnChance = 0.15f;
     private float ironTrashSpawnChance = 0.05f;
+    private float spawnPreferredMissWeightMultiplier = 0.35f;
+    private float spawnPreferredMatchWeightMultiplier = 1.25f;
 
     public int getShadowsPerPlayerCap() {
         return shadowsPerPlayerCap;
@@ -506,5 +520,13 @@ public final class FishingModConfig {
 
     public float getIronTrashSpawnChance() {
         return ironTrashSpawnChance;
+    }
+
+    public float getSpawnPreferredMissWeightMultiplier() {
+        return spawnPreferredMissWeightMultiplier;
+    }
+
+    public float getSpawnPreferredMatchWeightMultiplier() {
+        return spawnPreferredMatchWeightMultiplier;
     }
 }

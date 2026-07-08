@@ -354,6 +354,10 @@ public final class FishShadowSpawnHelper {
 
     public static boolean matchesDayTimeRange(@Nonnull FishSpeciesAsset species, @Nonnull WorldTimeResource worldTime) {
         float[] range = species.getDayTimeRange();
+        return matchesDayTimeRange(range, worldTime);
+    }
+
+    public static boolean matchesDayTimeRange(@Nullable float[] range, @Nonnull WorldTimeResource worldTime) {
         if (range == null || range.length < 2) {
             return true;
         }
@@ -363,7 +367,10 @@ public final class FishShadowSpawnHelper {
     }
 
     public static boolean matchesWeather(@Nonnull FishSpeciesAsset species, int currentWeatherIndex) {
-        int[] allowed = species.getWeatherIndexes();
+        return matchesWeather(species.getWeatherIndexes(), currentWeatherIndex);
+    }
+
+    public static boolean matchesWeather(@Nonnull int[] allowed, int currentWeatherIndex) {
         if (allowed.length == 0) {
             return true;
         }

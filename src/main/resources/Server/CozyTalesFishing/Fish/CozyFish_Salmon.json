@@ -3,11 +3,17 @@
   "ItemId": "Fish_Salmon_Item",
   "Rarity": "Uncommon",
   "SpawnWeight": 6,
-  "SpawnLocation": {"Environments":["Env_Zone3_Forests","Env_Zone3_Tundra","Env_Zone0_Cold"]},
-  "WaterBodyTypes": ["River", "Ocean", "Pond"],
-  "DayTimeRange": [6, 24],
-  "Weather": [],
-  "UndergroundOnly": false,
+  "SpawnRules": {
+    "WaterBody": {"Types": ["River", "Ocean", "Pond"], "Mode": "Required"},
+    "Location": {
+      "Environments": ["Env_Zone3_Forests", "Env_Zone3_Tundra", "Env_Zone0_Cold"],
+      "EnvironmentMode": "Required",
+      "ZoneMode": "Required"
+    },
+    "Underground": {"Only": false, "Mode": "Required"},
+    "DayTime": {"Range": [6, 18], "Mode": "Required"},
+    "Weather": {"Ids": [], "Mode": "Ignored"}
+  },
   "VisionRange": 5,
   "VisionAngleDegrees": 120,
   "PokeReachBlocks": 0.35,

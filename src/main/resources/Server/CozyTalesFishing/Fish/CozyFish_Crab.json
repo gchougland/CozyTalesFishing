@@ -3,11 +3,17 @@
   "ItemId": "Fish_Crab_Item",
   "Rarity": "Common",
   "SpawnWeight": 8,
-  "SpawnLocation": {"Environments":["Env_Zone1_Shores","Env_Zone2_Shores"]},
-  "WaterBodyTypes": ["Ocean"],
-  "DayTimeRange": [6, 24],
-  "Weather": [],
-  "UndergroundOnly": false,
+  "SpawnRules": {
+    "WaterBody": {"Types": ["Ocean"], "Mode": "Required"},
+    "Location": {
+      "Environments": ["Env_Zone1_Shores", "Env_Zone2_Shores"],
+      "EnvironmentMode": "Required",
+      "ZoneMode": "Required"
+    },
+    "Underground": {"Only": false, "Mode": "Required"},
+    "DayTime": {"Range": [6, 20], "Mode": "Preferred"},
+    "Weather": {"Ids": [], "Mode": "Ignored"}
+  },
   "VisionRange": 3.5,
   "VisionAngleDegrees": 100,
   "PokeReachBlocks": 0.3,

@@ -1,5 +1,5 @@
 items.CozyFishing_Wooden_Rod.name = Wooden Fishing Rod
-items.CozyFishing_Wooden_Rod.description = Hold to charge your cast, release to throw the bobber. Hold primary to reel in, secondary to recall.\n\nFight Stamina: 100\nStamina Regen: 20/s
+items.CozyFishing_Wooden_Rod.description = Hold to charge your cast, release to throw the bobber. Hold primary to reel in, secondary to recall.\n\nFight Stamina: 110\nStamina Regen: 22/s
 items.CozyFishing_Iron_Rod.name = Iron Fishing Rod
 items.CozyFishing_Iron_Rod.description = Hold to charge your cast, release to throw the bobber. Hold primary to reel in, secondary to recall.\n\nFight Stamina: 125\nStamina Regen: 24/s
 items.CozyFishing_Thorium_Rod.name = Thorium Fishing Rod
@@ -35,6 +35,10 @@ cozytalefishing.journal.command.page_busy = Close your current UI before opening
 cozytalefishing.journal.command.unlocked_all = Unlocked all {count} journal entries.
 cozytalefishing.journal.command.unlocked_one = Unlocked journal entry: {id}
 cozytalefishing.journal.command.unknown_species = Unknown fish species: {id}
+cozytalefishing.journal.command.reset_one = Reset catch records for {player}.
+cozytalefishing.journal.command.reset_all = Reset catch records for {count} online player(s).
+cozytalefishing.journal.command.reset_none_online = No online players to reset.
+cozytalefishing.journal.command.player_not_in_world = That player is not in a world.
 
 # Spawn location display names (journal habitat panel)
 cozytalefishing.spawn.environment.Env_Zone0_Warm = Warm Ocean

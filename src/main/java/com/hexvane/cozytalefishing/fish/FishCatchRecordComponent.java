@@ -110,6 +110,11 @@ public final class FishCatchRecordComponent implements Component<EntityStore> {
         return discoveredSpeciesIds.size();
     }
 
+    public void clear() {
+        largestSizeCmBySpecies.clear();
+        discoveredSpeciesIds.clear();
+    }
+
     @Nonnull
     @Override
     public Component<EntityStore> clone() {

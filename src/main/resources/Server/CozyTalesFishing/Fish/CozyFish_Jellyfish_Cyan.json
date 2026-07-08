@@ -3,11 +3,17 @@
   "ItemId": "Fish_Jellyfish_Cyan_Item",
   "Rarity": "Uncommon",
   "SpawnWeight": 5,
-  "SpawnLocation": {"Environments":["Env_Zone2_Shores"]},
-  "WaterBodyTypes": ["Ocean"],
-  "DayTimeRange": [6, 24],
-  "Weather": [],
-  "UndergroundOnly": false,
+  "SpawnRules": {
+    "WaterBody": {"Types": ["Ocean"], "Mode": "Required"},
+    "Location": {
+      "Environments": ["Env_Zone1_Shores", "Env_Zone2_Shores"],
+      "EnvironmentMode": "Required",
+      "ZoneMode": "Required"
+    },
+    "Underground": {"Only": false, "Mode": "Required"},
+    "DayTime": {"Range": [18, 6], "Mode": "Preferred"},
+    "Weather": {"Ids": [], "Mode": "Ignored"}
+  },
   "VisionRange": 5,
   "VisionAngleDegrees": 130,
   "PokeReachBlocks": 0.5,

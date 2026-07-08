@@ -3,11 +3,20 @@
   "ItemId": "Fish_Catfish_Item",
   "Rarity": "Uncommon",
   "SpawnWeight": 10,
-  "SpawnLocation": {"Environments":["Env_Zone1_Forests","Env_Zone2_Savanna"]},
-  "WaterBodyTypes": ["River", "Pond"],
-  "DayTimeRange": [6, 24],
-  "Weather": ["Zone1_Rain", "Zone1_Rain_Light", "Zone1_Storm", "Zone2_Thunder_Storm"],
-  "UndergroundOnly": false,
+  "SpawnRules": {
+    "WaterBody": {"Types": ["River", "Pond"], "Mode": "Required"},
+    "Location": {
+      "Environments": ["Env_Zone1_Forests", "Env_Zone1_Swamps"],
+      "EnvironmentMode": "Required",
+      "ZoneMode": "Required"
+    },
+    "Underground": {"Only": false, "Mode": "Required"},
+    "DayTime": {"Range": [6, 24], "Mode": "Preferred"},
+    "Weather": {
+      "Ids": ["Zone1_Rain", "Zone1_Rain_Light", "Zone1_Storm", "Zone2_Thunder_Storm"],
+      "Mode": "Required"
+    }
+  },
   "VisionRange": 5,
   "VisionAngleDegrees": 120,
   "PokeReachBlocks": 0.4,

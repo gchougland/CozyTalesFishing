@@ -3,7 +3,6 @@ package com.hexvane.cozytalefishing.fish;
 import com.hypixel.hytale.assetstore.AssetExtraInfo;
 import com.hypixel.hytale.assetstore.AssetRegistry;
 import com.hypixel.hytale.assetstore.codec.AssetBuilderCodec;
-import com.hypixel.hytale.assetstore.map.AssetMapWithIndexes;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.assetstore.map.JsonAssetWithMap;
 import com.hypixel.hytale.codec.Codec;
@@ -11,8 +10,7 @@ import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.codecs.array.ArrayCodec;
 import com.hypixel.hytale.codec.validation.Validators;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
-import com.hypixel.hytale.server.core.asset.type.weather.config.Weather;
-import java.util.Arrays;
+import com.hexvane.cozytalefishing.fish.FishSpawnRules.UndergroundRule;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -37,15 +35,14 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
             .add()
             .append(new KeyedCodec<>("Rarity", Codec.STRING), (a, v) -> a.rarityRaw = v, a -> a.rarityRaw).add()
             .append(new KeyedCodec<>("SpawnWeight", Codec.INTEGER), (a, v) -> a.spawnWeight = v, a -> a.spawnWeight).add()
+            .append(new KeyedCodec<>("SpawnRules", FishSpawnRules.CODEC), (a, v) -> a.spawnRules = v, a -> a.spawnRules).add()
             .append(new KeyedCodec<>("SpawnLocation", FishSpawnLocation.CODEC), (a, v) -> a.spawnLocation = v, a -> a.spawnLocation)
-            .addValidator(Validators.nonNull())
             .add()
             .append(
                 new KeyedCodec<>("WaterBodyTypes", new ArrayCodec<>(Codec.STRING, String[]::new)),
                 (a, v) -> a.waterBodyTypesRaw = v,
                 a -> a.waterBodyTypesRaw
             )
-            .addValidator(Validators.nonNull())
             .add()
             .append(
                 new KeyedCodec<>("DayTimeRange", new ArrayCodec<>(Codec.DOUBLE, Double[]::new)),
@@ -101,6 +98,8 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
     private String rarityRaw = "Common";
     private int spawnWeight = 10;
     @Nullable
+    private FishSpawnRules spawnRules;
+    @Nullable
     private FishSpawnLocation spawnLocation;
     @Nullable
     private String[] waterBodyTypesRaw = new String[0];
@@ -138,44 +137,49 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
         asset.shadowType = type != null ? type : FishShadowType.Small;
         FishRarity parsedRarity = FishRarity.fromString(asset.rarityRaw);
         asset.rarity = parsedRarity != null ? parsedRarity : FishRarity.Common;
-        if (asset.waterBodyTypesRaw != null) {
-            WaterBodyType[] parsed = new WaterBodyType[asset.waterBodyTypesRaw.length];
-            for (int i = 0; i < asset.waterBodyTypesRaw.length; i++) {
-                WaterBodyType bodyType = WaterBodyType.fromString(asset.waterBodyTypesRaw[i]);
-                parsed[i] = bodyType != null ? bodyType : WaterBodyType.Pond;
-            }
-            asset.waterBodyTypes = parsed;
+
+        if (asset.spawnRules == null) {
+            asset.spawnRules = FishSpawnRules.fromLegacy(asset);
         }
-        asset.requiresUnderground = asset.undergroundOnly;
-        asset.requiresSurface = !asset.undergroundOnly;
-        asset.weatherIndexes = resolveWeatherIndexes(asset.weatherIds);
+        syncLegacyFieldsFromRules(asset);
+
+        asset.requiresUnderground = asset.spawnRules.isUndergroundOnly();
+        asset.requiresSurface = !asset.requiresUnderground;
     }
 
-    @Nonnull
-    private static int[] resolveWeatherIndexes(@Nullable String[] weatherIds) {
-        if (weatherIds == null || weatherIds.length == 0) {
-            return new int[0];
-        }
-        int[] indexes = new int[weatherIds.length];
-        int count = 0;
-        for (String weatherId : weatherIds) {
-            if (weatherId == null || weatherId.isEmpty()) {
-                continue;
-            }
-            int index = Weather.getAssetMap().getIndex(weatherId);
-            if (index == AssetMapWithIndexes.NOT_FOUND) {
-                continue;
-            }
-            indexes[count++] = index;
-        }
-        if (count == 0) {
-            return new int[0];
-        }
-        if (count < indexes.length) {
-            indexes = Arrays.copyOf(indexes, count);
-        }
-        Arrays.sort(indexes);
-        return indexes;
+    private static void syncLegacyFieldsFromRules(@Nonnull FishSpeciesAsset asset) {
+        FishSpawnRules rules = asset.spawnRules;
+        asset.spawnLocation = rules.toSpawnLocation();
+        asset.waterBodyTypes = rules.getWaterBodyTypes();
+        asset.dayTimeRange = rules.getDayTimeRange();
+        asset.weatherIds = rules.getWeatherIds();
+        asset.weatherIndexes = rules.getWeatherIndexes();
+        UndergroundRule underground = rules.getUnderground();
+        asset.undergroundOnly = underground.getOnly() != null && underground.getOnly();
+    }
+
+    @Nullable
+    String[] getLegacyWaterBodyTypesRaw() {
+        return waterBodyTypesRaw;
+    }
+
+    @Nullable
+    FishSpawnLocation getLegacySpawnLocation() {
+        return spawnLocation;
+    }
+
+    @Nullable
+    float[] getLegacyDayTimeRange() {
+        return dayTimeRange;
+    }
+
+    @Nullable
+    String[] getLegacyWeatherIds() {
+        return weatherIds;
+    }
+
+    boolean getLegacyUndergroundOnly() {
+        return undergroundOnly;
     }
 
     @Override
@@ -203,8 +207,13 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
     }
 
     @Nonnull
+    public FishSpawnRules getSpawnRules() {
+        return spawnRules != null ? spawnRules : new FishSpawnRules();
+    }
+
+    @Nonnull
     public FishSpawnLocation getSpawnLocation() {
-        return spawnLocation != null ? spawnLocation : new FishSpawnLocation();
+        return spawnLocation != null ? spawnLocation : getSpawnRules().toSpawnLocation();
     }
 
     @Nonnull

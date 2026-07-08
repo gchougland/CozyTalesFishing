@@ -50,6 +50,18 @@ public final class WaterBodyClassifier {
         int blockZ,
         @Nonnull Context context
     ) {
+        return classify(world, blockX, surfaceY, blockZ, context, -1);
+    }
+
+    @Nullable
+    public static WaterBodyType classify(
+        @Nonnull World world,
+        int blockX,
+        int surfaceY,
+        int blockZ,
+        @Nonnull Context context,
+        int environmentIndex
+    ) {
         FishingModConfig config = FishingModConfig.get();
         WorldCache cache = WORLD_CACHES.computeIfAbsent(world.getWorldConfig().getUuid(), ignored -> new WorldCache(config.getWaterBodyCacheSize()));
         long regionKey = regionKey(blockX, surfaceY, blockZ, config.getWaterBodyCellSize());
@@ -65,36 +77,99 @@ public final class WaterBodyClassifier {
         }
 
         String biomeName = resolveBiomeName(world, blockX, blockZ);
-        if (biomeName != null) {
-            WaterBodyType override = WaterBodyBiomeOverridesAsset.getOrEmpty().resolveBiomeName(biomeName);
-            if (override != null) {
-                tier1Hits++;
-                cache.put(regionKey, override);
-                return override;
-            }
-            String lower = biomeName.toLowerCase();
-            if (lower.contains("river") || lower.contains("creek") || lower.contains("stream")) {
-                tier1Hits++;
-                cache.put(regionKey, WaterBodyType.River);
-                return WaterBodyType.River;
-            }
-            if (lower.contains("pond") || lower.contains("oasis") || lower.contains("lake")) {
-                tier1Hits++;
-                cache.put(regionKey, WaterBodyType.Pond);
-                return WaterBodyType.Pond;
-            }
+        WaterBodyType tier1 = resolveTier1Biome(biomeName);
+        if (tier1 != null) {
+            tier1Hits++;
+            cache.put(regionKey, tier1);
+            return tier1;
         }
 
+        WaterBodyType classified;
         if (!context.consumeFloodFillBudget()) {
-            return classifyFromLocalColumn(world, blockX, surfaceY, blockZ, config);
+            classified = classifyFromLocalColumn(world, blockX, surfaceY, blockZ, config, biomeName, environmentIndex);
+        } else {
+            classified = classifyByGeometry(world, blockX, surfaceY, blockZ, config, biomeName, environmentIndex);
+            tier2Hits++;
         }
 
-        WaterBodyType geometry = classifyByGeometry(world, blockX, surfaceY, blockZ, config);
-        tier2Hits++;
-        if (geometry != null) {
-            cache.put(regionKey, geometry);
+        if (classified != null) {
+            cache.put(regionKey, classified);
         }
-        return geometry;
+        return classified;
+    }
+
+    /**
+     * Corrects geometry-based misclassification when the column is in an ocean/shore biome or environment.
+     * Freshwater rivers named in the biome are preserved.
+     */
+    @Nonnull
+    public static WaterBodyType correctForOceanContext(
+        @Nonnull WaterBodyType classified,
+        @Nullable String biomeName,
+        int environmentIndex
+    ) {
+        if (classified == WaterBodyType.Ocean) {
+            return WaterBodyType.Ocean;
+        }
+        if (classified == WaterBodyType.River && isRiverBiomeName(biomeName)) {
+            return WaterBodyType.River;
+        }
+        if (isOceanBiomeName(biomeName) || isOceanEnvironment(environmentIndex)) {
+            return WaterBodyType.Ocean;
+        }
+        return classified;
+    }
+
+    @Nullable
+    private static WaterBodyType resolveTier1Biome(@Nullable String biomeName) {
+        if (biomeName == null) {
+            return null;
+        }
+        WaterBodyType override = WaterBodyBiomeOverridesAsset.getOrEmpty().resolveBiomeName(biomeName);
+        if (override != null) {
+            return override;
+        }
+        String lower = biomeName.toLowerCase();
+        if (isRiverBiomeName(biomeName)) {
+            return WaterBodyType.River;
+        }
+        if (isOceanBiomeName(biomeName)) {
+            return WaterBodyType.Ocean;
+        }
+        if (lower.contains("pond") || lower.contains("oasis") || lower.contains("lake")) {
+            return WaterBodyType.Pond;
+        }
+        return null;
+    }
+
+    private static boolean isRiverBiomeName(@Nullable String biomeName) {
+        if (biomeName == null) {
+            return false;
+        }
+        String lower = biomeName.toLowerCase();
+        return lower.contains("river") || lower.contains("creek") || lower.contains("stream");
+    }
+
+    private static boolean isOceanBiomeName(@Nullable String biomeName) {
+        if (biomeName == null) {
+            return false;
+        }
+        String lower = biomeName.toLowerCase();
+        return lower.contains("shore")
+            || lower.contains("ocean")
+            || lower.contains("shallow_ocean")
+            || lower.contains("coast")
+            || lower.contains("beach")
+            || lower.contains("reef")
+            || lower.contains("sea");
+    }
+
+    private static boolean isOceanEnvironment(int environmentIndex) {
+        return environmentIndex >= 0 && FishSpeciesRegistry.getOceanEnvironmentIndices().contains(environmentIndex);
+    }
+
+    public static boolean isOceanEnvironmentForSpawn(int environmentIndex) {
+        return isOceanEnvironment(environmentIndex);
     }
 
     public static void logStatsAndReset() {
@@ -122,16 +197,22 @@ public final class WaterBodyClassifier {
         int blockX,
         int surfaceY,
         int blockZ,
-        @Nonnull FishingModConfig config
+        @Nonnull FishingModConfig config,
+        @Nullable String biomeName,
+        int environmentIndex
     ) {
         int depth = measureDepth(world, blockX, surfaceY, blockZ);
         if (depth <= 0) {
             return null;
         }
+        if (isOceanBiomeName(biomeName) || isOceanEnvironment(environmentIndex)) {
+            return WaterBodyType.Ocean;
+        }
         if (depth < config.getOceanMinDepth() && depth <= 4) {
             return WaterBodyType.Pond;
         }
-        return depth >= config.getOceanMinDepth() ? WaterBodyType.Ocean : WaterBodyType.River;
+        WaterBodyType byDepth = depth >= config.getOceanMinDepth() ? WaterBodyType.Ocean : WaterBodyType.River;
+        return correctForOceanContext(byDepth, biomeName, environmentIndex);
     }
 
     @Nullable
@@ -140,7 +221,9 @@ public final class WaterBodyClassifier {
         int startX,
         int surfaceY,
         int startZ,
-        @Nonnull FishingModConfig config
+        @Nonnull FishingModConfig config,
+        @Nullable String biomeName,
+        int environmentIndex
     ) {
         BfsState state = BFS_STATE.get();
         state.reset(config.getFloodFillMaxRadius());
@@ -186,18 +269,21 @@ public final class WaterBodyClassifier {
         int minDim = Math.max(1, Math.min(width, length));
         float aspectRatio = maxDim / (float) minDim;
 
+        WaterBodyType geometry;
         if (blockCount <= config.getPondMaxBlocks() && maxDim <= config.getPondMaxDimension()) {
-            return WaterBodyType.Pond;
+            geometry = WaterBodyType.Pond;
+        } else if (aspectRatio >= config.getRiverMinAspectRatio()) {
+            geometry = WaterBodyType.River;
+        } else {
+            boolean deepEnough = maxDepth >= config.getOceanMinDepth();
+            boolean wideEnough = blockCount >= config.getOceanMinBlocks();
+            if (deepEnough && wideEnough && aspectRatio < 2.5f) {
+                geometry = WaterBodyType.Ocean;
+            } else {
+                geometry = aspectRatio > 2.0f ? WaterBodyType.River : WaterBodyType.Pond;
+            }
         }
-        if (aspectRatio >= config.getRiverMinAspectRatio()) {
-            return WaterBodyType.River;
-        }
-        boolean deepEnough = maxDepth >= config.getOceanMinDepth();
-        boolean wideEnough = blockCount >= config.getOceanMinBlocks();
-        if (deepEnough && wideEnough && aspectRatio < 2.5f) {
-            return WaterBodyType.Ocean;
-        }
-        return aspectRatio > 2.0f ? WaterBodyType.River : WaterBodyType.Pond;
+        return correctForOceanContext(geometry, biomeName, environmentIndex);
     }
 
     private static void expand(

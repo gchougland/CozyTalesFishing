@@ -2,6 +2,12 @@
   "BiomePatterns": {
     "*River*": "River",
     "*Pond*": "Pond",
-    "*Oasis*": "Pond"
+    "*Oasis*": "Pond",
+    "*Shores*": "Ocean",
+    "*Ocean*": "Ocean",
+    "*Shallow_Ocean*": "Ocean",
+    "*Coast*": "Ocean",
+    "*Beach*": "Ocean",
+    "*Reef*": "Ocean"
   }
 }

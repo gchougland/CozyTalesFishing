@@ -3,11 +3,13 @@
   "ItemId": "Fish_Minnow_Item",
   "Rarity": "Common",
   "SpawnWeight": 10,
-  "SpawnLocation": {"Zone":"Zone1"},
-  "WaterBodyTypes": ["Pond", "River"],
-  "DayTimeRange": [6, 24],
-  "Weather": [],
-  "UndergroundOnly": false,
+  "SpawnRules": {
+    "WaterBody": {"Types": ["Pond", "River"], "Mode": "Required"},
+    "Location": {"Zone": "Zone1", "ZoneMode": "Required"},
+    "Underground": {"Only": false, "Mode": "Required"},
+    "DayTime": {"Range": [6, 20], "Mode": "Preferred"},
+    "Weather": {"Ids": [], "Mode": "Ignored"}
+  },
   "VisionRange": 3,
   "VisionAngleDegrees": 90,
   "PokeReachBlocks": 0.2,

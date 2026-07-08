@@ -237,10 +237,8 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
                         + FishSpeciesMetadataFormatter.formatRarity(species.getRarity())
                         + "\nShadow: "
                         + FishSpeciesMetadataFormatter.formatShadowType(species.getShadowType())
-                        + "\nTime: "
-                        + timeOfDay
-                        + "\nWeather: "
-                        + FishSpeciesMetadataFormatter.formatWeather(species.getWeatherIds())
+                        + "\n"
+                        + FishSpeciesMetadataFormatter.formatSpawnRules(species)
                         + "\nSize: "
                         + FishSpeciesMetadataFormatter.formatSizeRange(species.getSizeRangeCm())
                 )

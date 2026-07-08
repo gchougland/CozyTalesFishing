@@ -3,11 +3,17 @@
   "ItemId": "Fish_Trilobite_Black_Item",
   "Rarity": "Rare",
   "SpawnWeight": 4,
-  "SpawnLocation": {"Environments":["Env_Zone2_Deserts","Env_Zone2_Oasis"]},
-  "WaterBodyTypes": ["River", "Pond"],
-  "DayTimeRange": [6, 24],
-  "Weather": [],
-  "UndergroundOnly": false,
+  "SpawnRules": {
+    "WaterBody": {"Types": ["River", "Pond"], "Mode": "Required"},
+    "Location": {
+      "Environments": ["Env_Zone2_Deserts", "Env_Zone2_Oasis"],
+      "EnvironmentMode": "Required",
+      "ZoneMode": "Required"
+    },
+    "Underground": {"Only": false, "Mode": "Required"},
+    "DayTime": {"Range": [6, 18], "Mode": "Required"},
+    "Weather": {"Ids": [], "Mode": "Ignored"}
+  },
   "VisionRange": 4.5,
   "VisionAngleDegrees": 90,
   "PokeReachBlocks": 0.55,

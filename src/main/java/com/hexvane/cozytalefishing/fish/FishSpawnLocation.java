@@ -61,6 +61,18 @@ public final class FishSpawnLocation {
         return biomes != null && biomes.length > 0;
     }
 
+    void setZone(@Nullable String zone) {
+        this.zone = zone;
+    }
+
+    void setEnvironments(@Nullable String[] environments) {
+        this.environments = environments;
+    }
+
+    void setBiomes(@Nullable String[] biomes) {
+        this.biomes = biomes;
+    }
+
     @Nonnull
     @Override
     public String toString() {

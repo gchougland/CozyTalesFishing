@@ -3,11 +3,17 @@
   "ItemId": "Fish_Jellyfish_Man_Of_War_Item",
   "Rarity": "Rare",
   "SpawnWeight": 3,
-  "SpawnLocation": {"Environments":["Env_Zone2_Shores"]},
-  "WaterBodyTypes": ["Ocean"],
-  "DayTimeRange": [6, 24],
-  "Weather": [],
-  "UndergroundOnly": false,
+  "SpawnRules": {
+    "WaterBody": {"Types": ["Ocean"], "Mode": "Required"},
+    "Location": {
+      "Environments": ["Env_Zone2_Shores"],
+      "EnvironmentMode": "Required",
+      "ZoneMode": "Required"
+    },
+    "Underground": {"Only": false, "Mode": "Required"},
+    "DayTime": {"Range": [6, 18], "Mode": "Required"},
+    "Weather": {"Ids": ["Zone1_Storm", "Zone2_Thunder_Storm"], "Mode": "Preferred"}
+  },
   "VisionRange": 5.5,
   "VisionAngleDegrees": 135,
   "PokeReachBlocks": 0.35,

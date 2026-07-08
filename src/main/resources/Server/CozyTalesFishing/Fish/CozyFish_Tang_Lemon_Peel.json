@@ -3,11 +3,17 @@
   "ItemId": "Fish_Tang_Lemon_Peel_Item",
   "Rarity": "Uncommon",
   "SpawnWeight": 6,
-  "SpawnLocation": {"Environments":["Env_Zone1_Shores","Env_Zone2_Shores"]},
-  "WaterBodyTypes": ["Ocean"],
-  "DayTimeRange": [6, 24],
-  "Weather": [],
-  "UndergroundOnly": false,
+  "SpawnRules": {
+    "WaterBody": {"Types": ["Ocean"], "Mode": "Required"},
+    "Location": {
+      "Environments": ["Env_Zone1_Shores", "Env_Zone2_Shores"],
+      "EnvironmentMode": "Required",
+      "ZoneMode": "Required"
+    },
+    "Underground": {"Only": false, "Mode": "Required"},
+    "DayTime": {"Range": [6, 18], "Mode": "Required"},
+    "Weather": {"Ids": [], "Mode": "Ignored"}
+  },
   "VisionRange": 4.5,
   "VisionAngleDegrees": 115,
   "PokeReachBlocks": 0.35,

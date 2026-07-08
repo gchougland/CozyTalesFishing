@@ -12,6 +12,12 @@ import javax.annotation.Nullable;
 import org.joml.Vector3d;
 
 public final class FishCatchService {
+    /**
+     * Skews rolled size toward the minimum of {@link FishSpeciesAsset#getSizeRangeCm()}.
+     * Values above 1 make larger sizes progressively rarer (2 ≈ median at 25% of the range).
+     */
+    private static final float SIZE_SKEW_EXPONENT = 2.0f;
+
     private FishCatchService() {}
 
     public static float rollSizeCm(@Nonnull FishSpeciesAsset species) {
@@ -24,7 +30,16 @@ public final class FishCatchService {
         }
         float min = Math.min(range[0], range[1]);
         float max = Math.max(range[0], range[1]);
-        return min + (float) Math.random() * (max - min);
+        return rollSkewedSizeCm(min, max);
+    }
+
+    private static float rollSkewedSizeCm(float min, float max) {
+        if (max <= min) {
+            return min;
+        }
+        float span = max - min;
+        float t = (float) Math.pow(Math.random(), SIZE_SKEW_EXPONENT);
+        return min + t * span;
     }
 
     public static void notifyEscape(

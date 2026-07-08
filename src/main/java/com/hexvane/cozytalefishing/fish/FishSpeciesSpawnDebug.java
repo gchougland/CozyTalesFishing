@@ -50,19 +50,16 @@ public final class FishSpeciesSpawnDebug {
         text.append(", weight=").append(species.getSpawnWeight());
         text.append(", shadow=").append(species.getShadowType().name());
         text.append('\n');
-        text.append("  waterBodyTypes=").append(FishSpeciesMetadataFormatter.formatWaterBodyTypes(species.getWaterBodyTypes()));
-        text.append('\n');
-        text.append("  undergroundOnly=").append(species.isUndergroundOnly());
-        text.append('\n');
-
-        float[] dayRange = species.getDayTimeRange();
-        if (dayRange != null && dayRange.length >= 2) {
-            text.append("  dayTimeRange=").append(FishSpeciesMetadataFormatter.formatFloatRange(dayRange));
-            text.append('\n');
+        text.append("  spawnRules:\n");
+        FishSpawnRules rules = species.getSpawnRules();
+        text.append("    dayTime=").append(FishSpeciesMetadataFormatter.formatDayTimeRule(rules.getDayTime())).append('\n');
+        text.append("    weather=").append(FishSpeciesMetadataFormatter.formatWeatherRule(rules.getWeather())).append('\n');
+        text.append("    waterBody=").append(FishSpeciesMetadataFormatter.formatWaterBodyTypes(species.getWaterBodyTypes()));
+        text.append(" (").append(FishSpeciesMetadataFormatter.formatRuleMode(rules.getWaterBody().getMode())).append(")\n");
+        text.append("    underground=").append(FishSpeciesMetadataFormatter.formatUnderground(species.isUndergroundOnly()));
+        if (rules.getUnderground().getMode() != null) {
+            text.append(" (").append(FishSpeciesMetadataFormatter.formatRuleMode(rules.getUnderground().getMode())).append(')');
         }
-
-        String[] weather = species.getWeatherIds();
-        text.append("  weather=").append(weather != null && weather.length > 0 ? Arrays.toString(weather) : "any");
         text.append('\n');
 
         FishSpawnLocation location = species.getSpawnLocation();
@@ -145,33 +142,27 @@ public final class FishSpeciesSpawnDebug {
         text.append('\n');
 
         if (surfaceY >= 0) {
+            FishingModConfig config = FishingModConfig.get();
             FishShadowSpawnHelper.SpawnConditions spawnConditions =
                 FishShadowSpawnHelper.resolveSpawnConditions(world, catchEnvironmentIndex);
-            boolean envMatch =
-                FishShadowSpawnHelper.matchesSpawnEnvironment(
-                    species,
+            FishSpawnRulesEvaluator.SpawnEvaluationContext context =
+                new FishSpawnRulesEvaluator.SpawnEvaluationContext(
+                    shadow.getWaterBodyType(),
                     catchEnvironmentIndex,
-                    world,
                     blockX,
                     blockZ,
-                    FishShadowSpawnHelper.EnvironmentMatchMode.STRICT,
-                    regionContext
+                    surfaceY,
+                    world,
+                    spawnConditions,
+                    regionContext,
+                    config
                 );
-            boolean undergroundMatch =
-                FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species, regionContext);
-            boolean dayTimeMatch = FishShadowSpawnHelper.matchesDayTimeRange(species, spawnConditions.worldTime());
-            boolean weatherMatch = FishShadowSpawnHelper.matchesWeather(species, spawnConditions.weatherIndex());
-            boolean waterBodyMatch = species.matchesWaterBody(shadow.getWaterBodyType());
-            text.append("  matches: waterBody=")
-                .append(waterBodyMatch)
-                .append(", environment=")
-                .append(envMatch)
-                .append(", underground=")
-                .append(undergroundMatch)
-                .append(", dayTime=")
-                .append(dayTimeMatch)
-                .append(", weather=")
-                .append(weatherMatch);
+            FishSpawnRulesEvaluator.SpawnRuleResult result =
+                FishSpawnRulesEvaluator.evaluate(species, context);
+            text.append("  spawnRulesEligible=").append(result.eligible());
+            text.append(", weightMultiplier=").append(String.format(Locale.US, "%.2f", result.weightMultiplier()));
+            text.append('\n');
+            text.append("  ruleMatches=").append(result.ruleMatches());
             text.append('\n');
             WorldTimeResource worldTime = spawnConditions.worldTime();
             text.append("  currentHour=")

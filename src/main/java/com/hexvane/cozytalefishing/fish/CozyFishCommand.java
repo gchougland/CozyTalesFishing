@@ -5,6 +5,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.environment.config.Environment;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
+import com.hypixel.hytale.server.core.command.system.basecommands.AbstractAsyncCommand;
 import com.hypixel.hytale.server.core.command.system.basecommands.CommandBase;
 import com.hypixel.hytale.server.core.command.system.arguments.system.FlagArg;
 import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
@@ -12,6 +13,7 @@ import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredAr
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractCommandCollection;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.permissions.HytalePermissions;
@@ -19,14 +21,21 @@ import com.hypixel.hytale.server.core.permissions.provider.HytalePermissionsProv
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.joml.Vector3d;
 
+import static com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes.PLAYER_REF;
 import static com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes.STRING;
 
 /** Root admin command collection for Cozy Tales fishing tools. */
@@ -84,6 +93,7 @@ public final class CozyFishCommand extends AbstractCommandCollection {
             requirePermission(HytalePermissions.fromCommand("cozyfish.journal"));
             addSubCommand(new JournalOpenCommand());
             addSubCommand(new JournalUnlockCommand());
+            addSubCommand(new JournalResetRecordsCommand());
         }
     }
 
@@ -158,6 +168,103 @@ public final class CozyFishCommand extends AbstractCommandCollection {
             store.putComponent(ref, FishCatchRecordComponent.getComponentType(), records);
             context.sendMessage(Message.translation("server.cozytalefishing.journal.command.unlocked_one").param("id", trimmed));
         }
+    }
+
+    static final class JournalResetRecordsCommand extends AbstractAsyncCommand {
+        @Nonnull
+        private final OptionalArg<PlayerRef> playerArg =
+            withOptionalArg("player", "Player to reset (omit to reset all online players).", PLAYER_REF);
+
+        JournalResetRecordsCommand() {
+            super("resetrecords", "Reset fishing journal catch records.");
+            requirePermission(HytalePermissions.fromCommand("cozyfish.journal.resetrecords"));
+        }
+
+        @Override
+        protected CompletableFuture<Void> executeAsync(@Nonnull CommandContext context) {
+            if (playerArg.provided(context)) {
+                PlayerRef target = playerArg.get(context);
+                Ref<EntityStore> ref = target.getReference();
+                if (ref == null || !ref.isValid()) {
+                    context.sendMessage(Message.translation("server.cozytalefishing.journal.command.player_not_in_world"));
+                    return CompletableFuture.completedFuture(null);
+                }
+                Store<EntityStore> store = ref.getStore();
+                World world = store.getExternalData().getWorld();
+                return runAsync(
+                    context,
+                    () -> {
+                        resetCatchRecords(store, ref);
+                        context.sendMessage(
+                            Message.translation("server.cozytalefishing.journal.command.reset_one")
+                                .param("player", target.getUsername())
+                        );
+                    },
+                    world
+                );
+            }
+
+            Collection<PlayerRef> players = Universe.get().getPlayers();
+            if (players.isEmpty()) {
+                context.sendMessage(Message.translation("server.cozytalefishing.journal.command.reset_none_online"));
+                return CompletableFuture.completedFuture(null);
+            }
+
+            Map<World, List<Ref<EntityStore>>> byWorld = new HashMap<>();
+            for (PlayerRef playerRef : players) {
+                Ref<EntityStore> ref = playerRef.getReference();
+                if (ref == null || !ref.isValid()) {
+                    continue;
+                }
+                Store<EntityStore> store = ref.getStore();
+                World world = store.getExternalData().getWorld();
+                byWorld.computeIfAbsent(world, ignored -> new ArrayList<>()).add(ref);
+            }
+
+            if (byWorld.isEmpty()) {
+                context.sendMessage(Message.translation("server.cozytalefishing.journal.command.reset_none_online"));
+                return CompletableFuture.completedFuture(null);
+            }
+
+            AtomicInteger resetCount = new AtomicInteger();
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
+            for (Map.Entry<World, List<Ref<EntityStore>>> entry : byWorld.entrySet()) {
+                World world = entry.getKey();
+                List<Ref<EntityStore>> refs = entry.getValue();
+                futures.add(
+                    runAsync(
+                        context,
+                        () -> {
+                            Store<EntityStore> store = world.getEntityStore().getStore();
+                            for (Ref<EntityStore> ref : refs) {
+                                resetCatchRecords(store, ref);
+                                resetCount.incrementAndGet();
+                            }
+                        },
+                        world
+                    )
+                );
+            }
+
+            return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new))
+                .thenRun(
+                    () ->
+                        context.sendMessage(
+                            Message.translation("server.cozytalefishing.journal.command.reset_all")
+                                .param("count", resetCount.get())
+                        )
+                );
+        }
+    }
+
+    private static void resetCatchRecords(@Nonnull Store<EntityStore> store, @Nonnull Ref<EntityStore> ref) {
+        FishCatchRecordComponent records = store.getComponent(ref, FishCatchRecordComponent.getComponentType());
+        if (records == null) {
+            store.putComponent(ref, FishCatchRecordComponent.getComponentType(), new FishCatchRecordComponent());
+            return;
+        }
+        records.clear();
+        store.putComponent(ref, FishCatchRecordComponent.getComponentType(), records);
     }
 
     static final class FishingSpawnRegionCommand extends AbstractCommandCollection {
@@ -476,16 +583,19 @@ public final class CozyFishCommand extends AbstractCommandCollection {
             FishingSpawnRegionContext regionContext =
                 FishingSpawnRegionRegistry.resolve(worldUuid, blockX, surfaceY, blockZ);
 
+            int envIndex = resolveEnvironmentIndex(world, blockX, surfaceY, blockZ);
+
             WaterBodyClassifier.Context classifyContext =
                 new WaterBodyClassifier.Context(FishingModConfig.get().getMaxFloodFillsPerSpawnCheck());
             WaterBodyType classified =
-                WaterBodyClassifier.classify(world, blockX, surfaceY, blockZ, classifyContext);
-            WaterBodyType effective = classified != null ? classified : WaterBodyType.Pond;
+                WaterBodyClassifier.classify(world, blockX, surfaceY, blockZ, classifyContext, envIndex);
+            WaterBodyType effective = classified != null
+                ? classified
+                : (WaterBodyClassifier.isOceanEnvironmentForSpawn(envIndex) ? WaterBodyType.Ocean : WaterBodyType.Pond);
             if (regionContext != null && regionContext.getWaterBodyOverride() != null) {
                 effective = regionContext.getWaterBodyOverride();
             }
 
-            int envIndex = resolveEnvironmentIndex(world, blockX, surfaceY, blockZ);
             Environment envAsset = Environment.getAssetMap().getAsset(envIndex);
             String envName = envAsset != null ? envAsset.getId() : null;
             String biome = WaterBodyClassifier.getBiomeName(world, blockX, blockZ);

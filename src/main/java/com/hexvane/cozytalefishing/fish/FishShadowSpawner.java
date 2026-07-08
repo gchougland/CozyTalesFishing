@@ -79,15 +79,19 @@ public final class FishShadowSpawner {
 
             int blockZ = column.blockZ();
 
-
+            int environmentIndex = resolveEnvironmentIndex(world, column);
 
             WaterBodyType bodyType =
 
-                WaterBodyClassifier.classify(world, blockX, column.surfaceY(), blockZ, classifyContext);
+                WaterBodyClassifier.classify(world, blockX, column.surfaceY(), blockZ, classifyContext, environmentIndex);
 
             if (bodyType == null) {
 
-                bodyType = WaterBodyType.Pond;
+                bodyType = WaterBodyClassifier.isOceanEnvironmentForSpawn(environmentIndex)
+
+                    ? WaterBodyType.Ocean
+
+                    : WaterBodyType.Pond;
 
             }
 
@@ -96,8 +100,6 @@ public final class FishShadowSpawner {
             if (regionContext != null && regionContext.getWaterBodyOverride() != null) {
                 bodyType = regionContext.getWaterBodyOverride();
             }
-
-            int environmentIndex = resolveEnvironmentIndex(world, column);
 
             String biomeName = WaterBodyClassifier.getBiomeName(world, blockX, blockZ);
             if (regionContext != null && regionContext.getEffectiveBiome() != null) {
@@ -414,7 +416,7 @@ public final class FishShadowSpawner {
 
     ) {
 
-        List<FishSpeciesAsset> eligible =
+        List<WeightedSpecies> eligible =
             filterSpecies(
                 bodyType,
                 blockX,
@@ -422,23 +424,9 @@ public final class FishShadowSpawner {
                 surfaceY,
                 environmentIndex,
                 world,
-                FishShadowSpawnHelper.EnvironmentMatchMode.STRICT,
+                config,
                 regionContext
             );
-
-        if (eligible.isEmpty()) {
-            eligible =
-                filterSpecies(
-                    bodyType,
-                    blockX,
-                    blockZ,
-                    surfaceY,
-                    environmentIndex,
-                    world,
-                    FishShadowSpawnHelper.EnvironmentMatchMode.ZONE_ONLY,
-                    regionContext
-                );
-        }
 
         if (eligible.isEmpty()) {
             return pickTrash(bodyType, config, random);
@@ -457,6 +445,8 @@ public final class FishShadowSpawner {
 
     }
 
+    private record WeightedSpecies(@Nonnull FishSpeciesAsset species, float weightMultiplier) {}
+
     @Nullable
     private static FishSpeciesAsset pickTrash(
         @Nonnull WaterBodyType bodyType,
@@ -469,52 +459,46 @@ public final class FishShadowSpawner {
                 eligible.add(species);
             }
         }
-        return weightedPick(eligible, config.getGlobalSpawnWeightMultiplier(), random);
+        return weightedPickSpecies(eligible, config.getGlobalSpawnWeightMultiplier(), random);
     }
 
-
-
     @Nonnull
-
-    private static List<FishSpeciesAsset> filterSpecies(
+    private static List<WeightedSpecies> filterSpecies(
         @Nonnull WaterBodyType bodyType,
         int blockX,
         int blockZ,
         int surfaceY,
         int environmentIndex,
         @Nonnull World world,
-        @Nonnull FishShadowSpawnHelper.EnvironmentMatchMode environmentMode,
+        @Nonnull FishingModConfig config,
         @Nullable FishingSpawnRegionContext regionContext
     ) {
-        List<FishSpeciesAsset> eligible = new ArrayList<>();
+        List<WeightedSpecies> eligible = new ArrayList<>();
         FishShadowSpawnHelper.SpawnConditions spawnConditions =
             FishShadowSpawnHelper.resolveSpawnConditions(world, environmentIndex);
+        FishSpawnRulesEvaluator.SpawnEvaluationContext context =
+            new FishSpawnRulesEvaluator.SpawnEvaluationContext(
+                bodyType,
+                environmentIndex,
+                blockX,
+                blockZ,
+                surfaceY,
+                world,
+                spawnConditions,
+                regionContext,
+                config
+            );
 
         for (FishSpeciesAsset species : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType)) {
             if (species.isTrash()) {
                 continue;
             }
-            if (!species.matchesWaterBody(bodyType)) {
+            FishSpawnRulesEvaluator.SpawnRuleResult result =
+                FishSpawnRulesEvaluator.evaluate(species, context);
+            if (!result.eligible()) {
                 continue;
             }
-            if (!FishShadowSpawnHelper.matchesSpawnEnvironment(
-                species,
-                environmentIndex,
-                world,
-                blockX,
-                blockZ,
-                environmentMode,
-                regionContext
-            )) {
-                continue;
-            }
-            if (!FishShadowSpawnHelper.matchesUndergroundFilter(world, blockX, blockZ, surfaceY, species, regionContext)) {
-                continue;
-            }
-            if (!FishShadowSpawnHelper.matchesSpawnConditions(species, spawnConditions)) {
-                continue;
-            }
-            eligible.add(species);
+            eligible.add(new WeightedSpecies(species, result.weightMultiplier()));
         }
 
         return eligible;
@@ -527,51 +511,62 @@ public final class FishShadowSpawner {
 
     @Nullable
     private static FishSpeciesAsset weightedPick(
-
-        @Nonnull List<FishSpeciesAsset> species,
-
+        @Nonnull List<WeightedSpecies> species,
         float globalMultiplier,
-
         @Nonnull ThreadLocalRandom random
-
     ) {
-
         if (species.isEmpty()) {
-
             return null;
-
         }
 
         float total = 0.0f;
-
-        for (FishSpeciesAsset entry : species) {
-
-            total += entry.getEffectiveSpawnWeight(globalMultiplier);
-
+        for (WeightedSpecies entry : species) {
+            total += entry.species().getEffectiveSpawnWeight(globalMultiplier) * entry.weightMultiplier();
         }
 
         if (total <= 0.0f) {
-
-            return species.get(random.nextInt(species.size()));
-
+            return species.get(random.nextInt(species.size())).species();
         }
 
         float roll = random.nextFloat() * total;
-
-        for (FishSpeciesAsset entry : species) {
-
-            roll -= entry.getEffectiveSpawnWeight(globalMultiplier);
-
+        for (WeightedSpecies entry : species) {
+            roll -= entry.species().getEffectiveSpawnWeight(globalMultiplier) * entry.weightMultiplier();
             if (roll <= 0.0f) {
-
-                return entry;
-
+                return entry.species();
             }
+        }
 
+        return species.get(species.size() - 1).species();
+    }
+
+    @Nullable
+    private static FishSpeciesAsset weightedPickSpecies(
+        @Nonnull List<FishSpeciesAsset> species,
+        float globalMultiplier,
+        @Nonnull ThreadLocalRandom random
+    ) {
+        if (species.isEmpty()) {
+            return null;
+        }
+
+        float total = 0.0f;
+        for (FishSpeciesAsset entry : species) {
+            total += entry.getEffectiveSpawnWeight(globalMultiplier);
+        }
+
+        if (total <= 0.0f) {
+            return species.get(random.nextInt(species.size()));
+        }
+
+        float roll = random.nextFloat() * total;
+        for (FishSpeciesAsset entry : species) {
+            roll -= entry.getEffectiveSpawnWeight(globalMultiplier);
+            if (roll <= 0.0f) {
+                return entry;
+            }
         }
 
         return species.get(species.size() - 1);
-
     }
 
 }
