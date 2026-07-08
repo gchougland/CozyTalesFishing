@@ -1,0 +1,36 @@
+$C = "../Common.ui";
+
+@NormalRowStyle = (
+  Hovered: (Background: PatchStyle(Color: #1e2430(0.35)))
+);
+
+@SelectedRowStyle = (
+  Default: (Background: PatchStyle(Color: #c8a060(0.18))),
+  Hovered: (Background: PatchStyle(Color: #c8a060(0.24))),
+  Pressed: (Background: PatchStyle(Color: #c8a060(0.18)))
+);
+
+Button #Row {
+  LayoutMode: Left;
+  Anchor: (Height: 32);
+  Style: @NormalRowStyle;
+  Padding: (Horizontal: 8, Vertical: 4);
+
+  Label #RankLabel {
+    Anchor: (Width: 52);
+    Style: (...$C.@DefaultLabelStyle, TextColor: #94a7bb, FontSize: 14, HorizontalAlignment: Center, VerticalAlignment: Center);
+    Text: "";
+  }
+
+  Label #PlayerName {
+    FlexWeight: 1;
+    Style: (...$C.@DefaultLabelStyle, TextColor: #f0e6d2, FontSize: 14, RenderBold: true, VerticalAlignment: Center);
+    Text: "";
+  }
+
+  Label #ScoreLabel {
+    Anchor: (Width: 108);
+    Style: (...$C.@DefaultLabelStyle, TextColor: #c8a060, FontSize: 14, RenderBold: true, HorizontalAlignment: End, VerticalAlignment: Center);
+    Text: "";
+  }
+}

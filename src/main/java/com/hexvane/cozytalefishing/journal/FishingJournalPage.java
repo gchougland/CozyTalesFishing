@@ -1,11 +1,16 @@
 package com.hexvane.cozytalefishing.journal;
 
 import com.hexvane.cozytalefishing.fish.FishCatchRecordComponent;
+import com.hexvane.cozytalefishing.fish.FishCatchRecordSync;
+import com.hexvane.cozytalefishing.fish.FishScoreCalculator;
 import com.hexvane.cozytalefishing.fish.FishSpeciesAsset;
 import com.hexvane.cozytalefishing.fish.FishSpeciesDisplayNames;
 import com.hexvane.cozytalefishing.fish.FishSpeciesMetadataFormatter;
 import com.hexvane.cozytalefishing.fish.FishSpeciesRegistry;
 import com.hexvane.cozytalefishing.fish.WaterBodyType;
+import com.hexvane.cozytalefishing.leaderboard.FishingLeaderboardService;
+import com.hexvane.cozytalefishing.leaderboard.LeaderboardSnapshot;
+import com.hexvane.cozytalefishing.leaderboard.RankedLeaderboardEntry;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
@@ -14,17 +19,21 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.Message;
-import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.ui.Value;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -32,11 +41,27 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
     private static final String FILTER_ROWS = "#FilterScroll #FilterRows";
     private static final String FISH_GRID = "#FishGridScroll #FishGrid";
     private static final String DETAIL_ICON = "#DetailIconFrame #DetailIconInner";
+    private static final String SECTION_TAB_BUTTONS = "#SectionTabButtons";
+    private static final String LEADERBOARD_TAB_BUTTONS = "#LeaderboardTabButtons";
+    private static final String LEADERBOARD_ROWS = "#LeaderboardScroll #LeaderboardRows";
+    private static final String SECTION_TAB_TEMPLATE = "CozyTalesFishing/FishingJournalSectionTab.ui";
+    private static final String LEADERBOARD_TAB_TEMPLATE = "CozyTalesFishing/FishingJournalLeaderboardTab.ui";
+    private static final String LEADERBOARD_ROW_TEMPLATE = "CozyTalesFishing/FishingJournalLeaderboardRow.ui";
     private static final WaterBodyType[] FILTER_TYPES = WaterBodyType.values();
+    private static final NumberFormat SCORE_FORMAT = NumberFormat.getIntegerInstance(Locale.US);
+
+    private static final Value<String> NORMAL_ROW_STYLE =
+        Value.ref("CozyTalesFishing/FishingJournalLeaderboardRow.ui", "NormalRowStyle");
+    private static final Value<String> SELECTED_ROW_STYLE =
+        Value.ref("CozyTalesFishing/FishingJournalLeaderboardRow.ui", "SelectedRowStyle");
 
     private boolean templateAppended;
     @Nonnull
     private final Set<WaterBodyType> activeWaterFilters = EnumSet.allOf(WaterBodyType.class);
+    @Nonnull
+    private JournalSection activeSection = JournalSection.SPECIES;
+    @Nonnull
+    private LeaderboardMetric activeLeaderboardMetric = LeaderboardMetric.TOTAL;
     @Nullable
     private String selectedSpeciesId;
 
@@ -55,8 +80,55 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
             commandBuilder.append("CozyTalesFishing/FishingJournalPage.ui");
             templateAppended = true;
         }
+
+        FishCatchRecordSync.scheduleDisplayNameSync(ref, store, playerRef);
         FishingJournalUi.applyStaticLabels(commandBuilder);
 
+        bindSectionTabs(commandBuilder, eventBuilder);
+
+        boolean showSpecies = activeSection == JournalSection.SPECIES;
+        boolean showLeaderboard = activeSection == JournalSection.LEADERBOARD;
+        commandBuilder.set("#SpeciesPanel.Visible", showSpecies);
+        commandBuilder.set("#LeaderboardPanel.Visible", showLeaderboard);
+
+        if (showSpecies) {
+            buildSpeciesPanel(commandBuilder, eventBuilder, ref, store);
+        }
+        if (showLeaderboard) {
+            bindLeaderboard(commandBuilder, eventBuilder, ref, store);
+        }
+    }
+
+    @Override
+    public void handleDataEvent(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull PageData data) {
+        if ("ChangeSection".equals(data.action) && data.section != null) {
+            JournalSection section = JournalSection.fromString(data.section);
+            if (section != null) {
+                activeSection = section;
+            }
+        } else if ("ChangeLeaderboardTab".equals(data.action) && data.leaderboardMetric != null) {
+            LeaderboardMetric metric = LeaderboardMetric.fromString(data.leaderboardMetric);
+            if (metric != null) {
+                activeLeaderboardMetric = metric;
+            }
+        } else if ("WaterFilterToggle".equals(data.action)) {
+            applyWaterFilterToggle(data);
+        } else if ("SelectFish".equals(data.action) && data.speciesId != null && !data.speciesId.isBlank()) {
+            selectedSpeciesId = data.speciesId;
+        }
+
+        UICommandBuilder commandBuilder = new UICommandBuilder();
+        UIEventBuilder eventBuilder = new UIEventBuilder();
+        build(ref, commandBuilder, eventBuilder, store);
+        sendUpdate(commandBuilder, eventBuilder, false);
+    }
+
+    private void buildSpeciesPanel(
+        @Nonnull UICommandBuilder commandBuilder,
+        @Nonnull UIEventBuilder eventBuilder,
+        @Nonnull Ref<EntityStore> ref,
+        @Nonnull Store<EntityStore> store
+    ) {
         FishCatchRecordComponent records = store.getComponent(ref, FishCatchRecordComponent.getComponentType());
         List<FishSpeciesAsset> allSpecies = FishSpeciesRegistry.getJournalSpecies();
         int discoveredCount = records != null ? records.getDiscoveredCount() : 0;
@@ -66,6 +138,11 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
             Message.translation("server.cozytalefishing.journal.discovered_count")
                 .param("current", discoveredCount)
                 .param("total", allSpecies.size())
+        );
+        commandBuilder.set(
+            "#TotalCaughtCount.TextSpans",
+            Message.translation("server.cozytalefishing.journal.total_caught_count")
+                .param("count", records != null ? records.getTotalCatchCount() : 0)
         );
 
         bindWaterFilters(commandBuilder, eventBuilder);
@@ -104,18 +181,267 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
         populateDetailPanel(commandBuilder, records, allSpecies);
     }
 
-    @Override
-    public void handleDataEvent(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull PageData data) {
-        if ("WaterFilterToggle".equals(data.action)) {
-            applyWaterFilterToggle(data);
-        } else if ("SelectFish".equals(data.action) && data.speciesId != null && !data.speciesId.isBlank()) {
-            selectedSpeciesId = data.speciesId;
+    private void bindSectionTabs(@Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder) {
+        commandBuilder.clear(SECTION_TAB_BUTTONS);
+        JournalSection[] sections = JournalSection.values();
+        for (int i = 0; i < sections.length; i++) {
+            JournalSection section = sections[i];
+            commandBuilder.append(SECTION_TAB_BUTTONS, SECTION_TAB_TEMPLATE);
+            String tab = SECTION_TAB_BUTTONS + "[" + i + "]";
+            commandBuilder.set(
+                tab + ".TextSpans",
+                Message.translation("server.cozytalefishing.journal.section." + section.name().toLowerCase(Locale.ROOT))
+            );
+            commandBuilder.set(tab + ".Disabled", activeSection == section);
+            eventBuilder.addEventBinding(
+                CustomUIEventBindingType.Activating,
+                tab,
+                new EventData().append("Action", "ChangeSection").append("Section", section.name()),
+                false
+            );
+        }
+    }
+
+    private void bindLeaderboard(
+        @Nonnull UICommandBuilder commandBuilder,
+        @Nonnull UIEventBuilder eventBuilder,
+        @Nonnull Ref<EntityStore> ref,
+        @Nonnull Store<EntityStore> store
+    ) {
+        bindLeaderboardMetricTabs(commandBuilder, eventBuilder);
+
+        LeaderboardSnapshot snapshot = FishingLeaderboardService.getCachedSnapshot();
+        boolean loading = FishingLeaderboardService.isLoading();
+        if (snapshot == null && !loading) {
+            requestLeaderboardRefresh(ref, store);
         }
 
-        UICommandBuilder commandBuilder = new UICommandBuilder();
-        UIEventBuilder eventBuilder = new UIEventBuilder();
-        build(ref, commandBuilder, eventBuilder, store);
-        sendUpdate(commandBuilder, eventBuilder, false);
+        List<RankedLeaderboardEntry> entries = switch (activeLeaderboardMetric) {
+            case TOTAL -> snapshot != null ? snapshot.getTotalScoreEntries() : List.of();
+            case BEST_CATCH -> snapshot != null ? snapshot.getBestCatchEntries() : List.of();
+            case TOTAL_CAUGHT -> snapshot != null ? snapshot.getTotalCaughtEntries() : List.of();
+        };
+        entries = ensureViewerListed(entries, ref, store);
+
+        boolean showLoading = loading && snapshot == null;
+        boolean showEmpty = !showLoading && entries.isEmpty();
+
+        commandBuilder.set("#LeaderboardLoading.Visible", showLoading);
+        commandBuilder.set("#LeaderboardScroll.Visible", !showLoading && !showEmpty);
+        commandBuilder.set("#LeaderboardEmpty.Visible", showEmpty);
+
+        if (showLoading) {
+            commandBuilder.set(
+                "#LeaderboardLoading.TextSpans",
+                Message.translation("server.cozytalefishing.journal.leaderboard.loading")
+            );
+            commandBuilder.clear(LEADERBOARD_ROWS);
+        } else if (showEmpty) {
+            commandBuilder.set(
+                "#LeaderboardEmpty.TextSpans",
+                Message.translation("server.cozytalefishing.journal.leaderboard.empty")
+            );
+            commandBuilder.clear(LEADERBOARD_ROWS);
+        } else {
+            bindLeaderboardRows(commandBuilder, entries);
+        }
+
+        bindViewerRankPanel(commandBuilder, ref, store, entries);
+    }
+
+    private void bindLeaderboardMetricTabs(@Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder) {
+        commandBuilder.clear(LEADERBOARD_TAB_BUTTONS);
+        LeaderboardMetric[] metrics = LeaderboardMetric.values();
+        for (int i = 0; i < metrics.length; i++) {
+            LeaderboardMetric metric = metrics[i];
+            commandBuilder.append(LEADERBOARD_TAB_BUTTONS, LEADERBOARD_TAB_TEMPLATE);
+            String tab = LEADERBOARD_TAB_BUTTONS + "[" + i + "]";
+            commandBuilder.set(
+                tab + ".TextSpans",
+                Message.translation("server.cozytalefishing.journal.leaderboard.tab." + metric.langKey())
+            );
+            commandBuilder.set(tab + ".Disabled", activeLeaderboardMetric == metric);
+            eventBuilder.addEventBinding(
+                CustomUIEventBindingType.Activating,
+                tab,
+                new EventData().append("Action", "ChangeLeaderboardTab").append("LeaderboardMetric", metric.name()),
+                false
+            );
+        }
+    }
+
+    @Nonnull
+    private List<RankedLeaderboardEntry> ensureViewerListed(
+        @Nonnull List<RankedLeaderboardEntry> entries,
+        @Nonnull Ref<EntityStore> ref,
+        @Nonnull Store<EntityStore> store
+    ) {
+        UUID viewerUuid = playerRef.getUuid();
+        for (RankedLeaderboardEntry entry : entries) {
+            if (entry.playerUuid().equals(viewerUuid)) {
+                return entries;
+            }
+        }
+
+        FishCatchRecordComponent records = store.getComponent(ref, FishCatchRecordComponent.getComponentType());
+        int viewerScore = switch (activeLeaderboardMetric) {
+            case TOTAL -> FishScoreCalculator.totalScore(records);
+            case BEST_CATCH -> FishScoreCalculator.bestCatchScore(records);
+            case TOTAL_CAUGHT -> records != null ? records.getTotalCatchCount() : 0;
+        };
+        if (viewerScore <= 0) {
+            return entries;
+        }
+
+        String displayName = records != null ? records.getLeaderboardDisplayName() : "";
+        if (displayName.isBlank()) {
+            displayName = playerRef.getUsername();
+        }
+        List<RankedLeaderboardEntry> withViewer = new ArrayList<>(entries);
+        withViewer.add(new RankedLeaderboardEntry(viewerUuid, displayName, viewerScore, 1));
+        withViewer.sort(Comparator.comparingInt(RankedLeaderboardEntry::score).reversed());
+
+        List<RankedLeaderboardEntry> ranked = new ArrayList<>();
+        int rank = 0;
+        int position = 0;
+        int lastScore = -1;
+        for (RankedLeaderboardEntry entry : withViewer) {
+            position++;
+            if (entry.score() != lastScore) {
+                rank = position;
+                lastScore = entry.score();
+            }
+            ranked.add(new RankedLeaderboardEntry(entry.playerUuid(), entry.displayName(), entry.score(), rank));
+        }
+        return ranked;
+    }
+
+    private void bindLeaderboardRows(@Nonnull UICommandBuilder commandBuilder, @Nonnull List<RankedLeaderboardEntry> entries) {
+        commandBuilder.clear(LEADERBOARD_ROWS);
+        UUID viewerUuid = playerRef.getUuid();
+        for (int i = 0; i < entries.size(); i++) {
+            RankedLeaderboardEntry entry = entries.get(i);
+            String row = LEADERBOARD_ROWS + "[" + i + "]";
+            commandBuilder.append(LEADERBOARD_ROWS, LEADERBOARD_ROW_TEMPLATE);
+            boolean isViewer = entry.playerUuid().equals(viewerUuid);
+            commandBuilder.set(row + ".Style", isViewer ? SELECTED_ROW_STYLE : NORMAL_ROW_STYLE);
+            commandBuilder.set(row + " #RankLabel.TextSpans", Message.raw(formatRank(entry.rank())));
+            commandBuilder.set(row + " #PlayerName.TextSpans", displayNameMessage(entry.displayName()));
+            commandBuilder.set(row + " #ScoreLabel.TextSpans", Message.raw(formatScore(entry.score())));
+            applyRankAccent(commandBuilder, row + " #RankLabel", entry.rank());
+        }
+    }
+
+    private void bindViewerRankPanel(
+        @Nonnull UICommandBuilder commandBuilder,
+        @Nonnull Ref<EntityStore> ref,
+        @Nonnull Store<EntityStore> store,
+        @Nonnull List<RankedLeaderboardEntry> entries
+    ) {
+        UUID viewerUuid = playerRef.getUuid();
+        FishCatchRecordComponent records = store.getComponent(ref, FishCatchRecordComponent.getComponentType());
+        int viewerScore = switch (activeLeaderboardMetric) {
+            case TOTAL -> FishScoreCalculator.totalScore(records);
+            case BEST_CATCH -> FishScoreCalculator.bestCatchScore(records);
+            case TOTAL_CAUGHT -> records != null ? records.getTotalCatchCount() : 0;
+        };
+
+        RankedLeaderboardEntry viewerEntry = null;
+        for (RankedLeaderboardEntry entry : entries) {
+            if (entry.playerUuid().equals(viewerUuid)) {
+                viewerEntry = entry;
+                break;
+            }
+        }
+
+        if (viewerEntry != null) {
+            commandBuilder.set(
+                "#ViewerRankLabel.TextSpans",
+                Message.translation("server.cozytalefishing.journal.leaderboard.your_rank")
+                    .param("rank", viewerEntry.rank())
+            );
+            commandBuilder.set(
+                "#ViewerScoreLabel.TextSpans",
+                Message.translation("server.cozytalefishing.journal.leaderboard.your_score")
+                    .param("score", formatScore(viewerEntry.score()))
+            );
+        } else if (viewerScore > 0) {
+            int displayRank = entries.isEmpty() ? 1 : 0;
+            if (displayRank > 0) {
+                commandBuilder.set(
+                    "#ViewerRankLabel.TextSpans",
+                    Message.translation("server.cozytalefishing.journal.leaderboard.your_rank")
+                        .param("rank", displayRank)
+                );
+            } else {
+                commandBuilder.set(
+                    "#ViewerRankLabel.TextSpans",
+                    Message.translation("server.cozytalefishing.journal.leaderboard.your_rank_unranked")
+                );
+            }
+            commandBuilder.set(
+                "#ViewerScoreLabel.TextSpans",
+                Message.translation("server.cozytalefishing.journal.leaderboard.your_score")
+                    .param("score", formatScore(viewerScore))
+            );
+        } else {
+            commandBuilder.set(
+                "#ViewerRankLabel.TextSpans",
+                Message.translation("server.cozytalefishing.journal.leaderboard.your_rank_none")
+            );
+            commandBuilder.set(
+                "#ViewerScoreLabel.TextSpans",
+                Message.translation("server.cozytalefishing.journal.leaderboard.your_score")
+                    .param("score", formatScore(0))
+            );
+        }
+    }
+
+    private void requestLeaderboardRefresh(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {
+        World world = store.getExternalData().getWorld();
+        FishingLeaderboardService.requestRebuild(
+            world,
+            () ->
+                world.execute(
+                    () -> {
+                        if (isDismissed() || !ref.isValid()) {
+                            return;
+                        }
+                        UICommandBuilder commandBuilder = new UICommandBuilder();
+                        UIEventBuilder eventBuilder = new UIEventBuilder();
+                        build(ref, commandBuilder, eventBuilder, store);
+                        sendUpdate(commandBuilder, eventBuilder, false);
+                    }
+                )
+        );
+    }
+
+    private static void applyRankAccent(@Nonnull UICommandBuilder commandBuilder, @Nonnull String selector, int rank) {
+        if (rank == 1) {
+            commandBuilder.set(selector + ".Style.TextColor", "#e8c060");
+        } else if (rank == 2) {
+            commandBuilder.set(selector + ".Style.TextColor", "#c0c8d8");
+        } else if (rank == 3) {
+            commandBuilder.set(selector + ".Style.TextColor", "#c89868");
+        }
+    }
+
+    @Nonnull
+    private static String formatRank(int rank) {
+        return "#" + rank;
+    }
+
+    @Nonnull
+    private static String formatScore(int score) {
+        return SCORE_FORMAT.format(score);
+    }
+
+    @Nonnull
+    private static Message displayNameMessage(@Nullable String displayName) {
+        if (displayName != null && !displayName.isBlank()) {
+            return Message.raw(displayName);
+        }
+        return Message.translation("server.cozytalefishing.journal.leaderboard.unknown_angler");
     }
 
     private void bindWaterFilters(@Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder) {
@@ -220,11 +546,16 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
             case HINTED -> {
                 commandBuilder.set("#FishName.TextSpans", Message.translation("server.cozytalefishing.journal.undiscovered_name"));
                 populateHabitatAndConditions(commandBuilder, species);
+                commandBuilder.set("#CatchCountBody.Visible", false);
             }
-            case UNDISCOVERED -> commandBuilder.set(
-                "#FishName.TextSpans",
-                Message.translation("server.cozytalefishing.journal.undiscovered_name")
-            );
+            case UNDISCOVERED -> {
+                commandBuilder.set(
+                    "#FishName.TextSpans",
+                    Message.translation("server.cozytalefishing.journal.undiscovered_name")
+                );
+                commandBuilder.set("#CatchCountBody.Visible", false);
+                commandBuilder.set("#CatchScoreBody.Visible", false);
+            }
         }
     }
 
@@ -253,6 +584,9 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
         commandBuilder.set("#ConditionsBody.Visible", state != JournalEntryState.UNDISCOVERED);
         commandBuilder.set("#RecordHeading.Visible", state == JournalEntryState.DISCOVERED);
         commandBuilder.set("#RecordBody.Visible", state == JournalEntryState.DISCOVERED);
+        commandBuilder.set("#CatchCountHeading.Visible", state == JournalEntryState.DISCOVERED);
+        commandBuilder.set("#CatchCountBody.Visible", state == JournalEntryState.DISCOVERED);
+        commandBuilder.set("#CatchScoreBody.Visible", state == JournalEntryState.DISCOVERED);
     }
 
     private static void populateHabitatAndConditions(
@@ -291,14 +625,27 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
         @Nonnull FishSpeciesAsset species
     ) {
         float personalBest = records != null ? records.getLargestSizeCm(species.getId()) : 0.0f;
+        int catchCount = records != null ? records.getEffectiveCatchCount(species.getId()) : 0;
         if (personalBest > 0.0f) {
             commandBuilder.set(
                 "#RecordBody.TextSpans",
                 Message.translation("server.cozytalefishing.journal.record_value")
                     .param("size", String.format(Locale.US, "%.1f", personalBest))
             );
+            commandBuilder.set(
+                "#CatchCountBody.TextSpans",
+                Message.translation("server.cozytalefishing.journal.catch_count_value")
+                    .param("count", catchCount)
+            );
+            commandBuilder.set(
+                "#CatchScoreBody.TextSpans",
+                Message.translation("server.cozytalefishing.journal.catch_score_value")
+                    .param("score", formatScore(FishScoreCalculator.scoreCatch(species, personalBest)))
+            );
         } else {
             commandBuilder.set("#RecordBody.TextSpans", Message.translation("server.cozytalefishing.journal.record_none"));
+            commandBuilder.set("#CatchCountBody.TextSpans", Message.translation("server.cozytalefishing.journal.catch_count_none"));
+            commandBuilder.set("#CatchScoreBody.TextSpans", Message.translation("server.cozytalefishing.journal.catch_score_none"));
         }
     }
 
@@ -315,6 +662,46 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
         return FishSpeciesRegistry.getSpecies(speciesId);
     }
 
+    private enum JournalSection {
+        SPECIES,
+        LEADERBOARD;
+
+        @Nullable
+        static JournalSection fromString(@Nonnull String value) {
+            for (JournalSection section : values()) {
+                if (section.name().equalsIgnoreCase(value)) {
+                    return section;
+                }
+            }
+            return null;
+        }
+    }
+
+    private enum LeaderboardMetric {
+        TOTAL,
+        BEST_CATCH,
+        TOTAL_CAUGHT;
+
+        @Nonnull
+        String langKey() {
+            return switch (this) {
+                case TOTAL -> "total";
+                case BEST_CATCH -> "best_catch";
+                case TOTAL_CAUGHT -> "total_caught";
+            };
+        }
+
+        @Nullable
+        static LeaderboardMetric fromString(@Nonnull String value) {
+            for (LeaderboardMetric metric : values()) {
+                if (metric.name().equalsIgnoreCase(value)) {
+                    return metric;
+                }
+            }
+            return null;
+        }
+    }
+
     public static final class PageData {
         public static final BuilderCodec<PageData> CODEC = BuilderCodec.builder(PageData.class, PageData::new)
             .append(new KeyedCodec<>("Action", Codec.STRING), (d, v) -> d.action = v, d -> d.action)
@@ -324,6 +711,10 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
             .append(new KeyedCodec<>("WaterBodyType", Codec.STRING), (d, v) -> d.waterBodyType = v, d -> d.waterBodyType)
             .add()
             .append(new KeyedCodec<>("@Checked", Codec.BOOLEAN), (d, v) -> d.checked = v, d -> d.checked)
+            .add()
+            .append(new KeyedCodec<>("Section", Codec.STRING), (d, v) -> d.section = v, d -> d.section)
+            .add()
+            .append(new KeyedCodec<>("LeaderboardMetric", Codec.STRING), (d, v) -> d.leaderboardMetric = v, d -> d.leaderboardMetric)
             .add()
             .build();
 
@@ -335,5 +726,9 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
         private String waterBodyType;
         @Nullable
         private Boolean checked;
+        @Nullable
+        private String section;
+        @Nullable
+        private String leaderboardMetric;
     }
 }

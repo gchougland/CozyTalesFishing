@@ -1,0 +1,7 @@
+$C = "../Common.ui";
+
+$C.@SmallSecondaryTextButton #TabButton {
+  @Text = "";
+  Anchor: (Width: 132, Height: 32, Right: 4);
+  TextTooltipStyle: $C.@DefaultTextTooltipStyle;
+}

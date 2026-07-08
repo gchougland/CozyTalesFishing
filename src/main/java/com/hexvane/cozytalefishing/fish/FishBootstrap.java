@@ -12,11 +12,15 @@ import com.hypixel.hytale.server.core.asset.type.environment.config.Environment;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hexvane.cozytalefishing.journal.FishingJournalConstants;
 import com.hexvane.cozytalefishing.journal.FishingJournalPage;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.event.events.player.AddPlayerToWorldEvent;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.server.OpenCustomUIInteraction;
 import com.hypixel.hytale.server.core.event.events.BootEvent;
 import com.hypixel.hytale.server.core.universe.world.events.AddWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
 
 public final class FishBootstrap {
@@ -77,6 +81,7 @@ public final class FishBootstrap {
         plugin.getEventRegistry().registerGlobal(BootEvent.class, event -> FishShadowCleanupService.scheduleAllWorldsCleanup());
         plugin.getEventRegistry().registerGlobal(StartWorldEvent.class, FishBootstrap::onWorldStart);
         plugin.getEventRegistry().registerGlobal(AddWorldEvent.class, FishBootstrap::onWorldAdded);
+        plugin.getEventRegistry().registerGlobal(AddPlayerToWorldEvent.class, FishBootstrap::onPlayerAddedToWorld);
 
         FishSpeciesRegistry.rebuild();
     }
@@ -87,6 +92,19 @@ public final class FishBootstrap {
 
     private static void onWorldAdded(@Nonnull AddWorldEvent event) {
         FishShadowCleanupService.scheduleWorldStartCleanup(event.getWorld());
+    }
+
+    private static void onPlayerAddedToWorld(@Nonnull AddPlayerToWorldEvent event) {
+        var playerRef = event.getHolder().getComponent(com.hypixel.hytale.server.core.universe.PlayerRef.getComponentType());
+        if (playerRef == null) {
+            return;
+        }
+        Ref<EntityStore> ref = playerRef.getReference();
+        if (ref == null || !ref.isValid()) {
+            return;
+        }
+        Store<EntityStore> store = ref.getStore();
+        event.getWorld().execute(() -> FishCatchRecordSync.syncDisplayName(ref, store, playerRef));
     }
 
     /** Clears shadows left in already-loaded worlds when the plugin starts. */

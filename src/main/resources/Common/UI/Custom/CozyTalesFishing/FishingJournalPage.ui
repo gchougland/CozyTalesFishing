@@ -8,6 +8,7 @@ $C = "../Common.ui";
 @SectionTitle = (FontSize: 12, TextColor: #7a8e9c, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Start);
 @DetailIconSize = 112;
 @FishSlotSize = 56;
+@LeaderboardListHeight = 430;
 
 $C.@PageOverlay {
   LayoutMode: Middle;
@@ -30,235 +31,357 @@ $C.@PageOverlay {
         LayoutMode: Top;
         Padding: (Full: 16);
 
-        Group #PanelsRow {
-          LayoutMode: Left;
+        Group #SectionTabBar {
+          LayoutMode: Center;
+          Anchor: (Bottom: 14);
+
+          Group #SectionTabButtons {
+            LayoutMode: Left;
+          }
+        }
+
+        Group #SpeciesPanel {
+          LayoutMode: Top;
+
+          Group #PanelsRow {
+            LayoutMode: Left;
+            Anchor: (Height: @PanelHeight);
+
+            Group #FilterColumn {
+              LayoutMode: Top;
+              Anchor: (Width: @FilterWidth, Right: 12);
+
+              $C.@Container {
+                Anchor: (Width: @FilterWidth, Height: @PanelHeight);
+
+                #Title {
+                  Label #FilterTitle {
+                    Style: (...$C.@TitleStyle, HorizontalAlignment: Center, FontSize: 14);
+                    Padding: (Horizontal: 8);
+                    Text: "";
+                  }
+                }
+
+                #Content {
+                  LayoutMode: Top;
+                  Padding: (Full: 12);
+
+                  Group #FilterScroll {
+                    LayoutMode: TopScrolling;
+                    ScrollbarStyle: $C.@DefaultScrollbarStyle;
+                    FlexWeight: 1;
+                    Anchor: (Height: @PanelHeight - $C.@TitleHeight - 36);
+
+                    Group #FilterRows {
+                      LayoutMode: Top;
+                      Padding: (Horizontal: 2, Vertical: 2);
+                    }
+                  }
+                }
+              }
+            }
+
+            Group #GridColumn {
+              LayoutMode: Top;
+              FlexWeight: 1;
+              Anchor: (Right: 12);
+
+              $C.@DecoratedContainer {
+                Anchor: (Height: @PanelHeight);
+
+                #Title {
+                  Group {
+                    LayoutMode: Left;
+                    Padding: (Horizontal: 16, Top: 8, Bottom: 4);
+
+                    Label #GridTitle {
+                      Style: (...$C.@DefaultLabelStyle, RenderBold: true, TextColor: #f0e6d2, FontSize: 15, VerticalAlignment: Center);
+                      Text: "";
+                    }
+
+                    Group { FlexWeight: 1; }
+
+                    Label #DiscoveredCount {
+                      Style: (...$C.@DefaultLabelStyle, TextColor: #94a7bb, FontSize: 14, VerticalAlignment: Center);
+                      Text: "";
+                    }
+
+                    Label #TotalCaughtCount {
+                      Anchor: (Left: 12);
+                      Style: (...$C.@DefaultLabelStyle, TextColor: #94a7bb, FontSize: 14, VerticalAlignment: Center);
+                      Text: "";
+                    }
+                  }
+                }
+
+                #Content {
+                  LayoutMode: Top;
+                  Padding: (Full: 14);
+
+                  Group #FishGridScroll {
+                    LayoutMode: TopScrolling;
+                    ScrollbarStyle: $C.@DefaultScrollbarStyle;
+                    Anchor: (Height: @GridListHeight);
+                    Background: #1e2430(0.55);
+
+                    Group #FishGrid {
+                      LayoutMode: LeftCenterWrap;
+                      Padding: (Horizontal: 8, Vertical: 8);
+                    }
+                  }
+                }
+              }
+            }
+
+            Group #DetailColumn {
+              LayoutMode: Top;
+              Anchor: (Width: @DetailWidth);
+
+              $C.@Container {
+                Anchor: (Width: @DetailWidth, Height: @PanelHeight);
+
+                #Title {
+                  Label #DetailTitle {
+                    Style: (...$C.@TitleStyle, HorizontalAlignment: Center, FontSize: 14);
+                    Padding: (Horizontal: 8);
+                    Text: "";
+                  }
+                }
+
+                #Content {
+                  LayoutMode: Top;
+                  Padding: (Full: 16);
+                  Background: #141c28(0.35);
+
+                  Label #FishName {
+                    Anchor: (Bottom: 10);
+                    Style: (...$C.@DefaultLabelStyle, RenderBold: true, TextColor: #f0e6d2, FontSize: 20, HorizontalAlignment: Center, Wrap: true);
+                    Text: "";
+                  }
+
+                  Group #DetailIconFrame {
+                    LayoutMode: Middle;
+                    Anchor: (Height: @DetailIconSize + 24, Bottom: 12);
+
+                    Group #DetailIconInner {
+                      LayoutMode: Full;
+                      Anchor: (Width: @DetailIconSize, Height: @DetailIconSize);
+                      Padding: (Full: 4);
+                      Background: #141c28;
+
+                      Group {
+                        LayoutMode: Full;
+                        Anchor: (Full: 0);
+                        Padding: (Full: 3);
+                        Background: #1c2230;
+
+                        AssetImage #DetailFishIcon {
+                          Anchor: (Full: 0);
+                        }
+                      }
+
+                      Group #DetailDimOverlay {
+                        Visible: false;
+                        LayoutMode: Full;
+                        Anchor: (Full: 0);
+                        Background: #000000(0.62);
+                      }
+
+                      Group #DetailLockIconWrap {
+                        Visible: false;
+                        LayoutMode: Center;
+                        Anchor: (Full: 0);
+
+                        AssetImage #DetailLockIcon {
+                          Anchor: (Width: 40, Height: 40);
+                          AssetPath: "UI/Custom/padlock.png";
+                        }
+                      }
+
+                      Group #DetailHintIconWrap {
+                        Visible: false;
+                        LayoutMode: Center;
+                        Anchor: (Full: 0);
+
+                        Label #DetailHintIcon {
+                          Style: (
+                            FontSize: 40,
+                            TextColor: #f0e6d2,
+                            HorizontalAlignment: Center,
+                            VerticalAlignment: Center,
+                            RenderBold: true
+                          );
+                          Text: "?";
+                        }
+                      }
+                    }
+                  }
+
+                  Group #DetailInfoScroll {
+                    LayoutMode: TopScrolling;
+                    ScrollbarStyle: $C.@DefaultScrollbarStyle;
+                    FlexWeight: 1;
+                    Anchor: (Height: 280, Bottom: 8);
+
+                    Group #DetailInfoBlock {
+                      LayoutMode: Top;
+                      Padding: (Horizontal: 4);
+
+                      Label #HabitatHeading {
+                        Anchor: (Bottom: 4);
+                        Style: @SectionTitle;
+                        Text: "";
+                      }
+
+                      Label #HabitatBody {
+                        Anchor: (Bottom: 10);
+                        Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #d8ccb8, FontSize: 14);
+                        Text: "";
+                      }
+
+                      Label #ConditionsHeading {
+                        Anchor: (Bottom: 4);
+                        Style: @SectionTitle;
+                        Text: "";
+                      }
+
+                      Label #ConditionsBody {
+                        Anchor: (Bottom: 10);
+                        Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #d8ccb8, FontSize: 14);
+                        Text: "";
+                      }
+
+                      Label #RecordHeading {
+                        Anchor: (Bottom: 4);
+                        Style: @SectionTitle;
+                        Text: "";
+                      }
+
+                      Label #RecordBody {
+                        Anchor: (Bottom: 6);
+                        Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #c8a060, FontSize: 15, RenderBold: true);
+                        Text: "";
+                      }
+
+                      Label #CatchCountHeading {
+                        Anchor: (Bottom: 4);
+                        Style: @SectionTitle;
+                        Text: "";
+                      }
+
+                      Label #CatchCountBody {
+                        Anchor: (Bottom: 6);
+                        Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #d8ccb8, FontSize: 14);
+                        Text: "";
+                      }
+
+                      Label #CatchScoreBody {
+                        Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #94a7bb, FontSize: 14);
+                        Text: "";
+                      }
+                    }
+                  }
+
+                  Label #UndiscoveredHint {
+                    Visible: false;
+                    Anchor: (Top: 8);
+                    Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #8a94a8, FontSize: 14, HorizontalAlignment: Center);
+                    Text: "";
+                  }
+
+                  Label #HintedHint {
+                    Visible: false;
+                    Anchor: (Top: 8);
+                    Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #8a94a8, FontSize: 14, HorizontalAlignment: Center);
+                    Text: "";
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        Group #LeaderboardPanel {
+          Visible: false;
+          LayoutMode: Top;
           Anchor: (Height: @PanelHeight);
 
-          Group #FilterColumn {
-            LayoutMode: Top;
-            Anchor: (Width: @FilterWidth, Right: 12);
+          Group #LeaderboardTabBar {
+            LayoutMode: Center;
+            Anchor: (Bottom: 10);
 
-            $C.@Container {
-              Anchor: (Width: @FilterWidth, Height: @PanelHeight);
-
-              #Title {
-                Label #FilterTitle {
-                  Style: (...$C.@TitleStyle, HorizontalAlignment: Center, FontSize: 14);
-                  Padding: (Horizontal: 8);
-                  Text: "";
-                }
-              }
-
-              #Content {
-                LayoutMode: Top;
-                Padding: (Full: 12);
-
-                Group #FilterScroll {
-                  LayoutMode: TopScrolling;
-                  ScrollbarStyle: $C.@DefaultScrollbarStyle;
-                  FlexWeight: 1;
-                  Anchor: (Height: @PanelHeight - $C.@TitleHeight - 36);
-
-                  Group #FilterRows {
-                    LayoutMode: Top;
-                    Padding: (Horizontal: 2, Vertical: 2);
-                  }
-                }
-              }
+            Group #LeaderboardTabButtons {
+              LayoutMode: Left;
             }
           }
 
-          Group #GridColumn {
-            LayoutMode: Top;
-            FlexWeight: 1;
-            Anchor: (Right: 12);
+          Group #LeaderboardHeaderRow {
+            LayoutMode: Left;
+            Padding: (Horizontal: 12, Vertical: 6);
+            Background: #1e2430(0.55);
+            Anchor: (Bottom: 6);
 
-            $C.@DecoratedContainer {
-              Anchor: (Height: @PanelHeight);
+            Label #LeaderboardColRank {
+              Anchor: (Width: 52);
+              Style: @SectionTitle;
+              Text: "";
+            }
 
-              #Title {
-                Group {
-                  LayoutMode: Left;
-                  Padding: (Horizontal: 16);
+            Label #LeaderboardColAngler {
+              FlexWeight: 1;
+              Style: @SectionTitle;
+              Text: "";
+            }
 
-                  Label #GridTitle {
-                    Style: (...$C.@DefaultLabelStyle, RenderBold: true, TextColor: #f0e6d2, FontSize: 15);
-                    Text: "";
-                  }
-
-                  Group { FlexWeight: 1; }
-
-                  Label #DiscoveredCount {
-                    Style: (...$C.@DefaultLabelStyle, TextColor: #94a7bb, FontSize: 14);
-                    Text: "";
-                  }
-                }
-              }
-
-              #Content {
-                LayoutMode: Top;
-                Padding: (Full: 14);
-
-                Group #FishGridScroll {
-                  LayoutMode: TopScrolling;
-                  ScrollbarStyle: $C.@DefaultScrollbarStyle;
-                  Anchor: (Height: @GridListHeight);
-                  Background: #1e2430(0.55);
-
-                  Group #FishGrid {
-                    LayoutMode: LeftCenterWrap;
-                    Padding: (Horizontal: 8, Vertical: 8);
-                  }
-                }
-              }
+            Label #LeaderboardColScore {
+              Anchor: (Width: 108);
+              Style: (...@SectionTitle, HorizontalAlignment: End);
+              Text: "";
             }
           }
 
-          Group #DetailColumn {
-            LayoutMode: Top;
-            Anchor: (Width: @DetailWidth);
+          Label #LeaderboardLoading {
+            Visible: false;
+            Anchor: (Top: 12);
+            Style: (...$C.@DefaultLabelStyle, TextColor: #94a7bb, FontSize: 15, HorizontalAlignment: Center);
+            Text: "";
+          }
 
-            $C.@Container {
-              Anchor: (Width: @DetailWidth, Height: @PanelHeight);
+          Label #LeaderboardEmpty {
+            Visible: false;
+            Anchor: (Top: 12);
+            Style: (...$C.@DefaultLabelStyle, TextColor: #8a94a8, FontSize: 15, HorizontalAlignment: Center);
+            Text: "";
+          }
 
-              #Title {
-                Label #DetailTitle {
-                  Style: (...$C.@TitleStyle, HorizontalAlignment: Center, FontSize: 14);
-                  Padding: (Horizontal: 8);
-                  Text: "";
-                }
-              }
+          Group #LeaderboardScroll {
+            LayoutMode: TopScrolling;
+            ScrollbarStyle: $C.@DefaultScrollbarStyle;
+            Anchor: (Height: @LeaderboardListHeight);
+            Background: #1e2430(0.35);
 
-              #Content {
-                LayoutMode: Top;
-                Padding: (Full: 16);
-                Background: #141c28(0.35);
+            Group #LeaderboardRows {
+              LayoutMode: Top;
+              Padding: (Horizontal: 4, Vertical: 4);
+            }
+          }
 
-                Label #FishName {
-                  Anchor: (Bottom: 10);
-                  Style: (...$C.@DefaultLabelStyle, RenderBold: true, TextColor: #f0e6d2, FontSize: 20, HorizontalAlignment: Center, Wrap: true);
-                  Text: "";
-                }
+          Group #ViewerRankPanel {
+            LayoutMode: Left;
+            Padding: (Horizontal: 16, Vertical: 12);
+            Anchor: (Top: 10);
+            Background: #141c28(0.65);
 
-                Group #DetailIconFrame {
-                  LayoutMode: Middle;
-                  Anchor: (Height: @DetailIconSize + 24, Bottom: 12);
+            Label #ViewerRankLabel {
+              FlexWeight: 1;
+              Style: (...$C.@DefaultLabelStyle, TextColor: #f0e6d2, FontSize: 15, RenderBold: true);
+              Text: "";
+            }
 
-                  Group #DetailIconInner {
-                    LayoutMode: Full;
-                    Anchor: (Width: @DetailIconSize, Height: @DetailIconSize);
-                    Padding: (Full: 4);
-                    Background: #141c28;
-
-                    Group {
-                      LayoutMode: Full;
-                      Anchor: (Full: 0);
-                      Padding: (Full: 3);
-                      Background: #1c2230;
-
-                      AssetImage #DetailFishIcon {
-                        Anchor: (Full: 0);
-                      }
-                    }
-
-                    Group #DetailDimOverlay {
-                      Visible: false;
-                      LayoutMode: Full;
-                      Anchor: (Full: 0);
-                      Background: #000000(0.62);
-                    }
-
-                    Group #DetailLockIconWrap {
-                      Visible: false;
-                      LayoutMode: Center;
-                      Anchor: (Full: 0);
-
-                      AssetImage #DetailLockIcon {
-                        Anchor: (Width: 40, Height: 40);
-                        AssetPath: "UI/Custom/padlock.png";
-                      }
-                    }
-
-                    Group #DetailHintIconWrap {
-                      Visible: false;
-                      LayoutMode: Center;
-                      Anchor: (Full: 0);
-
-                      Label #DetailHintIcon {
-                        Style: (
-                          FontSize: 40,
-                          TextColor: #f0e6d2,
-                          HorizontalAlignment: Center,
-                          VerticalAlignment: Center,
-                          RenderBold: true
-                        );
-                        Text: "?";
-                      }
-                    }
-                  }
-                }
-
-                Group #DetailInfoScroll {
-                  LayoutMode: TopScrolling;
-                  ScrollbarStyle: $C.@DefaultScrollbarStyle;
-                  FlexWeight: 1;
-                  Anchor: (Height: 280, Bottom: 8);
-
-                  Group #DetailInfoBlock {
-                    LayoutMode: Top;
-                    Padding: (Horizontal: 4);
-
-                    Label #HabitatHeading {
-                      Anchor: (Bottom: 4);
-                      Style: @SectionTitle;
-                      Text: "";
-                    }
-
-                    Label #HabitatBody {
-                      Anchor: (Bottom: 10);
-                      Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #d8ccb8, FontSize: 14);
-                      Text: "";
-                    }
-
-                    Label #ConditionsHeading {
-                      Anchor: (Bottom: 4);
-                      Style: @SectionTitle;
-                      Text: "";
-                    }
-
-                    Label #ConditionsBody {
-                      Anchor: (Bottom: 10);
-                      Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #d8ccb8, FontSize: 14);
-                      Text: "";
-                    }
-
-                    Label #RecordHeading {
-                      Anchor: (Bottom: 4);
-                      Style: @SectionTitle;
-                      Text: "";
-                    }
-
-                    Label #RecordBody {
-                      Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #c8a060, FontSize: 15, RenderBold: true);
-                      Text: "";
-                    }
-                  }
-                }
-
-                Label #UndiscoveredHint {
-                  Visible: false;
-                  Anchor: (Top: 8);
-                  Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #8a94a8, FontSize: 14, HorizontalAlignment: Center);
-                  Text: "";
-                }
-
-                Label #HintedHint {
-                  Visible: false;
-                  Anchor: (Top: 8);
-                  Style: (...$C.@DefaultLabelStyle, Wrap: true, TextColor: #8a94a8, FontSize: 14, HorizontalAlignment: Center);
-                  Text: "";
-                }
-              }
+            Label #ViewerScoreLabel {
+              Anchor: (Width: 160);
+              Style: (...$C.@DefaultLabelStyle, TextColor: #c8a060, FontSize: 15, RenderBold: true, HorizontalAlignment: End);
+              Text: "";
             }
           }
         }

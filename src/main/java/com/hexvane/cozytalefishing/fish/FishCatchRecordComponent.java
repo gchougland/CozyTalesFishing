@@ -62,6 +62,23 @@ public final class FishCatchRecordComponent implements Component<EntityStore> {
                 component -> component.hintedSpeciesIds.toArray(String[]::new)
             )
             .add()
+            .append(
+                new KeyedCodec<>("LeaderboardDisplayName", Codec.STRING),
+                (component, name) -> component.leaderboardDisplayName = name != null ? name : "",
+                component -> component.leaderboardDisplayName
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("CatchCountBySpecies", new MapCodec<>(Codec.INTEGER, HashMap::new, false)),
+                (component, counts) -> {
+                    component.catchCountBySpecies.clear();
+                    if (counts != null) {
+                        component.catchCountBySpecies.putAll(counts);
+                    }
+                },
+                component -> new HashMap<>(component.catchCountBySpecies)
+            )
+            .add()
             .build();
 
     @Nonnull
@@ -88,6 +105,12 @@ public final class FishCatchRecordComponent implements Component<EntityStore> {
 
     @Nonnull
     private final Set<String> hintedSpeciesIds = new HashSet<>();
+
+    @Nonnull
+    private String leaderboardDisplayName = "";
+
+    @Nonnull
+    private final Map<String, Integer> catchCountBySpecies = new HashMap<>();
 
     public float getLargestSizeCm(@Nonnull String speciesId) {
         return largestSizeCmBySpecies.getOrDefault(speciesId, 0.0f);
@@ -155,10 +178,66 @@ public final class FishCatchRecordComponent implements Component<EntityStore> {
         return discoveredSpeciesIds.size();
     }
 
+    @Nonnull
+    public Map<String, Float> getLargestSizesBySpecies() {
+        return Map.copyOf(largestSizeCmBySpecies);
+    }
+
+    public int getCatchCount(@Nonnull String speciesId) {
+        return catchCountBySpecies.getOrDefault(speciesId, 0);
+    }
+
+    /**
+     * Returns the persisted catch count, or 1 for discovered species that predate catch tracking.
+     */
+    public int getEffectiveCatchCount(@Nonnull String speciesId) {
+        int stored = getCatchCount(speciesId);
+        if (stored > 0) {
+            return stored;
+        }
+        if (isDiscovered(speciesId)) {
+            return 1;
+        }
+        return 0;
+    }
+
+    public void incrementCatchCount(@Nonnull String speciesId) {
+        catchCountBySpecies.merge(speciesId, 1, Integer::sum);
+    }
+
+    public int getTotalCatchCount() {
+        int total = 0;
+        for (String speciesId : discoveredSpeciesIds) {
+            total += getEffectiveCatchCount(speciesId);
+        }
+        return total;
+    }
+
+    @Nonnull
+    public Map<String, Integer> getCatchCountsBySpecies() {
+        return Map.copyOf(catchCountBySpecies);
+    }
+
+    @Nonnull
+    public String getLeaderboardDisplayName() {
+        return leaderboardDisplayName;
+    }
+
+    /** @return true when the display name was updated */
+    public boolean updateDisplayName(@Nonnull String name) {
+        if (name.isBlank() || name.equals(leaderboardDisplayName)) {
+            return false;
+        }
+        leaderboardDisplayName = name;
+        return true;
+    }
+
     public void clear() {
         largestSizeCmBySpecies.clear();
         discoveredSpeciesIds.clear();
         hintedSpeciesIds.clear();
+        catchCountBySpecies.clear();
+        leaderboardDisplayName = "";
     }
 
     @Nonnull
@@ -168,6 +247,8 @@ public final class FishCatchRecordComponent implements Component<EntityStore> {
         copy.largestSizeCmBySpecies.putAll(largestSizeCmBySpecies);
         copy.discoveredSpeciesIds.addAll(discoveredSpeciesIds);
         copy.hintedSpeciesIds.addAll(hintedSpeciesIds);
+        copy.leaderboardDisplayName = leaderboardDisplayName;
+        copy.catchCountBySpecies.putAll(catchCountBySpecies);
         return copy;
     }
 }

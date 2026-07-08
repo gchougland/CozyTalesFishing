@@ -95,9 +95,15 @@ public final class FishCatchService {
         if (records == null) {
             records = new FishCatchRecordComponent();
         }
+        if (playerRefComponent != null) {
+            records.updateDisplayName(playerRefComponent.getUsername());
+        }
         records.discover(species.getId());
+        records.incrementCatchCount(species.getId());
         boolean personalBest = records.updateLargest(species.getId(), sizeCm);
         commandBuffer.putComponent(playerRef, FishCatchRecordComponent.getComponentType(), records);
+
+        com.hexvane.cozytalefishing.leaderboard.FishingLeaderboardService.invalidate();
 
         if (playerRefComponent != null) {
             Message message =

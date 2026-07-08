@@ -1,5 +1,6 @@
 package com.hexvane.cozytalefishing.fish;
 
+import com.hexvane.cozytalefishing.leaderboard.FishingLeaderboardService;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -318,6 +319,7 @@ public final class CozyFishCommand extends AbstractCommandCollection {
         }
         records.clear();
         store.putComponent(ref, FishCatchRecordComponent.getComponentType(), records);
+        FishingLeaderboardService.invalidate();
     }
 
     static final class FishingSpawnRegionCommand extends AbstractCommandCollection {

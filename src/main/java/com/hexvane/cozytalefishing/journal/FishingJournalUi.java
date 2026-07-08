@@ -20,8 +20,21 @@ public final class FishingJournalUi {
         commandBuilder.set("#HabitatHeading.TextSpans", Message.translation("server.cozytalefishing.journal.habitat_heading"));
         commandBuilder.set("#ConditionsHeading.TextSpans", Message.translation("server.cozytalefishing.journal.conditions_heading"));
         commandBuilder.set("#RecordHeading.TextSpans", Message.translation("server.cozytalefishing.journal.record_heading"));
+        commandBuilder.set("#CatchCountHeading.TextSpans", Message.translation("server.cozytalefishing.journal.catch_count_heading"));
         commandBuilder.set("#UndiscoveredHint.TextSpans", Message.translation("server.cozytalefishing.journal.undiscovered_hint"));
         commandBuilder.set("#HintedHint.TextSpans", Message.translation("server.cozytalefishing.journal.hinted_hint"));
+        commandBuilder.set(
+            "#LeaderboardColRank.TextSpans",
+            Message.translation("server.cozytalefishing.journal.leaderboard.col.rank")
+        );
+        commandBuilder.set(
+            "#LeaderboardColAngler.TextSpans",
+            Message.translation("server.cozytalefishing.journal.leaderboard.col.angler")
+        );
+        commandBuilder.set(
+            "#LeaderboardColScore.TextSpans",
+            Message.translation("server.cozytalefishing.journal.leaderboard.col.score")
+        );
     }
 
     public static boolean isKnownItemId(@Nullable String itemId) {
