@@ -99,6 +99,9 @@ public final class FishingConstants {
 
     public static final float BOB_FREQUENCY = 2.2f;
 
+    /** How far below the water surface the bobber sits while a fish is hooked or being reeled in. */
+    public static final float FIGHT_BOBBER_SUBMERGE_OFFSET = 0.20f;
+
     public static final float GROUND_RECALL_DELAY_SECONDS = 1.5f;
 
 

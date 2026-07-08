@@ -12,7 +12,7 @@
     "TerminalVelocityWater": 8,
     "RotationMode": "VelocityDamped",
     "Bounciness": 0,
-    "SticksVertically": false
+    "SticksVertically": true
   },
   "LaunchForce": 10,
   "LaunchLocalSoundEventId": "SFX_Bow_T1_Shoot_Local",

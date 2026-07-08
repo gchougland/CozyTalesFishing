@@ -99,7 +99,7 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
 
         if (line.isReeling()) {
             if (line.getPhase() == FishingLinePhase.FLOATING || line.getPhase() == FishingLinePhase.REELING) {
-                applySlowReel(line, tip, bobberPos, bobberRef, bobberTransform, config, dt);
+                applySlowReel(commandBuffer, line, tip, bobberPos, bobberRef, bobberTransform, config, dt);
                 if (line.getMaxLength() <= config.getRecallLineLengthBlocks()) {
                     FishingLineService.recallCastOut(commandBuffer, playerRef);
                     return;
@@ -225,6 +225,7 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
     }
 
     private static void applySlowReel(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
         @Nonnull FishingLineComponent line,
         @Nonnull Vector3d tip,
         @Nonnull Vector3d bobberPos,
@@ -242,6 +243,7 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
             bobberPos.add(toTip);
             if (bobberTransform != null) {
                 bobberTransform.setPosition(new Vector3d(bobberPos));
+                FishingBobberOrientation.applyUpright(commandBuffer, bobberRef);
             }
         }
     }

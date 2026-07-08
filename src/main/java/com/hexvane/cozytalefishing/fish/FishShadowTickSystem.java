@@ -1,7 +1,9 @@
 package com.hexvane.cozytalefishing.fish;
 
 import com.hexvane.cozytalefishing.fishing.FishingBobberComponent;
+import com.hexvane.cozytalefishing.fishing.FishingBobberOrientation;
 import com.hexvane.cozytalefishing.fishing.FishingBobberPhase;
+import com.hexvane.cozytalefishing.fishing.FishingConstants;
 import com.hexvane.cozytalefishing.fishing.FishingFightHudService;
 import com.hexvane.cozytalefishing.fishing.FishingLineComponent;
 import com.hexvane.cozytalefishing.fishing.FishingLinePhase;
@@ -120,16 +122,15 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
             } else {
                 shadow.setIdleTimer(shadow.getIdleTimer() + dt);
                 if (shadow.getIdleTimer() >= idleDespawnSeconds) {
-                    startIdleDespawnFlee(shadow);
+                    startIdleDespawnFlee(commandBuffer, shadowRef, shadow);
                     tickFleeing(commandBuffer, shadowRef, shadow, species, world, position, dt);
                     return;
                 }
             }
         }
 
-        Ref<EntityStore> bobberRef = findBobberInVision(commandBuffer, shadow, species, position);
-        if (bobberRef != null) {
-            beginPokeSequence(commandBuffer, shadow, bobberRef);
+        Ref<EntityStore> bobberRef = findBobberInVision(commandBuffer, shadowRef, shadow, species, position);
+        if (bobberRef != null && beginPokeSequence(commandBuffer, shadowRef, shadow, bobberRef)) {
             Vector3d bobberPos = getBobberPosition(commandBuffer, bobberRef);
             float yaw = FishShadowVision.swimYaw(
                 (float) (bobberPos.x - position.x),
@@ -173,9 +174,9 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         @Nonnull Vector3d position,
         float dt
     ) {
-        Ref<EntityStore> bobberRef = resolveTargetBobber(commandBuffer, shadow, position, species.getVisionRange() * 1.5f);
+        Ref<EntityStore> bobberRef = resolveTargetBobber(commandBuffer, shadowRef, shadow, position, species.getVisionRange() * 1.5f);
         if (bobberRef == null) {
-            clearBobberTarget(shadow);
+            clearBobberTarget(commandBuffer, shadowRef, shadow);
             shadow.setState(FishShadowState.WANDERING);
             return;
         }
@@ -187,7 +188,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         }
 
         if (isOwnerReelingDuringPoke(commandBuffer, shadow, bobberRef)) {
-            startScaredFleeFromBobber(shadow, position, bobberPos);
+            startScaredFleeFromBobber(commandBuffer, shadowRef, shadow, position, bobberPos);
             if (!FishShadowSpawnHelper.tryMoveOnWaterSurface(
                 world,
                 position,
@@ -270,11 +271,15 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         FishShadowEntityPool.updateTransform(commandBuffer, shadowRef, position, yaw, shadow.getCurrentScale());
     }
 
-    private static void beginPokeSequence(
+    private static boolean beginPokeSequence(
         @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> shadowRef,
         @Nonnull FishShadowComponent shadow,
         @Nonnull Ref<EntityStore> bobberRef
     ) {
+        if (!tryClaimBobberForPoking(commandBuffer, shadowRef, bobberRef)) {
+            return false;
+        }
         assignTargetBobber(commandBuffer, shadow, bobberRef);
         Vector3d bobberPos = getBobberPosition(commandBuffer, bobberRef);
         shadow.setBobberAnchor(bobberPos.x, bobberPos.z);
@@ -286,6 +291,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         shadow.setStateTimer(POKE_LURK_TIME_MIN + (float) Math.random() * (POKE_LURK_TIME_MAX - POKE_LURK_TIME_MIN));
         shadow.setPokeTimer(0.0f);
         shadow.setIdleTimer(0.0f);
+        return true;
     }
 
     private static void commitHookPullUnder(
@@ -296,7 +302,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
     ) {
         Ref<EntityStore> bobberRef = resolveHookBobber(commandBuffer, shadow);
         if (bobberRef == null) {
-            clearBobberTarget(shadow);
+            clearBobberTarget(commandBuffer, shadowRef, shadow);
             shadow.setState(FishShadowState.WANDERING);
             return;
         }
@@ -340,14 +346,14 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
     ) {
         Ref<EntityStore> bobberRef = shadow.getTargetBobberRef();
         if (bobberRef == null || !bobberRef.isValid()) {
-            clearBobberTarget(shadow);
+            clearBobberTarget(commandBuffer, shadowRef, shadow);
             shadow.setState(FishShadowState.WANDERING);
             return;
         }
 
         FishingBobberComponent bobber = commandBuffer.getComponent(bobberRef, FishingBobberComponent.getComponentType());
         if (bobber == null || bobber.getPhase() != FishingBobberPhase.FLOATING) {
-            clearBobberTarget(shadow);
+            clearBobberTarget(commandBuffer, shadowRef, shadow);
             shadow.setState(FishShadowState.WANDERING);
             return;
         }
@@ -421,8 +427,11 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         }
         double anchorX = shadow.isBobberAnchorInitialized() ? shadow.getBobberAnchorX() : bobberTransform.getPosition().x;
         double anchorZ = shadow.isBobberAnchorInitialized() ? shadow.getBobberAnchorZ() : bobberTransform.getPosition().z;
-        double submergedY = bobber != null ? bobber.getLatchedSurfaceY() - 0.45 : bobberTransform.getPosition().y - 0.45;
+        double submergedY = bobber != null
+            ? bobber.getLatchedSurfaceY() - FishingConstants.FIGHT_BOBBER_SUBMERGE_OFFSET
+            : bobberTransform.getPosition().y - FishingConstants.FIGHT_BOBBER_SUBMERGE_OFFSET;
         bobberTransform.setPosition(new Vector3d(anchorX, submergedY, anchorZ));
+        FishingBobberOrientation.applyUpright(commandBuffer, bobberRef);
     }
 
     private static void beginFight(
@@ -434,14 +443,14 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
     ) {
         Ref<EntityStore> bobberRef = resolveHookBobber(commandBuffer, shadow);
         if (bobberRef == null) {
-            clearBobberTarget(shadow);
+            clearBobberTarget(commandBuffer, shadowRef, shadow);
             shadow.setState(FishShadowState.WANDERING);
             return;
         }
 
         FishingBobberComponent bobber = commandBuffer.getComponent(bobberRef, FishingBobberComponent.getComponentType());
         if (bobber == null) {
-            clearBobberTarget(shadow);
+            clearBobberTarget(commandBuffer, shadowRef, shadow);
             shadow.setState(FishShadowState.WANDERING);
             return;
         }
@@ -452,6 +461,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
             FishShadowEffects.playPullUnder(commandBuffer, bobberPos);
         }
         bobber.setHookedShadowRef(shadowRef);
+        bobber.setPokingShadowRef(null);
         UUID ownerUuid = bobber.getOwnerUuid();
         shadow.setHookedPlayerUuid(ownerUuid);
         PlayerRef playerRef = Universe.get().getPlayer(ownerUuid);
@@ -582,15 +592,16 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
                 int surfaceBlockY = FishShadowSpawnHelper.findSurfaceWaterBlockY(world, (int) Math.floor(position.x), (int) Math.floor(position.z));
                 double surfaceWorldY =
                     surfaceBlockY >= 0 ? FishShadowSpawnHelper.waterSurfaceWorldY(surfaceBlockY) : position.y;
-                double submergedY = surfaceWorldY - 0.45;
+                double submergedY = surfaceWorldY - FishingConstants.FIGHT_BOBBER_SUBMERGE_OFFSET;
                 if (bobberState != null && bobberState.getPhase() == FishingBobberPhase.FLOATING) {
-                    submergedY = bobberState.getLatchedSurfaceY() - 0.45;
+                    submergedY = bobberState.getLatchedSurfaceY() - FishingConstants.FIGHT_BOBBER_SUBMERGE_OFFSET;
                 }
                 Vector3d bobberPos = bobberTransform.getPosition();
                 float followLerp = Math.min(1.0f, 5.0f * dt);
                 double newX = bobberPos.x + (position.x - bobberPos.x) * followLerp;
                 double newZ = bobberPos.z + (position.z - bobberPos.z) * followLerp;
                 bobberTransform.setPosition(new Vector3d(newX, submergedY, newZ));
+                FishingBobberOrientation.applyUpright(commandBuffer, bobberRef);
             }
         }
     }
@@ -610,7 +621,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
 
         shadow.setWanderDirection(FishShadowVision.yawToward(ownerPos, position));
         shadow.setHookedPlayerUuid(null);
-        clearBobberTarget(shadow);
+        clearBobberTarget(commandBuffer, shadowRef, shadow);
         shadow.setState(FishShadowState.FLEEING);
         shadow.setFleeTimer(0.0f);
 
@@ -703,6 +714,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
     @Nullable
     private static Ref<EntityStore> resolveTargetBobber(
         @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> shadowRef,
         @Nonnull FishShadowComponent shadow,
         @Nonnull Vector3d position,
         float searchRange
@@ -721,7 +733,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
             }
         }
 
-        Ref<EntityStore> nearest = findNearestFloatingBobber(commandBuffer, position, searchRange);
+        Ref<EntityStore> nearest = findNearestFloatingBobber(commandBuffer, shadowRef, position, searchRange);
         if (nearest != null) {
             assignTargetBobber(commandBuffer, shadow, nearest);
         }
@@ -740,7 +752,12 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         }
     }
 
-    private static void clearBobberTarget(@Nonnull FishShadowComponent shadow) {
+    private static void clearBobberTarget(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> shadowRef,
+        @Nonnull FishShadowComponent shadow
+    ) {
+        releaseBobberPokingClaim(commandBuffer, shadowRef, shadow.getTargetBobberRef());
         shadow.setTargetBobberRef(null);
         shadow.setTargetBobberOwnerUuid(null);
         shadow.clearBobberAnchor();
@@ -768,7 +785,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
             Ref<EntityStore> bobberRef = shadow.getTargetBobberRef();
             if (bobberRef == null && shadow.getTargetBobberOwnerUuid() == null) {
                 shadow.setState(FishShadowState.WANDERING);
-                clearBobberTarget(shadow);
+                clearBobberTarget(commandBuffer, shadowRef, shadow);
             }
         }
         return false;
@@ -803,6 +820,8 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
     }
 
     private static void startScaredFleeFromBobber(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> shadowRef,
         @Nonnull FishShadowComponent shadow,
         @Nonnull Vector3d position,
         @Nonnull Vector3d bobberPos
@@ -810,14 +829,18 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         shadow.setWanderDirection(FishShadowVision.yawToward(bobberPos, position));
         shadow.setState(FishShadowState.FLEEING);
         shadow.setFleeTimer(0.0f);
-        clearBobberTarget(shadow);
+        clearBobberTarget(commandBuffer, shadowRef, shadow);
     }
 
-    private static void startIdleDespawnFlee(@Nonnull FishShadowComponent shadow) {
+    private static void startIdleDespawnFlee(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> shadowRef,
+        @Nonnull FishShadowComponent shadow
+    ) {
         shadow.setWanderDirection((float) (Math.random() * Math.PI * 2.0));
         shadow.setState(FishShadowState.FLEEING);
         shadow.setFleeTimer(0.0f);
-        clearBobberTarget(shadow);
+        clearBobberTarget(commandBuffer, shadowRef, shadow);
     }
 
     private static float yawWhileSwimming(@Nonnull Vector3d position, @Nonnull Vector3d moveTarget) {
@@ -869,9 +892,66 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         return bobber != null && bobber.getPhase() == FishingBobberPhase.FLOATING && !bobber.isSubmerged();
     }
 
+    private static boolean isBobberAvailableForShadow(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> bobberRef,
+        @Nullable Ref<EntityStore> requestingShadowRef
+    ) {
+        FishingBobberComponent bobber = commandBuffer.getComponent(bobberRef, FishingBobberComponent.getComponentType());
+        if (bobber == null) {
+            return false;
+        }
+        Ref<EntityStore> poking = bobber.getPokingShadowRef();
+        if (poking != null && poking.isValid() && (requestingShadowRef == null || !poking.equals(requestingShadowRef))) {
+            return false;
+        }
+        Ref<EntityStore> hooked = bobber.getHookedShadowRef();
+        if (hooked != null && hooked.isValid() && (requestingShadowRef == null || !hooked.equals(requestingShadowRef))) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean tryClaimBobberForPoking(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> shadowRef,
+        @Nonnull Ref<EntityStore> bobberRef
+    ) {
+        if (!isBobberAvailableForShadow(commandBuffer, bobberRef, shadowRef)) {
+            return false;
+        }
+        FishingBobberComponent bobber = commandBuffer.getComponent(bobberRef, FishingBobberComponent.getComponentType());
+        if (bobber == null) {
+            return false;
+        }
+        bobber.setPokingShadowRef(shadowRef);
+        commandBuffer.putComponent(bobberRef, FishingBobberComponent.getComponentType(), bobber);
+        return true;
+    }
+
+    private static void releaseBobberPokingClaim(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> shadowRef,
+        @Nullable Ref<EntityStore> bobberRef
+    ) {
+        if (bobberRef == null || !bobberRef.isValid()) {
+            return;
+        }
+        FishingBobberComponent bobber = commandBuffer.getComponent(bobberRef, FishingBobberComponent.getComponentType());
+        if (bobber == null) {
+            return;
+        }
+        Ref<EntityStore> claim = bobber.getPokingShadowRef();
+        if (claim != null && claim.equals(shadowRef)) {
+            bobber.setPokingShadowRef(null);
+            commandBuffer.putComponent(bobberRef, FishingBobberComponent.getComponentType(), bobber);
+        }
+    }
+
     @Nullable
     private static Ref<EntityStore> findNearestFloatingBobber(
         @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nullable Ref<EntityStore> requestingShadowRef,
         @Nonnull Vector3d position,
         float searchRange
     ) {
@@ -881,9 +961,13 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         commandBuffer.getStore().forEachEntityParallel(
             FishingBobberComponent.getComponentType(),
             (idx, chunk, ignored) -> {
+                Ref<EntityStore> bobberRef = chunk.getReferenceTo(idx);
                 FishingBobberComponent bobber = chunk.getComponent(idx, FishingBobberComponent.getComponentType());
                 TransformComponent bobberTransform = chunk.getComponent(idx, TransformComponent.getComponentType());
                 if (bobber == null || bobberTransform == null || bobber.getPhase() != FishingBobberPhase.FLOATING || bobber.isSubmerged()) {
+                    return;
+                }
+                if (!isBobberAvailableForShadow(commandBuffer, bobberRef, requestingShadowRef)) {
                     return;
                 }
                 Vector3d bobberPos = bobberTransform.getPosition();
@@ -902,6 +986,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
     @Nullable
     private static Ref<EntityStore> findBobberInVision(
         @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> shadowRef,
         @Nonnull FishShadowComponent shadow,
         @Nonnull FishSpeciesAsset species,
         @Nonnull Vector3d position
@@ -913,9 +998,13 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
                 if (holder.get() != null) {
                     return;
                 }
+                Ref<EntityStore> bobberRef = chunk.getReferenceTo(idx);
                 FishingBobberComponent bobber = chunk.getComponent(idx, FishingBobberComponent.getComponentType());
                 TransformComponent bobberTransform = chunk.getComponent(idx, TransformComponent.getComponentType());
                 if (bobber == null || bobberTransform == null || bobber.getPhase() != FishingBobberPhase.FLOATING || bobber.isSubmerged()) {
+                    return;
+                }
+                if (!isBobberAvailableForShadow(commandBuffer, bobberRef, shadowRef)) {
                     return;
                 }
                 Vector3d bobberPos = bobberTransform.getPosition();
