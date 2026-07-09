@@ -10,6 +10,15 @@ public enum JournalEntryState {
     HINTED,
     DISCOVERED;
 
+    /** Lower values appear first in the journal species grid. */
+    public int journalSortOrder() {
+        return switch (this) {
+            case DISCOVERED -> 0;
+            case HINTED -> 1;
+            case UNDISCOVERED -> 2;
+        };
+    }
+
     @Nonnull
     public static JournalEntryState fromRecords(@Nullable FishCatchRecordComponent records, @Nonnull String speciesId) {
         if (records == null) {

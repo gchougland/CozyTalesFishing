@@ -147,7 +147,7 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
 
         bindWaterFilters(commandBuilder, eventBuilder);
 
-        List<FishSpeciesAsset> visibleSpecies = filterAndSortSpecies(allSpecies);
+        List<FishSpeciesAsset> visibleSpecies = filterAndSortSpecies(allSpecies, records);
         ensureSelection(visibleSpecies);
 
         commandBuilder.clear(FISH_GRID);
@@ -483,14 +483,23 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
     }
 
     @Nonnull
-    private List<FishSpeciesAsset> filterAndSortSpecies(@Nonnull List<FishSpeciesAsset> allSpecies) {
+    private List<FishSpeciesAsset> filterAndSortSpecies(
+        @Nonnull List<FishSpeciesAsset> allSpecies,
+        @Nullable FishCatchRecordComponent records
+    ) {
         List<FishSpeciesAsset> visible = new ArrayList<>();
         for (FishSpeciesAsset species : allSpecies) {
             if (matchesActiveFilters(species)) {
                 visible.add(species);
             }
         }
-        visible.sort(Comparator.comparing(FishSpeciesDisplayNames::resolve, String.CASE_INSENSITIVE_ORDER));
+        visible.sort(
+            Comparator.comparingInt(
+                    (FishSpeciesAsset species) ->
+                        JournalEntryState.fromRecords(records, species.getId()).journalSortOrder()
+                )
+                .thenComparing(FishSpeciesDisplayNames::resolve, String.CASE_INSENSITIVE_ORDER)
+        );
         return visible;
     }
 
