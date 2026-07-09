@@ -76,10 +76,26 @@ public final class FishCatchService {
         @Nullable FishShadowComponent shadow,
         @Nullable Vector3d catchPosition
     ) {
+        PlayerRef playerRefComponent = commandBuffer.getComponent(playerRef, PlayerRef.getComponentType());
+
+        if (species.isMonster()) {
+            String npcRoleId = species.getNpcRoleId();
+            if (npcRoleId != null && !npcRoleId.isBlank()) {
+                FishMonsterSpawnService.spawnAtCatch(commandBuffer, npcRoleId, catchPosition, playerRef);
+            }
+            if (playerRefComponent != null) {
+                playerRefComponent.sendMessage(
+                    Message
+                        .translation("server.cozytalefishing.catch.monster_success")
+                        .param("fish", FishSpeciesDisplayNames.resolve(species))
+                );
+            }
+            return;
+        }
+
         ItemStack stack = new ItemStack(species.getItemId(), 1);
         Player.giveItem(stack, playerRef, commandBuffer);
 
-        PlayerRef playerRefComponent = commandBuffer.getComponent(playerRef, PlayerRef.getComponentType());
         if (species.isTrash()) {
             if (playerRefComponent != null) {
                 playerRefComponent.sendMessage(

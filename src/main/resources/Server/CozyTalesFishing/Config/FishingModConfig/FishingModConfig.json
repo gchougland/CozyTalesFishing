@@ -33,5 +33,6 @@
   "EnableSpawnRegions": true,
   "SpawnPreferredMissWeightMultiplier": 0.35,
   "SpawnPreferredMatchWeightMultiplier": 1.25,
-  "TreasureSpawnChance": 0.03
+  "TreasureSpawnChance": 0.03,
+  "MonsterSpawnChance": 0.01
 }

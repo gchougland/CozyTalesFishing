@@ -15,6 +15,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultAssetMap<String, FishSpeciesAsset>> {
+    /** Values above this make fights unwinnable even with top-tier rod and trap bobber. */
+    private static final float MAX_FIGHT_SWIM_SPEED = 1.3f;
+
     @Nonnull
     public static final AssetBuilderCodec<String, FishSpeciesAsset> CODEC =
         AssetBuilderCodec.builder(
@@ -59,6 +62,8 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
             .append(new KeyedCodec<>("UndergroundOnly", Codec.BOOLEAN), (a, v) -> a.undergroundOnly = v, a -> a.undergroundOnly).add()
             .append(new KeyedCodec<>("IsTrash", Codec.BOOLEAN), (a, v) -> a.isTrash = v, a -> a.isTrash).add()
             .append(new KeyedCodec<>("IsTreasure", Codec.BOOLEAN), (a, v) -> a.isTreasure = v, a -> a.isTreasure).add()
+            .append(new KeyedCodec<>("IsMonster", Codec.BOOLEAN), (a, v) -> a.isMonster = v, a -> a.isMonster).add()
+            .append(new KeyedCodec<>("NpcRoleId", Codec.STRING), (a, v) -> a.npcRoleId = v, a -> a.npcRoleId).add()
             .append(new KeyedCodec<>("RandomShadowType", Codec.BOOLEAN), (a, v) -> a.randomShadowType = v, a -> a.randomShadowType).add()
             .append(new KeyedCodec<>("VisionRange", Codec.DOUBLE), (a, v) -> a.visionRange = v.floatValue(), a -> (double) a.visionRange).add()
             .append(new KeyedCodec<>("VisionAngleDegrees", Codec.DOUBLE), (a, v) -> a.visionAngleDegrees = v.floatValue(), a -> (double) a.visionAngleDegrees).add()
@@ -112,6 +117,9 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
     private boolean undergroundOnly;
     private boolean isTrash;
     private boolean isTreasure;
+    private boolean isMonster;
+    @Nullable
+    private String npcRoleId;
     private boolean randomShadowType;
     private float visionRange = 4.0f;
     private float visionAngleDegrees = 110.0f;
@@ -122,7 +130,7 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
     private float[] shadowScaleRange = new float[] {0.8f, 1.1f};
     private float swimSpeed = 1.0f;
     private float fleePlayerRange = 3.5f;
-    private float fightSwimSpeed = 1.4f;
+    private float fightSwimSpeed = MAX_FIGHT_SWIM_SPEED;
 
     private FishShadowType shadowType = FishShadowType.Small;
     private FishRarity rarity = FishRarity.Common;
@@ -149,6 +157,7 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
 
         asset.requiresUnderground = asset.spawnRules.isUndergroundOnly();
         asset.requiresSurface = !asset.requiresUnderground;
+        asset.fightSwimSpeed = Math.min(asset.fightSwimSpeed, MAX_FIGHT_SWIM_SPEED);
     }
 
     private static void syncLegacyFieldsFromRules(@Nonnull FishSpeciesAsset asset) {
@@ -265,6 +274,15 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
         return isTreasure;
     }
 
+    public boolean isMonster() {
+        return isMonster;
+    }
+
+    @Nullable
+    public String getNpcRoleId() {
+        return npcRoleId;
+    }
+
     public boolean usesRandomShadowType() {
         return randomShadowType;
     }
@@ -277,9 +295,9 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
         return shadowType;
     }
 
-    /** Trash and treasure catches are excluded from the fishing journal. */
+    /** Trash, treasure, and monster catches are excluded from the fishing journal. */
     public boolean excludesFromJournal() {
-        return isTrash || isTreasure;
+        return isTrash || isTreasure || isMonster;
     }
 
     public float getVisionRange() {

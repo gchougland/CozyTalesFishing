@@ -445,6 +445,27 @@ public final class FishShadowSpawner {
             }
         }
 
+        float monsterChance = Math.min(1.0f, config.getMonsterSpawnChance());
+        if (monsterChance > 0.0f
+            && FishingRodRegistry.isFishingRod(rodStats.itemId())
+            && random.nextFloat() < monsterChance) {
+            FishSpeciesAsset monster =
+                pickMonster(
+                    bodyType,
+                    blockX,
+                    blockZ,
+                    surfaceY,
+                    environmentIndex,
+                    world,
+                    config,
+                    random,
+                    regionContext
+                );
+            if (monster != null) {
+                return monster;
+            }
+        }
+
         float trashChance =
             Math.min(1.0f, FishingRodRegistry.getTrashSpawnChance(rodStats.itemId(), config) + bobberEffects.getTrashChanceBonus());
         if (trashChance > 0.0f && random.nextFloat() < trashChance) {
@@ -490,6 +511,46 @@ public final class FishShadowSpawner {
         return weightedPickSpecies(eligible, config.getGlobalSpawnWeightMultiplier(), random);
     }
 
+    @Nullable
+    private static FishSpeciesAsset pickMonster(
+        @Nonnull WaterBodyType bodyType,
+        int blockX,
+        int blockZ,
+        int surfaceY,
+        int environmentIndex,
+        @Nonnull World world,
+        @Nonnull FishingModConfig config,
+        @Nonnull ThreadLocalRandom random,
+        @Nullable FishingSpawnRegionContext regionContext
+    ) {
+        List<WeightedSpecies> eligible = new ArrayList<>();
+        FishShadowSpawnHelper.SpawnConditions spawnConditions =
+            FishShadowSpawnHelper.resolveSpawnConditions(world, environmentIndex);
+        FishSpawnRulesEvaluator.SpawnEvaluationContext context =
+            new FishSpawnRulesEvaluator.SpawnEvaluationContext(
+                bodyType,
+                environmentIndex,
+                blockX,
+                blockZ,
+                surfaceY,
+                world,
+                spawnConditions,
+                regionContext,
+                config
+            );
+
+        for (FishSpeciesAsset species : FishSpeciesRegistry.getMonsterSpecies()) {
+            FishSpawnRulesEvaluator.SpawnRuleResult result =
+                FishSpawnRulesEvaluator.evaluate(species, context);
+            if (!result.eligible()) {
+                continue;
+            }
+            eligible.add(new WeightedSpecies(species, result.weightMultiplier()));
+        }
+
+        return weightedPick(eligible, config.getGlobalSpawnWeightMultiplier(), random);
+    }
+
     @Nonnull
     private static List<WeightedSpecies> filterSpecies(
         @Nonnull WaterBodyType bodyType,
@@ -518,7 +579,7 @@ public final class FishShadowSpawner {
             );
 
         for (FishSpeciesAsset species : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType)) {
-            if (species.isTrash() || species.isTreasure()) {
+            if (species.isTrash() || species.isTreasure() || species.isMonster()) {
                 continue;
             }
             FishSpawnRulesEvaluator.SpawnRuleResult result =

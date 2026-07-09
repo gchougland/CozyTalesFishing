@@ -236,6 +236,12 @@ public final class FishingModConfig {
             )
             .add()
             .append(
+                new KeyedCodec<>("MonsterSpawnChance", Codec.DOUBLE),
+                (a, v) -> a.monsterSpawnChance = v.floatValue(),
+                a -> (double) a.monsterSpawnChance
+            )
+            .add()
+            .append(
                 new KeyedCodec<>("SpawnPreferredMissWeightMultiplier", Codec.DOUBLE),
                 (a, v) -> a.spawnPreferredMissWeightMultiplier = v.floatValue(),
                 a -> (double) a.spawnPreferredMissWeightMultiplier
@@ -294,6 +300,16 @@ public final class FishingModConfig {
                 (a, v) -> a.bobberDecoratedSpinnerVisionMultiplier = v.floatValue(),
                 a -> (double) a.bobberDecoratedSpinnerVisionMultiplier
             )
+            .add()
+            .append(
+                new KeyedCodec<>("BoatSpeedMultiplier", Codec.DOUBLE),
+                (a, v) -> a.boatSpeedMultiplier = v.floatValue(),
+                a -> (double) a.boatSpeedMultiplier
+            )
+            .add()
+            .append(new KeyedCodec<>("BoatPlacementMinWaterDepth", Codec.INTEGER), (a, v) -> a.boatPlacementMinWaterDepth = v, a -> a.boatPlacementMinWaterDepth)
+            .add()
+            .append(new KeyedCodec<>("BoatBreakHitsRequired", Codec.INTEGER), (a, v) -> a.boatBreakHitsRequired = v, a -> a.boatBreakHitsRequired)
             .add()
             .build();
 
@@ -378,6 +394,7 @@ public final class FishingModConfig {
     private float woodenTrashSpawnChance = 0.15f;
     private float ironTrashSpawnChance = 0.05f;
     private float treasureSpawnChance = 0.03f;
+    private float monsterSpawnChance = 0.03f;
     private float spawnPreferredMissWeightMultiplier = 0.35f;
     private float spawnPreferredMatchWeightMultiplier = 1.25f;
     private float bobberTrashChanceBonus = 0.65f;
@@ -388,6 +405,9 @@ public final class FishingModConfig {
     private float bobberTrapReelSpeedMultiplier = 1.35f;
     private float bobberSpinnerVisionMultiplier = 1.25f;
     private float bobberDecoratedSpinnerVisionMultiplier = 1.5f;
+    private float boatSpeedMultiplier = 3.0f;
+    private int boatPlacementMinWaterDepth = 1;
+    private int boatBreakHitsRequired = 3;
 
     public int getShadowsPerPlayerCap() {
         return shadowsPerPlayerCap;
@@ -589,6 +609,10 @@ public final class FishingModConfig {
         return treasureSpawnChance;
     }
 
+    public float getMonsterSpawnChance() {
+        return monsterSpawnChance;
+    }
+
     public float getSpawnPreferredMissWeightMultiplier() {
         return spawnPreferredMissWeightMultiplier;
     }
@@ -627,5 +651,17 @@ public final class FishingModConfig {
 
     public float getBobberDecoratedSpinnerVisionMultiplier() {
         return bobberDecoratedSpinnerVisionMultiplier;
+    }
+
+    public float getBoatSpeedMultiplier() {
+        return boatSpeedMultiplier;
+    }
+
+    public int getBoatPlacementMinWaterDepth() {
+        return boatPlacementMinWaterDepth;
+    }
+
+    public int getBoatBreakHitsRequired() {
+        return boatBreakHitsRequired;
     }
 }

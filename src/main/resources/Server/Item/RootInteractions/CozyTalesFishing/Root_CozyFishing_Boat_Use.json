@@ -1,0 +1,6 @@
+{
+  "RequireNewClick": true,
+  "Interactions": [
+    "CozyFishingBoat_Use"
+  ]
+}

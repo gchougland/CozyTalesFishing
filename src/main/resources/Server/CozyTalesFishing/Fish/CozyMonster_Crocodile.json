@@ -1,0 +1,25 @@
+{
+  "IsMonster": true,
+  "NpcRoleId": "Crocodile",
+  "ShadowType": "Large",
+  "ItemId": "Template_CozyFishing_MonsterCatch",
+  "Rarity": "Rare",
+  "SpawnWeight": 50,
+  "SpawnRules": {
+    "WaterBody": {"Types": ["River", "Pond"], "Mode": "Required"},
+    "Location": {
+      "Environments": ["Env_Zone2_Oasis"],
+      "EnvironmentMode": "Required",
+      "ZoneMode": "Required"
+    },
+    "Underground": {"Only": false, "Mode": "Required"},
+    "DayTime": {"Range": [0, 24], "Mode": "Ignored"},
+    "Weather": {"Ids": [], "Mode": "Ignored"}
+  },
+  "VisionRange": 5,
+  "PokeReachBlocks": 0.4,
+  "ShadowScaleRange": [1.15, 1.45],
+  "SwimSpeed": 1.0,
+  "FightSwimSpeed": 1.3,
+  "FleePlayerRange": 5.5
+}

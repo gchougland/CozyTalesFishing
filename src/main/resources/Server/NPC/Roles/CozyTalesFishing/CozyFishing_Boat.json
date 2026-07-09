@@ -1,0 +1,38 @@
+{
+  "Type": "Generic",
+  "Appearance": "CozyTalesFishing_Fishing_Boat",
+  "MaxHealth": 200,
+  "BreathesInWater": true,
+  "DefaultPlayerAttitude": "Neutral",
+  "DefaultNPCAttitude": "Ignore",
+  "MotionControllerList": [
+    {
+      "Type": "Walk",
+      "MaxWalkSpeed": 3,
+      "MinWalkSpeed": 0,
+      "Gravity": 10,
+      "MaxFallSpeed": 20,
+      "Acceleration": 10
+    }
+  ],
+  "Instructions": [
+    {
+      "Sensor": {
+        "Type": "Any"
+      },
+      "BodyMotion": {
+        "Type": "Nothing"
+      }
+    }
+  ],
+  "InteractionInstruction": {
+    "Reference": "Component_Instruction_Interaction_CozyFishing_Boat_Mount",
+    "Modify": {
+      "AnchorX": 0,
+      "AnchorY": 1.0,
+      "AnchorZ": 0.3,
+      "MovementConfig": "CozyFishing_Boat_Mount"
+    }
+  },
+  "NameTranslationKey": "server.items.CozyFishing_Boat.name"
+}

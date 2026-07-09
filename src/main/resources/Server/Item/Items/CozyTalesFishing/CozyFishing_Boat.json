@@ -1,0 +1,52 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.CozyFishing_Boat.name",
+    "Description": "server.items.CozyFishing_Boat.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Vehicle_Wood_Boat.png",
+  "Model": "Items/Vehicles/Boat.blockymodel",
+  "Texture": "Items/Vehicles/Boat_Texture.png",
+  "Categories": [
+    "Tools"
+  ],
+  "Interactions": {
+    "Secondary": "Root_CozyFishing_Boat_Secondary"
+  },
+  "PlayerAnimationsId": "Item",
+  "ItemSoundSetId": "ISS_Blocks_Wood",
+  "MaxStack": 1,
+  "Recipe": {
+    "TimeSeconds": 3,
+    "Input": [
+      {
+        "ItemId": "Wood_Softwood_Planks",
+        "Quantity": 5
+      },
+      {
+        "ItemId": "Deco_Rope",
+        "Quantity": 2
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "Workbench",
+        "Type": "Crafting",
+        "Categories": [
+          "Workbench_Tools"
+        ]
+      }
+    ]
+  },
+  "IconProperties": {
+    "Scale": 0.315,
+    "Translation": [
+      -1.21,
+      -9.61
+    ],
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ]
+  }
+}

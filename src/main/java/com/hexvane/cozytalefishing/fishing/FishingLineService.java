@@ -155,6 +155,13 @@ public final class FishingLineService {
         return true;
     }
 
+    public static void cancelActiveReelInteraction(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> playerRef
+    ) {
+        FishingReelHold.cancelActiveReelInteraction(commandBuffer, playerRef);
+    }
+
     @Nullable
     private static Ref<EntityStore>[] copySegmentRefs(@Nullable FishingLineComponent line) {
         if (line == null) {

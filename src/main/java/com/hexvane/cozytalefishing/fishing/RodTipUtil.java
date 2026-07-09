@@ -1,8 +1,10 @@
 package com.hexvane.cozytalefishing.fishing;
 
+import com.hexvane.cozytalefishing.boat.FishingBoatComponent;
 import com.hexvane.cozytalefishing.fish.FishingModConfig;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.ProjectileComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.physics.util.PhysicsMath;
@@ -49,6 +51,28 @@ public final class RodTipUtil {
 
         out.set(look.getPosition()).add(offset);
         out.y += config.getRodTipVerticalLift();
+        applyMountedBoatLift(playerRef, commandBuffer, out);
+    }
+
+    private static void applyMountedBoatLift(
+        @Nonnull Ref<EntityStore> playerRef,
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Vector3d out
+    ) {
+        Player player = commandBuffer.getComponent(playerRef, Player.getComponentType());
+        if (player == null || player.getMountEntityId() == 0) {
+            return;
+        }
+
+        var world = commandBuffer.getExternalData().getWorld();
+        Ref<EntityStore> mountRef = world.getEntityStore().getRefFromNetworkId(player.getMountEntityId());
+        if (mountRef == null || !mountRef.isValid()) {
+            return;
+        }
+        if (commandBuffer.getComponent(mountRef, FishingBoatComponent.getComponentType()) == null) {
+            return;
+        }
+        out.y += 0.35;
     }
 
     /**

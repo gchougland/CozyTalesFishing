@@ -20,6 +20,7 @@ public final class FishSpeciesRegistry {
     private static final Map<WaterBodyType, List<FishSpeciesAsset>> BY_WATER_BODY = new EnumMap<>(WaterBodyType.class);
     private static final List<FishSpeciesAsset> TRASH_SPECIES = new ArrayList<>();
     private static final List<FishSpeciesAsset> TREASURE_SPECIES = new ArrayList<>();
+    private static final List<FishSpeciesAsset> MONSTER_SPECIES = new ArrayList<>();
     private static final List<FishSpeciesAsset> JOURNAL_SPECIES = new ArrayList<>();
     private static final Map<String, FishSpeciesAsset> BY_ID = new HashMap<>();
     private static volatile boolean initialized;
@@ -32,6 +33,7 @@ public final class FishSpeciesRegistry {
         BY_WATER_BODY.clear();
         TRASH_SPECIES.clear();
         TREASURE_SPECIES.clear();
+        MONSTER_SPECIES.clear();
         JOURNAL_SPECIES.clear();
         BY_ID.clear();
         for (WaterBodyType type : WaterBodyType.values()) {
@@ -67,6 +69,8 @@ public final class FishSpeciesRegistry {
                 TRASH_SPECIES.add(species);
             } else if (species.isTreasure()) {
                 TREASURE_SPECIES.add(species);
+            } else if (species.isMonster()) {
+                MONSTER_SPECIES.add(species);
             } else {
                 JOURNAL_SPECIES.add(species);
                 for (WaterBodyType bodyType : species.getWaterBodyTypes()) {
@@ -117,6 +121,12 @@ public final class FishSpeciesRegistry {
     public static List<FishSpeciesAsset> getTreasureSpecies() {
         ensureInitialized();
         return new ArrayList<>(TREASURE_SPECIES);
+    }
+
+    @Nonnull
+    public static List<FishSpeciesAsset> getMonsterSpecies() {
+        ensureInitialized();
+        return new ArrayList<>(MONSTER_SPECIES);
     }
 
     @Nonnull

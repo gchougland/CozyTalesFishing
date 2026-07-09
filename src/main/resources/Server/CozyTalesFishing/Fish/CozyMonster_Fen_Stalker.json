@@ -1,0 +1,25 @@
+{
+  "IsMonster": true,
+  "NpcRoleId": "Fen_Stalker",
+  "ShadowType": "Large",
+  "ItemId": "Template_CozyFishing_MonsterCatch",
+  "Rarity": "Rare",
+  "SpawnWeight": 50,
+  "SpawnRules": {
+    "WaterBody": {"Types": ["River", "Pond"], "Mode": "Required"},
+    "Location": {
+      "Environments": ["Env_Zone1_Swamps"],
+      "EnvironmentMode": "Required",
+      "ZoneMode": "Required"
+    },
+    "Underground": {"Only": false, "Mode": "Required"},
+    "DayTime": {"Range": [0, 24], "Mode": "Ignored"},
+    "Weather": {"Ids": [], "Mode": "Ignored"}
+  },
+  "VisionRange": 5,
+  "PokeReachBlocks": 0.4,
+  "ShadowScaleRange": [1.1, 1.4],
+  "SwimSpeed": 1.1,
+  "FightSwimSpeed": 1.3,
+  "FleePlayerRange": 6
+}
