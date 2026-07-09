@@ -6,7 +6,7 @@
   "SpawnRules": {
     "WaterBody": {"Types": ["Ocean"], "Mode": "Required"},
     "Location": {
-      "Environments": ["Env_Zone1_Shores", "Env_Zone2_Shores"],
+      "Environments": ["Env_Zone1_Shores", "Env_Zone2_Shores", "Env_Zone0_Temperate", "Env_Zone0_Warm", "Env_Zone0_Cold"],
       "EnvironmentMode": "Required",
       "ZoneMode": "Required"
     },

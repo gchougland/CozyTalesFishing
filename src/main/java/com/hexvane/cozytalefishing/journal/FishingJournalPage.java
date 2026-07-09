@@ -595,13 +595,7 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
     ) {
         commandBuilder.set(
             "#HabitatBody.TextSpans",
-            Message.raw(
-                FishSpeciesMetadataFormatter.formatWaterBodyTypes(species.getWaterBodyTypes())
-                    + "\n"
-                    + FishSpeciesMetadataFormatter.formatSpawnLocation(species)
-                    + "\n"
-                    + FishSpeciesMetadataFormatter.formatUnderground(species.isUndergroundOnly())
-            )
+            Message.raw(FishSpeciesMetadataFormatter.formatHabitat(species))
         );
 
         commandBuilder.set(

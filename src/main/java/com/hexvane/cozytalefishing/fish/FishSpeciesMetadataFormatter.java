@@ -1,5 +1,6 @@
 package com.hexvane.cozytalefishing.fish;
 
+import com.hypixel.hytale.server.core.modules.i18n.I18nModule;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -8,6 +9,10 @@ import javax.annotation.Nullable;
 
 /** Human-readable spawn metadata for journal UI and debug output. */
 public final class FishSpeciesMetadataFormatter {
+    private static final String I18N_PREFIX = "server.cozytalefishing.";
+    private static final String WATER_BODY_PREFIX = I18N_PREFIX + "spawn.waterbody.";
+    private static final String HABITAT_LINE_PREFIX = I18N_PREFIX + "journal.habitat.line.";
+
     private FishSpeciesMetadataFormatter() {}
 
     @Nonnull
@@ -15,7 +20,50 @@ public final class FishSpeciesMetadataFormatter {
         if (types.length == 0) {
             return "—";
         }
-        return Arrays.stream(types).map(WaterBodyType::name).collect(Collectors.joining(", "));
+        return Arrays.stream(types).map(FishSpeciesMetadataFormatter::formatWaterBodyType).collect(Collectors.joining(", "));
+    }
+
+    @Nonnull
+    public static String formatWaterBodyType(@Nonnull WaterBodyType type) {
+        String localized = lookup(WATER_BODY_PREFIX + type.name());
+        return localized != null ? localized : type.name();
+    }
+
+    /** Journal habitat panel: water type, biome/habitat, and depth on separate labeled lines. */
+    @Nonnull
+    public static String formatHabitat(@Nonnull FishSpeciesAsset species) {
+        StringBuilder text = new StringBuilder();
+        text.append(formatHabitatLine("water", formatWaterBodyTypes(species.getWaterBodyTypes())));
+
+        String biome = formatSpawnLocation(species);
+        if (!biome.equals("—")) {
+            text.append('\n').append(formatHabitatLine("biome", biome));
+        }
+
+        text.append('\n').append(formatHabitatLine("depth", formatUnderground(species.isUndergroundOnly())));
+        return text.toString();
+    }
+
+    @Nonnull
+    private static String formatHabitatLine(@Nonnull String key, @Nonnull String value) {
+        String template = lookup(HABITAT_LINE_PREFIX + key);
+        if (template == null) {
+            return key + ": " + value;
+        }
+        return template.replace("{value}", value);
+    }
+
+    @Nullable
+    private static String lookup(@Nonnull String key) {
+        I18nModule i18n = I18nModule.get();
+        if (i18n == null) {
+            return null;
+        }
+        String resolved = i18n.getMessage(I18nModule.DEFAULT_LANGUAGE, key);
+        if (resolved == null || resolved.isBlank() || resolved.equals(key)) {
+            return null;
+        }
+        return resolved;
     }
 
     @Nonnull

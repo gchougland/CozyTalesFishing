@@ -70,6 +70,9 @@ cozytalefishing.journal.filter.ocean = Ocean
 cozytalefishing.journal.filter.river = River
 cozytalefishing.journal.filter.pond = Pond
 cozytalefishing.journal.habitat_heading = Habitat
+cozytalefishing.journal.habitat.line.water = Water type: {value}
+cozytalefishing.journal.habitat.line.biome = Biome: {value}
+cozytalefishing.journal.habitat.line.depth = Depth: {value}
 cozytalefishing.journal.conditions_heading = Conditions
 cozytalefishing.journal.record_heading = Personal Best
 cozytalefishing.journal.catch_count_heading = Times Caught
@@ -112,22 +115,27 @@ cozytalefishing.journal.command.reset_all = Reset catch records for {count} onli
 cozytalefishing.journal.command.reset_none_online = No online players to reset.
 cozytalefishing.journal.command.player_not_in_world = That player is not in a world.
 
+# Water body display names (journal habitat panel)
+cozytalefishing.spawn.waterbody.Ocean = Ocean
+cozytalefishing.spawn.waterbody.River = River
+cozytalefishing.spawn.waterbody.Pond = Pond
+
 # Spawn location display names (journal habitat panel)
-cozytalefishing.spawn.environment.Env_Zone0_Warm = Warm Ocean
-cozytalefishing.spawn.environment.Env_Zone0_Temperate = Temperate Ocean
-cozytalefishing.spawn.environment.Env_Zone0_Cold = Cold Ocean
-cozytalefishing.spawn.environment.Env_Zone1_Shores = Tropical Shores
+cozytalefishing.spawn.environment.Env_Zone0_Warm = Deep Ocean (Warm)
+cozytalefishing.spawn.environment.Env_Zone0_Temperate = Deep Ocean (Temperate)
+cozytalefishing.spawn.environment.Env_Zone0_Cold = Deep Ocean (Cold)
+cozytalefishing.spawn.environment.Env_Zone1_Shores = Coastal Shores (Tropical)
 cozytalefishing.spawn.environment.Env_Zone1_Plains = Plains
 cozytalefishing.spawn.environment.Env_Zone1_Forests = Forests
 cozytalefishing.spawn.environment.Env_Zone1_Mountains = Mountains
 cozytalefishing.spawn.environment.Env_Zone1_Autumn = Autumn Forests
 cozytalefishing.spawn.environment.Env_Zone1_Swamps = Swamps
 cozytalefishing.spawn.environment.Env_Zone1_Azure = Azure Lakes
-cozytalefishing.spawn.environment.Env_Zone2_Shores = Warm Shores
+cozytalefishing.spawn.environment.Env_Zone2_Shores = Coastal Shores (Warm)
 cozytalefishing.spawn.environment.Env_Zone2_Deserts = Deserts
 cozytalefishing.spawn.environment.Env_Zone2_Oasis = Oasis
 cozytalefishing.spawn.environment.Env_Zone2_Savanna = Savanna
-cozytalefishing.spawn.environment.Env_Zone3_Shores = Cold Shores
+cozytalefishing.spawn.environment.Env_Zone3_Shores = Coastal Shores (Cold)
 cozytalefishing.spawn.environment.Env_Zone3_Forests = Boreal Forests
 cozytalefishing.spawn.environment.Env_Zone3_Tundra = Tundra
 cozytalefishing.spawn.environment.Env_Zone3_Glacial = Glacial
