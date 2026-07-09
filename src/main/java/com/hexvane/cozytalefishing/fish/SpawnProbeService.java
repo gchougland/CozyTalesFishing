@@ -127,9 +127,17 @@ public final class SpawnProbeService {
         appendSpeciesList(text, "Eligible at other times (DayTime only)", result.timeBlockedOnly(), false);
 
         if (result.eligibleNow().isEmpty() && result.timeBlockedOnly().isEmpty()) {
-            text.append("  >> No fish match this location — spawns fall back to trash.\n");
+            if (result.spawnWaterBody() == WaterBodyType.Lava) {
+                text.append("  >> No fish match this lava location.\n");
+            } else {
+                text.append("  >> No fish match this location — spawns fall back to trash.\n");
+            }
         } else if (result.eligibleNow().isEmpty()) {
-            text.append("  >> No fish eligible right now — spawns fall back to trash until conditions change.\n");
+            if (result.spawnWaterBody() == WaterBodyType.Lava) {
+                text.append("  >> No fish eligible right now.\n");
+            } else {
+                text.append("  >> No fish eligible right now — spawns fall back to trash until conditions change.\n");
+            }
         }
     }
 

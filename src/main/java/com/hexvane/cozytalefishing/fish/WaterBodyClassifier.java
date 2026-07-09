@@ -322,16 +322,7 @@ public final class WaterBodyClassifier {
     }
 
     private static boolean isWaterAt(@Nonnull World world, int x, int y, int z) {
-        ChunkStore chunkStore = world.getChunkStore();
-        var sectionRef = chunkStore.getChunkSectionReferenceAtBlock(x, y, z);
-        if (sectionRef == null) {
-            return false;
-        }
-        FluidSection fluidSection = chunkStore.getStore().getComponentConcurrent(sectionRef, FluidSection.getComponentType());
-        if (fluidSection == null) {
-            return false;
-        }
-        return fluidSection.getFluidId(x, y, z) != Fluid.EMPTY_ID;
+        return FishFluidHelper.isWaterFluidAt(world, x, y, z);
     }
 
     @Nullable

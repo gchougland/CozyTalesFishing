@@ -27,6 +27,7 @@ public final class BobberEquipPage extends CozyInteractiveCustomUIPage<BobberEqu
     private static final String PICKER_LIST = "#PickerList";
     private static final String SLOT_TEMPLATE = "CozyTalesFishing/BobberSlotButton.ui";
     private static final String PICKER_TEMPLATE = "CozyTalesFishing/BobberPickerRow.ui";
+    private static final String PICKER_EMPTY_TEMPLATE = "CozyTalesFishing/BobberPickerEmptyMessage.ui";
 
     private enum ViewMode {
         SLOTS,
@@ -272,9 +273,11 @@ public final class BobberEquipPage extends CozyInteractiveCustomUIPage<BobberEqu
         }
 
         if (bobberSlots.isEmpty()) {
-            commandBuilder.appendInline(
-                PICKER_LIST,
-                "Label { Text: %server.cozytalefishing.bobber.no_bobbers_in_inventory; Style: (Alignment: Center, TextColor: #9eb0bc); }"
+            String emptySelector = PICKER_LIST + "[" + row + "]";
+            commandBuilder.append(PICKER_LIST, PICKER_EMPTY_TEMPLATE);
+            commandBuilder.set(
+                emptySelector + " #EmptyMessage.TextSpans",
+                Message.translation("server.cozytalefishing.bobber.no_bobbers_in_inventory")
             );
         }
 

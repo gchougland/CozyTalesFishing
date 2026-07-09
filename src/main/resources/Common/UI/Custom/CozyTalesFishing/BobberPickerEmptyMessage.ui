@@ -1,0 +1,5 @@
+Label #EmptyMessage {
+  Style: (FontSize: 14, TextColor: #9eb0bc, HorizontalAlignment: Center, Wrap: true);
+  Padding: (Vertical: 8);
+  Text: "";
+}

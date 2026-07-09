@@ -23,14 +23,14 @@ Button #Row {
   }
 
   Label #PlayerName {
-    FlexWeight: 1;
+    Anchor: (Width: 150);
     Style: (...$C.@DefaultLabelStyle, TextColor: #f0e6d2, FontSize: 14, RenderBold: true, VerticalAlignment: Center);
     Text: "";
   }
 
   Label #ScoreLabel {
-    Anchor: (Width: 108);
-    Style: (...$C.@DefaultLabelStyle, TextColor: #c8a060, FontSize: 14, RenderBold: true, HorizontalAlignment: End, VerticalAlignment: Center);
+    FlexWeight: 1;
+    Style: (...$C.@DefaultLabelStyle, TextColor: #c8a060, FontSize: 13, RenderBold: true, HorizontalAlignment: Start, VerticalAlignment: Center);
     Text: "";
   }
 }

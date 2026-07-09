@@ -209,6 +209,12 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
         @Nonnull Store<EntityStore> store
     ) {
         bindLeaderboardMetricTabs(commandBuilder, eventBuilder);
+        commandBuilder.set(
+            "#LeaderboardColScore.TextSpans",
+            activeLeaderboardMetric == LeaderboardMetric.BEST_CATCH
+                ? Message.translation("server.cozytalefishing.journal.leaderboard.col.catch")
+                : Message.translation("server.cozytalefishing.journal.leaderboard.col.score")
+        );
 
         LeaderboardSnapshot snapshot = FishingLeaderboardService.getCachedSnapshot();
         boolean loading = FishingLeaderboardService.isLoading();
@@ -297,8 +303,17 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
         if (displayName.isBlank()) {
             displayName = playerRef.getUsername();
         }
+        String bestCatchSpeciesId = null;
+        float bestCatchSizeCm = 0.0f;
+        FishScoreCalculator.BestCatch bestCatch = FishScoreCalculator.findBestCatch(records);
+        if (bestCatch != null) {
+            bestCatchSpeciesId = bestCatch.speciesId();
+            bestCatchSizeCm = bestCatch.sizeCm();
+        }
         List<RankedLeaderboardEntry> withViewer = new ArrayList<>(entries);
-        withViewer.add(new RankedLeaderboardEntry(viewerUuid, displayName, viewerScore, 1));
+        withViewer.add(
+            new RankedLeaderboardEntry(viewerUuid, displayName, viewerScore, 1, bestCatchSpeciesId, bestCatchSizeCm)
+        );
         withViewer.sort(Comparator.comparingInt(RankedLeaderboardEntry::score).reversed());
 
         List<RankedLeaderboardEntry> ranked = new ArrayList<>();
@@ -311,7 +326,16 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
                 rank = position;
                 lastScore = entry.score();
             }
-            ranked.add(new RankedLeaderboardEntry(entry.playerUuid(), entry.displayName(), entry.score(), rank));
+            ranked.add(
+                new RankedLeaderboardEntry(
+                    entry.playerUuid(),
+                    entry.displayName(),
+                    entry.score(),
+                    rank,
+                    entry.bestCatchSpeciesId(),
+                    entry.bestCatchSizeCm()
+                )
+            );
         }
         return ranked;
     }
@@ -327,7 +351,11 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
             commandBuilder.set(row + ".Style", isViewer ? SELECTED_ROW_STYLE : NORMAL_ROW_STYLE);
             commandBuilder.set(row + " #RankLabel.TextSpans", Message.raw(formatRank(entry.rank())));
             commandBuilder.set(row + " #PlayerName.TextSpans", displayNameMessage(entry.displayName()));
-            commandBuilder.set(row + " #ScoreLabel.TextSpans", Message.raw(formatScore(entry.score())));
+            if (activeLeaderboardMetric == LeaderboardMetric.BEST_CATCH) {
+                commandBuilder.set(row + " #ScoreLabel.TextSpans", formatBestCatchMessage(entry.bestCatchSpeciesId(), entry.bestCatchSizeCm()));
+            } else {
+                commandBuilder.set(row + " #ScoreLabel.TextSpans", Message.raw(formatScore(entry.score())));
+            }
             applyRankAccent(commandBuilder, row + " #RankLabel", entry.rank());
         }
     }
@@ -360,11 +388,7 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
                 Message.translation("server.cozytalefishing.journal.leaderboard.your_rank")
                     .param("rank", viewerEntry.rank())
             );
-            commandBuilder.set(
-                "#ViewerScoreLabel.TextSpans",
-                Message.translation("server.cozytalefishing.journal.leaderboard.your_score")
-                    .param("score", formatScore(viewerEntry.score()))
-            );
+            bindViewerScoreLabel(commandBuilder, viewerEntry, records);
         } else if (viewerScore > 0) {
             int displayRank = entries.isEmpty() ? 1 : 0;
             if (displayRank > 0) {
@@ -379,11 +403,7 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
                     Message.translation("server.cozytalefishing.journal.leaderboard.your_rank_unranked")
                 );
             }
-            commandBuilder.set(
-                "#ViewerScoreLabel.TextSpans",
-                Message.translation("server.cozytalefishing.journal.leaderboard.your_score")
-                    .param("score", formatScore(viewerScore))
-            );
+            bindViewerScoreLabel(commandBuilder, viewerScore, records);
         } else {
             commandBuilder.set(
                 "#ViewerRankLabel.TextSpans",
@@ -395,6 +415,90 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
                     .param("score", formatScore(0))
             );
         }
+    }
+
+    private void bindViewerScoreLabel(
+        @Nonnull UICommandBuilder commandBuilder,
+        @Nonnull RankedLeaderboardEntry viewerEntry,
+        @Nullable FishCatchRecordComponent records
+    ) {
+        if (activeLeaderboardMetric == LeaderboardMetric.BEST_CATCH) {
+            commandBuilder.set(
+                "#ViewerScoreLabel.TextSpans",
+                formatBestCatchSummaryMessage(viewerEntry.bestCatchSpeciesId(), viewerEntry.bestCatchSizeCm(), records)
+            );
+            return;
+        }
+        commandBuilder.set(
+            "#ViewerScoreLabel.TextSpans",
+            Message.translation("server.cozytalefishing.journal.leaderboard.your_score")
+                .param("score", formatScore(viewerEntry.score()))
+        );
+    }
+
+    private void bindViewerScoreLabel(
+        @Nonnull UICommandBuilder commandBuilder,
+        int viewerScore,
+        @Nullable FishCatchRecordComponent records
+    ) {
+        if (activeLeaderboardMetric == LeaderboardMetric.BEST_CATCH) {
+            FishScoreCalculator.BestCatch bestCatch = FishScoreCalculator.findBestCatch(records);
+            commandBuilder.set(
+                "#ViewerScoreLabel.TextSpans",
+                formatBestCatchSummaryMessage(
+                    bestCatch != null ? bestCatch.speciesId() : null,
+                    bestCatch != null ? bestCatch.sizeCm() : 0.0f,
+                    records
+                )
+            );
+            return;
+        }
+        commandBuilder.set(
+            "#ViewerScoreLabel.TextSpans",
+            Message.translation("server.cozytalefishing.journal.leaderboard.your_score")
+                .param("score", formatScore(viewerScore))
+        );
+    }
+
+    @Nonnull
+    private Message formatBestCatchMessage(@Nullable String speciesId, float sizeCm) {
+        if (speciesId == null || speciesId.isBlank() || sizeCm <= 0.0f) {
+            return Message.raw("—");
+        }
+        FishSpeciesAsset species = FishSpeciesRegistry.getSpecies(speciesId);
+        if (species == null) {
+            return Message.raw(speciesId + " (" + String.format(Locale.US, "%.1f", sizeCm) + " cm)");
+        }
+        return Message.translation("server.cozytalefishing.journal.leaderboard.best_catch_value")
+            .param("fish", FishSpeciesDisplayNames.resolve(species))
+            .param("size", String.format(Locale.US, "%.1f", sizeCm));
+    }
+
+    @Nonnull
+    private Message formatBestCatchSummaryMessage(
+        @Nullable String speciesId,
+        float sizeCm,
+        @Nullable FishCatchRecordComponent records
+    ) {
+        if (speciesId == null || speciesId.isBlank() || sizeCm <= 0.0f) {
+            FishScoreCalculator.BestCatch bestCatch = FishScoreCalculator.findBestCatch(records);
+            if (bestCatch != null) {
+                speciesId = bestCatch.speciesId();
+                sizeCm = bestCatch.sizeCm();
+            }
+        }
+        if (speciesId == null || speciesId.isBlank() || sizeCm <= 0.0f) {
+            return Message.translation("server.cozytalefishing.journal.leaderboard.your_best_catch_none");
+        }
+        FishSpeciesAsset species = FishSpeciesRegistry.getSpecies(speciesId);
+        if (species == null) {
+            return Message.translation("server.cozytalefishing.journal.leaderboard.your_best_catch")
+                .param("fish", speciesId)
+                .param("size", String.format(Locale.US, "%.1f", sizeCm));
+        }
+        return Message.translation("server.cozytalefishing.journal.leaderboard.your_best_catch")
+            .param("fish", FishSpeciesDisplayNames.resolve(species))
+            .param("size", String.format(Locale.US, "%.1f", sizeCm));
     }
 
     private void requestLeaderboardRefresh(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {

@@ -1,5 +1,7 @@
 package com.hexvane.cozytalefishing.fishing;
 
+import com.hexvane.cozytalefishing.fish.FishFluidHelper;
+import com.hexvane.cozytalefishing.fish.WaterBodyType;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -77,7 +79,7 @@ public final class FishingBobberFloatSystem extends EntityTickingSystem<EntitySt
         }
 
         if (inFluid) {
-            latchOnWater(commandBuffer, bobberRef, bobber, transform, pos, physics);
+            latchOnWater(commandBuffer, store, bobberRef, bobber, transform, pos, physics);
             return;
         }
 
@@ -90,6 +92,7 @@ public final class FishingBobberFloatSystem extends EntityTickingSystem<EntitySt
 
     private static void latchOnWater(
         @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Store<EntityStore> store,
         @Nonnull Ref<EntityStore> bobberRef,
         @Nonnull FishingBobberComponent bobber,
         @Nonnull TransformComponent transform,
@@ -109,7 +112,19 @@ public final class FishingBobberFloatSystem extends EntityTickingSystem<EntitySt
 
         if (!bobber.isSplashPlayed()) {
             bobber.setSplashPlayed(true);
-            FishingSplashEffects.playBobberSplash(commandBuffer, new Vector3d(pos.x, surfaceY, pos.z));
+            World world = store.getExternalData().getWorld();
+            int blockX = (int) Math.floor(pos.x);
+            int blockY = (int) Math.floor(pos.y);
+            int blockZ = (int) Math.floor(pos.z);
+            WaterBodyType bodyType =
+                FishFluidHelper.isLavaFluidAt(world, blockX, blockY, blockZ)
+                    ? WaterBodyType.Lava
+                    : WaterBodyType.Pond;
+            FishingSplashEffects.playBobberSplash(
+                commandBuffer,
+                new Vector3d(pos.x, surfaceY, pos.z),
+                bodyType
+            );
         }
 
         stopPhysics(commandBuffer, bobberRef, physics);

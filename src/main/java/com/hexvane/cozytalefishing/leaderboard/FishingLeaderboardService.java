@@ -107,14 +107,17 @@ public final class FishingLeaderboardService {
         @Nullable FishCatchRecordComponent records
     ) {
         if (records == null) {
-            return new LeaderboardSnapshot.RawLeaderboardEntry(playerUuid, "", 0, 0, 0);
+            return new LeaderboardSnapshot.RawLeaderboardEntry(playerUuid, "", 0, 0, 0, null, 0.0f);
         }
+        FishScoreCalculator.BestCatch bestCatch = FishScoreCalculator.findBestCatch(records);
         return new LeaderboardSnapshot.RawLeaderboardEntry(
             playerUuid,
             records.getLeaderboardDisplayName(),
             FishScoreCalculator.totalScore(records),
             FishScoreCalculator.bestCatchScore(records),
-            records.getTotalCatchCount()
+            records.getTotalCatchCount(),
+            bestCatch != null ? bestCatch.speciesId() : null,
+            bestCatch != null ? bestCatch.sizeCm() : 0.0f
         );
     }
 }

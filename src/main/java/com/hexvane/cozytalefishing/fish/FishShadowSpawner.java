@@ -84,18 +84,17 @@ public final class FishShadowSpawner {
 
             int environmentIndex = resolveEnvironmentIndex(world, column);
 
-            WaterBodyType bodyType =
-
-                WaterBodyClassifier.classify(world, blockX, column.surfaceY(), blockZ, classifyContext, environmentIndex);
-
-            if (bodyType == null) {
-
-                bodyType = WaterBodyClassifier.isOceanEnvironmentForSpawn(environmentIndex)
-
-                    ? WaterBodyType.Ocean
-
-                    : WaterBodyType.Pond;
-
+            WaterBodyType bodyType;
+            if (column.fluid() == FishFluidHelper.ColumnFluid.LAVA) {
+                bodyType = WaterBodyType.Lava;
+            } else {
+                bodyType =
+                    WaterBodyClassifier.classify(world, blockX, column.surfaceY(), blockZ, classifyContext, environmentIndex);
+                if (bodyType == null) {
+                    bodyType = WaterBodyClassifier.isOceanEnvironmentForSpawn(environmentIndex)
+                        ? WaterBodyType.Ocean
+                        : WaterBodyType.Pond;
+                }
             }
 
             FishingSpawnRegionContext regionContext =
@@ -347,13 +346,9 @@ public final class FishShadowSpawner {
 
                 int z = centerZ + dz;
 
-                FishShadowSpawnHelper.WaterColumn column = FishShadowSpawnHelper.findWaterColumnAt(world, x, z, minDepth);
-
-                if (column != null) {
-
-                    columns.add(column);
-
-                }
+                columns.addAll(
+                    FishShadowSpawnHelper.findAllFluidColumnsAt(world, x, z, minDepth, null)
+                );
 
             }
 

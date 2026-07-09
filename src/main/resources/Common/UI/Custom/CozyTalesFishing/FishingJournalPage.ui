@@ -328,14 +328,14 @@ $C.@PageOverlay {
             }
 
             Label #LeaderboardColAngler {
-              FlexWeight: 1;
+              Anchor: (Width: 150);
               Style: @SectionTitle;
               Text: "";
             }
 
             Label #LeaderboardColScore {
-              Anchor: (Width: 108);
-              Style: (...@SectionTitle, HorizontalAlignment: End);
+              FlexWeight: 1;
+              Style: @SectionTitle;
               Text: "";
             }
           }
@@ -373,14 +373,14 @@ $C.@PageOverlay {
             Background: #141c28(0.65);
 
             Label #ViewerRankLabel {
-              FlexWeight: 1;
+              Anchor: (Width: 180);
               Style: (...$C.@DefaultLabelStyle, TextColor: #f0e6d2, FontSize: 15, RenderBold: true);
               Text: "";
             }
 
             Label #ViewerScoreLabel {
-              Anchor: (Width: 160);
-              Style: (...$C.@DefaultLabelStyle, TextColor: #c8a060, FontSize: 15, RenderBold: true, HorizontalAlignment: End);
+              FlexWeight: 1;
+              Style: (...$C.@DefaultLabelStyle, TextColor: #c8a060, FontSize: 15, RenderBold: true, HorizontalAlignment: Start);
               Text: "";
             }
           }

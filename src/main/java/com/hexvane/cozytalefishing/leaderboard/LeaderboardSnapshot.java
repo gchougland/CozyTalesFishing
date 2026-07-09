@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.ToIntFunction;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class LeaderboardSnapshot {
     @Nonnull
@@ -83,7 +84,16 @@ public final class LeaderboardSnapshot {
                 rank = position;
                 lastScore = score;
             }
-            ranked.add(new RankedLeaderboardEntry(entry.playerUuid(), entry.displayName(), score, rank));
+            ranked.add(
+                new RankedLeaderboardEntry(
+                    entry.playerUuid(),
+                    entry.displayName(),
+                    score,
+                    rank,
+                    entry.bestCatchSpeciesId(),
+                    entry.bestCatchSizeCm()
+                )
+            );
         }
         return ranked;
     }
@@ -93,6 +103,8 @@ public final class LeaderboardSnapshot {
         @Nonnull String displayName,
         int totalScore,
         int bestCatchScore,
-        int totalCaught
+        int totalCaught,
+        @Nullable String bestCatchSpeciesId,
+        float bestCatchSizeCm
     ) {}
 }

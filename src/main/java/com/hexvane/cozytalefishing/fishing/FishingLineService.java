@@ -85,6 +85,8 @@ public final class FishingLineService {
             return;
         }
 
+        FishingReelHold.cancelActiveReelInteraction(commandBuffer, playerRef);
+
         boolean changed = false;
         if (line.isReeling()) {
             line.setReeling(false);
@@ -112,6 +114,8 @@ public final class FishingLineService {
         if (!hasCastOut(commandBuffer, playerRef)) {
             return false;
         }
+
+        FishingReelHold.cancelActiveReelInteraction(commandBuffer, playerRef);
 
         FishingLineComponent line = getLine(commandBuffer, playerRef);
         UUIDComponent uuidComponent = commandBuffer.getComponent(playerRef, UUIDComponent.getComponentType());
@@ -427,6 +431,7 @@ public final class FishingLineService {
     }
 
     public static void teardownLine(@Nonnull Store<EntityStore> store, @Nonnull Ref<EntityStore> playerRef) {
+        FishingReelHold.cancelActiveReelInteraction(store, playerRef);
         FishingLineComponent line = store.getComponent(playerRef, FishingLineComponent.getComponentType());
         UUIDComponent uuidComponent = store.getComponent(playerRef, UUIDComponent.getComponentType());
         UUID ownerUuid = uuidComponent != null ? uuidComponent.getUuid() : null;

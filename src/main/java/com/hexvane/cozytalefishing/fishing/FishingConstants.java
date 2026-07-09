@@ -16,6 +16,12 @@ public final class FishingConstants {
 
     public static final String RIPPLE_PARTICLE_SYSTEM_ID = "CozyFishing_Bobber_Ripple_System";
 
+    /** Vanilla lava landing / splash particles (Block/Lava/Block_Land_Lava_Soft.particlesystem). */
+    public static final String LAVA_SPLASH_PARTICLE_SYSTEM_ID = "Block_Land_Lava_Soft";
+
+    /** Vanilla lava surface bubbles for subtle ripples while fighting in lava. */
+    public static final String LAVA_RIPPLE_PARTICLE_SYSTEM_ID = "Block_Lava_Bubbles";
+
     public static final String WOODEN_ROD_ITEM_ID = FishingRodRegistry.WOODEN_ROD_ID;
 
     /** @deprecated Use {@link FishingRodRegistry#isFishingRod(String)} */

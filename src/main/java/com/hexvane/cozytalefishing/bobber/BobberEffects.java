@@ -6,12 +6,13 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 public final class BobberEffects {
-    public static final BobberEffects NONE = new BobberEffects(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0);
+    public static final BobberEffects NONE = new BobberEffects(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0);
 
     private final float trashChanceBonus;
     private final float treasureChanceBonus;
     private final float sizeSkewExponent;
     private final float fleeSpeedMultiplier;
+    private final float reelSpeedMultiplier;
     private final float visionRangeMultiplier;
     private final int activeBobberCount;
 
@@ -20,6 +21,7 @@ public final class BobberEffects {
         float treasureChanceBonus,
         float sizeSkewExponent,
         float fleeSpeedMultiplier,
+        float reelSpeedMultiplier,
         float visionRangeMultiplier,
         int activeBobberCount
     ) {
@@ -27,6 +29,7 @@ public final class BobberEffects {
         this.treasureChanceBonus = treasureChanceBonus;
         this.sizeSkewExponent = sizeSkewExponent;
         this.fleeSpeedMultiplier = fleeSpeedMultiplier;
+        this.reelSpeedMultiplier = reelSpeedMultiplier;
         this.visionRangeMultiplier = visionRangeMultiplier;
         this.activeBobberCount = activeBobberCount;
     }
@@ -41,6 +44,7 @@ public final class BobberEffects {
         float treasureBonus = 0.0f;
         float sizeExponent = config.getBobberDefaultSizeSkewExponent();
         float fleeMultiplier = 1.0f;
+        float reelMultiplier = 1.0f;
         float visionMultiplier = 1.0f;
 
         for (ItemStack stack : activeBobbers) {
@@ -52,7 +56,10 @@ public final class BobberEffects {
                 case TRASH -> trashBonus += config.getBobberTrashChanceBonus();
                 case TREASURE -> treasureBonus += config.getBobberTreasureChanceBonus();
                 case QUALITY -> sizeExponent = Math.min(sizeExponent, config.getBobberQualitySizeSkewExponent());
-                case TRAP -> fleeMultiplier *= config.getBobberTrapFleeSpeedMultiplier();
+                case TRAP -> {
+                    fleeMultiplier *= config.getBobberTrapFleeSpeedMultiplier();
+                    reelMultiplier *= config.getBobberTrapReelSpeedMultiplier();
+                }
                 case SPINNER -> visionMultiplier *= config.getBobberSpinnerVisionMultiplier();
                 case DECORATED_SPINNER -> visionMultiplier *= config.getBobberDecoratedSpinnerVisionMultiplier();
             }
@@ -63,6 +70,7 @@ public final class BobberEffects {
             treasureBonus,
             sizeExponent,
             fleeMultiplier,
+            reelMultiplier,
             visionMultiplier,
             activeBobbers.size()
         );
@@ -91,6 +99,10 @@ public final class BobberEffects {
 
     public float getFleeSpeedMultiplier() {
         return fleeSpeedMultiplier;
+    }
+
+    public float getReelSpeedMultiplier() {
+        return reelSpeedMultiplier;
     }
 
     public float getVisionRangeMultiplier() {

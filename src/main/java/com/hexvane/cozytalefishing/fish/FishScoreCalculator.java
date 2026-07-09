@@ -7,6 +7,8 @@ import javax.annotation.Nullable;
 public final class FishScoreCalculator {
     private FishScoreCalculator() {}
 
+    public record BestCatch(@Nonnull String speciesId, float sizeCm, int score) {}
+
     public static int scoreCatch(@Nonnull FishSpeciesAsset species, float sizeCm) {
         if (species.excludesFromJournal() || sizeCm <= 0.0f) {
             return 0;
@@ -33,19 +35,35 @@ public final class FishScoreCalculator {
         return total;
     }
 
-    public static int bestCatchScore(@Nullable FishCatchRecordComponent records) {
+    @Nullable
+    public static BestCatch findBestCatch(@Nullable FishCatchRecordComponent records) {
         if (records == null) {
-            return 0;
+            return null;
         }
-        int best = 0;
+        String bestSpeciesId = null;
+        float bestSizeCm = 0.0f;
+        int bestScore = 0;
         for (Map.Entry<String, Float> entry : records.getLargestSizesBySpecies().entrySet()) {
             FishSpeciesAsset species = FishSpeciesRegistry.getSpecies(entry.getKey());
             if (species == null) {
                 continue;
             }
-            best = Math.max(best, scoreCatch(species, entry.getValue()));
+            int score = scoreCatch(species, entry.getValue());
+            if (score > bestScore) {
+                bestScore = score;
+                bestSpeciesId = entry.getKey();
+                bestSizeCm = entry.getValue();
+            }
         }
-        return best;
+        if (bestScore <= 0 || bestSpeciesId == null) {
+            return null;
+        }
+        return new BestCatch(bestSpeciesId, bestSizeCm, bestScore);
+    }
+
+    public static int bestCatchScore(@Nullable FishCatchRecordComponent records) {
+        BestCatch bestCatch = findBestCatch(records);
+        return bestCatch != null ? bestCatch.score() : 0;
     }
 
     public static int rarityBaseScore(@Nonnull FishRarity rarity) {

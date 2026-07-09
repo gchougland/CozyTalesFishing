@@ -47,7 +47,112 @@ public final class CozyFishCommand extends AbstractCommandCollection {
         requirePermission(HytalePermissions.fromCommand("cozyfish"));
         addSubCommand(new FishingSpawnRegionCommand());
         addSubCommand(new FishingJournalCommand());
+        addSubCommand(new SpawnShadowCommand());
         addSubCommand(new ReloadConfigCommand());
+    }
+
+    static final class SpawnShadowCommand extends AbstractPlayerCommand {
+        @Nonnull
+        private final OptionalArg<String> speciesArg =
+            withOptionalArg(
+                "speciesId",
+                "Species id to spawn (e.g. CozyFish_Shark_Hammerhead). Omit for a random species.",
+                STRING
+            );
+        @Nonnull
+        private final OptionalArg<Integer> countArg =
+            withOptionalArg("count", "Number of shadows to spawn (default 1, max 32).", ArgTypes.INTEGER);
+
+        SpawnShadowCommand() {
+            super("spawnshadow", "Spawn fish shadows in nearby water.");
+            requirePermission(HytalePermissions.fromCommand("cozyfish.spawnshadow"));
+        }
+
+        @Override
+        protected void execute(
+            @Nonnull CommandContext context,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull PlayerRef playerRef,
+            @Nonnull World world
+        ) {
+            FishSpeciesAsset species = null;
+            if (speciesArg.provided(context)) {
+                String speciesId = speciesArg.get(context);
+                if (speciesId == null || speciesId.isBlank()) {
+                    context.sendMessage(Message.raw("Species id cannot be blank."));
+                    return;
+                }
+                species = FishSpeciesRegistry.getSpecies(speciesId.trim());
+                if (species == null) {
+                    context.sendMessage(
+                        Message.translation("server.cozytalefishing.journal.command.unknown_species")
+                            .param("id", speciesId.trim())
+                    );
+                    return;
+                }
+            }
+
+            int count = countArg.provided(context) ? countArg.get(context) : 1;
+            if (count < 1) {
+                context.sendMessage(Message.raw("Count must be at least 1."));
+                return;
+            }
+            if (count > 32) {
+                context.sendMessage(Message.raw("Count cannot exceed 32."));
+                return;
+            }
+
+            FishShadowSpawnHelper.SpawnBatchResult batch =
+                FishShadowSpawnHelper.spawnNearPlayer(store, ref, world, species, count);
+            if (batch == null || batch.spawned() == 0) {
+                context.sendMessage(Message.raw("Could not spawn fish shadows — stand closer to water."));
+                return;
+            }
+
+            context.sendMessage(Message.raw(formatSpawnMessage(batch, species != null)));
+        }
+
+        @Nonnull
+        private static String formatSpawnMessage(
+            @Nonnull FishShadowSpawnHelper.SpawnBatchResult batch,
+            boolean fixedSpecies
+        ) {
+            if (fixedSpecies) {
+                String speciesId = batch.results().getFirst().species().getId();
+                if (batch.spawned() == batch.requested()) {
+                    return "Spawned " + batch.spawned() + " " + speciesId + " shadow(s) nearby.";
+                }
+                return "Spawned "
+                    + batch.spawned()
+                    + " of "
+                    + batch.requested()
+                    + " "
+                    + speciesId
+                    + " shadow(s) nearby — could not find enough water.";
+            }
+
+            Map<String, Integer> counts = new HashMap<>();
+            for (FishShadowSpawnHelper.SpawnResult result : batch.results()) {
+                counts.merge(result.species().getId(), 1, Integer::sum);
+            }
+            String summary = counts.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> entry.getKey() + " x" + entry.getValue())
+                .reduce((left, right) -> left + ", " + right)
+                .orElse("");
+
+            if (batch.spawned() == batch.requested()) {
+                return "Spawned " + batch.spawned() + " shadow(s) nearby (" + summary + ").";
+            }
+            return "Spawned "
+                + batch.spawned()
+                + " of "
+                + batch.requested()
+                + " shadow(s) nearby ("
+                + summary
+                + ") — could not find enough water.";
+        }
     }
 
     static final class ReloadConfigCommand extends CommandBase {
@@ -628,11 +733,15 @@ public final class CozyFishCommand extends AbstractCommandCollection {
             Vector3d pos = transform.getPosition();
             int blockX = (int) Math.floor(pos.x);
             int blockZ = (int) Math.floor(pos.z);
-            int surfaceY = FishShadowSpawnHelper.findSurfaceWaterBlockY(world, blockX, blockZ);
-            if (surfaceY < 0) {
-                context.sendMessage(Message.raw("No water at your feet — stand in water to probe spawn overrides."));
+            FishShadowSpawnHelper.WaterColumn fluidColumn =
+                FishShadowSpawnHelper.findFishableFluidColumnNear(world, blockX, blockZ, pos.y, 1);
+            if (fluidColumn == null) {
+                context.sendMessage(
+                    Message.raw("No fishable fluid at your feet — stand in water or lava to probe spawn overrides.")
+                );
                 return;
             }
+            int surfaceY = fluidColumn.surfaceY();
 
             UUID worldUuid = world.getWorldConfig().getUuid();
             FishingSpawnRegionContext regionContext =
@@ -643,10 +752,8 @@ public final class CozyFishCommand extends AbstractCommandCollection {
             WaterBodyClassifier.Context classifyContext =
                 new WaterBodyClassifier.Context(FishingModConfig.get().getMaxFloodFillsPerSpawnCheck());
             WaterBodyType classified =
-                WaterBodyClassifier.classify(world, blockX, surfaceY, blockZ, classifyContext, envIndex);
-            WaterBodyType effective = classified != null
-                ? classified
-                : (WaterBodyClassifier.isOceanEnvironmentForSpawn(envIndex) ? WaterBodyType.Ocean : WaterBodyType.Pond);
+                FishShadowSpawnHelper.classifyWaterBodyForColumn(world, fluidColumn, classifyContext, envIndex);
+            WaterBodyType effective = classified;
             if (regionContext != null && regionContext.getWaterBodyOverride() != null) {
                 effective = regionContext.getWaterBodyOverride();
             }
@@ -676,7 +783,8 @@ public final class CozyFishCommand extends AbstractCommandCollection {
                 .append(blockZ)
                 .append(")\n");
             text.append("  EnableSpawnRegions=").append(FishingModConfig.get().isEnableSpawnRegions()).append('\n');
-            text.append("  classifiedWaterBody=").append(classified != null ? classified.name() : "unknown").append('\n');
+            text.append("  columnFluid=").append(fluidColumn.fluid().name()).append('\n');
+            text.append("  classifiedWaterBody=").append(classified.name()).append('\n');
             text.append("  effectiveWaterBody=").append(effective.name()).append('\n');
             text.append("  blockEnv=").append(envName != null ? envName : "unknown").append(" (index ").append(envIndex).append(")\n");
             text.append("  worldgenBiome=").append(biome != null ? biome : "unknown").append('\n');

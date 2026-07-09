@@ -278,6 +278,12 @@ public final class FishingModConfig {
             )
             .add()
             .append(
+                new KeyedCodec<>("BobberTrapReelSpeedMultiplier", Codec.DOUBLE),
+                (a, v) -> a.bobberTrapReelSpeedMultiplier = v.floatValue(),
+                a -> (double) a.bobberTrapReelSpeedMultiplier
+            )
+            .add()
+            .append(
                 new KeyedCodec<>("BobberSpinnerVisionMultiplier", Codec.DOUBLE),
                 (a, v) -> a.bobberSpinnerVisionMultiplier = v.floatValue(),
                 a -> (double) a.bobberSpinnerVisionMultiplier
@@ -311,8 +317,8 @@ public final class FishingModConfig {
     private int shadowsPerPlayerCap = 7;
     private float globalSpawnWeightMultiplier = 1.0f;
     private float spawnCheckIntervalSeconds = 4.0f;
-    private float spawnRadiusMin = 4.0f;
-    private float spawnRadiusMax = 24.0f;
+    private float spawnRadiusMin = 2.0f;
+    private float spawnRadiusMax = 16.0f;
     private int minWaterDepthBlocks = 1;
     private int undergroundSurfaceOffset = 6;
     private float reelSpeedBlocksPerSecond = 2.0f;
@@ -378,7 +384,8 @@ public final class FishingModConfig {
     private float bobberTreasureChanceBonus = 0.27f;
     private float bobberDefaultSizeSkewExponent = 2.0f;
     private float bobberQualitySizeSkewExponent = 1.4f;
-    private float bobberTrapFleeSpeedMultiplier = 0.65f;
+    private float bobberTrapFleeSpeedMultiplier = 0.6f;
+    private float bobberTrapReelSpeedMultiplier = 1.35f;
     private float bobberSpinnerVisionMultiplier = 1.25f;
     private float bobberDecoratedSpinnerVisionMultiplier = 1.5f;
 
@@ -608,6 +615,10 @@ public final class FishingModConfig {
 
     public float getBobberTrapFleeSpeedMultiplier() {
         return bobberTrapFleeSpeedMultiplier;
+    }
+
+    public float getBobberTrapReelSpeedMultiplier() {
+        return bobberTrapReelSpeedMultiplier;
     }
 
     public float getBobberSpinnerVisionMultiplier() {

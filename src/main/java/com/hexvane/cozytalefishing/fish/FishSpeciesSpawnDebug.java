@@ -94,7 +94,9 @@ public final class FishSpeciesSpawnDebug {
     ) {
         int blockX = (int) Math.floor(catchPosition.x);
         int blockZ = (int) Math.floor(catchPosition.z);
-        int surfaceY = FishShadowSpawnHelper.findSurfaceWaterBlockY(world, blockX, blockZ);
+        FishShadowSpawnHelper.WaterColumn fluidColumn =
+            FishShadowSpawnHelper.findFishableFluidColumnNear(world, blockX, blockZ, catchPosition.y, 1);
+        int surfaceY = fluidColumn != null ? fluidColumn.surfaceY() : -1;
         FishingSpawnRegionContext regionContext =
             surfaceY >= 0
                 ? FishingSpawnRegionRegistry.resolve(world.getWorldConfig().getUuid(), blockX, surfaceY, blockZ)

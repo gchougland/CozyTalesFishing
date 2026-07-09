@@ -6,7 +6,8 @@ import javax.annotation.Nullable;
 public enum WaterBodyType {
     Ocean,
     River,
-    Pond;
+    Pond,
+    Lava;
 
     @Nullable
     public static WaterBodyType fromString(@Nonnull String value) {

@@ -77,6 +77,7 @@ public final class FishingBootstrap {
             }
             Player player = store.getComponent(ref, Player.getComponentType());
             FishingFightHudService.hide(player, event.getPlayerRef());
+            FishingReelHold.cancelActiveReelInteraction(store, ref);
             FishingLineComponent line = store.getComponent(ref, FishingLineComponent.getComponentType());
             if (line != null && line.isActive()) {
                 FishingDebugLog.info("Disconnect cleanup: tearing down active line for player");

@@ -4,14 +4,14 @@
   "Rarity": "Legendary",
   "SpawnWeight": 1,
   "SpawnRules": {
-    "WaterBody": {"Types": ["Pond"], "Mode": "Required"},
+    "WaterBody": {"Types": ["Lava"], "Mode": "Required"},
     "Location": {
       "Zone": "Zone4",
       "Environments": ["Env_Zone4_Caves_Volcanic", "Env_Zone4_Caves", "Env_Zone4_Jungles"],
       "ZoneMode": "Required",
       "EnvironmentMode": "Required"
     },
-    "Underground": {"Only": true, "Mode": "Required"},
+    "Underground": {"Only": true, "Mode": "Preferred"},
     "DayTime": {"Range": [6, 24], "Mode": "Required"},
     "Weather": {"Ids": [], "Mode": "Ignored"}
   },
@@ -22,5 +22,5 @@
   "ShadowScaleRange": [1, 1.3],
   "SwimSpeed": 0.8,
   "FleePlayerRange": 3.5,
-  "FightSwimSpeed": 1.4
+  "FightSwimSpeed": 1.3
 }

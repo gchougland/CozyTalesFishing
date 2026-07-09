@@ -1,6 +1,7 @@
 package com.hexvane.cozytalefishing.fishing;
 
 import com.hexvane.cozytalefishing.bobber.BobberDurabilityService;
+import com.hexvane.cozytalefishing.bobber.BobberEffects;
 import com.hexvane.cozytalefishing.fish.FishCatchService;
 import com.hexvane.cozytalefishing.fish.FishShadowComponent;
 import com.hexvane.cozytalefishing.fish.FishShadowEntityPool;
@@ -14,6 +15,8 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -51,6 +54,7 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
         }
 
         if (!line.isActive() && line.isReeling()) {
+            FishingReelHold.cancelActiveReelInteraction(commandBuffer, playerRef);
             line.setReeling(false);
             commandBuffer.putComponent(playerRef, FishingLineComponent.getComponentType(), line);
         }
@@ -106,7 +110,10 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
                     return;
                 }
             } else if (line.getPhase() == FishingLinePhase.FIGHTING && line.isFightReelingActive()) {
-                applyFightLineReel(line, config, dt);
+                ItemStack heldRod = InventoryComponent.getItemInHand(commandBuffer, playerRef);
+                BobberEffects bobberEffects =
+                    heldRod != null && !ItemStack.isEmpty(heldRod) ? BobberEffects.fromRod(heldRod) : BobberEffects.NONE;
+                applyFightLineReel(line, config, bobberEffects, dt);
             }
         }
 
@@ -252,9 +259,13 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
     private static void applyFightLineReel(
         @Nonnull FishingLineComponent line,
         @Nonnull FishingModConfig config,
+        @Nonnull BobberEffects bobberEffects,
         float dt
     ) {
-        float reelSpeed = config.getReelSpeedBlocksPerSecond() / Math.max(0.1f, line.getFightDifficulty());
+        float reelSpeed =
+            config.getReelSpeedBlocksPerSecond()
+                / Math.max(0.1f, line.getFightDifficulty())
+                * bobberEffects.getReelSpeedMultiplier();
         float shrink = shrinkLineLength(line, reelSpeed, dt);
         line.addReeledDuringFight(shrink);
     }
