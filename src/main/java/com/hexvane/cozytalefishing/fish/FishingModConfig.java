@@ -247,6 +247,48 @@ public final class FishingModConfig {
                 a -> (double) a.spawnPreferredMatchWeightMultiplier
             )
             .add()
+            .append(
+                new KeyedCodec<>("BobberTrashChanceBonus", Codec.DOUBLE),
+                (a, v) -> a.bobberTrashChanceBonus = v.floatValue(),
+                a -> (double) a.bobberTrashChanceBonus
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("BobberTreasureChanceBonus", Codec.DOUBLE),
+                (a, v) -> a.bobberTreasureChanceBonus = v.floatValue(),
+                a -> (double) a.bobberTreasureChanceBonus
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("BobberDefaultSizeSkewExponent", Codec.DOUBLE),
+                (a, v) -> a.bobberDefaultSizeSkewExponent = v.floatValue(),
+                a -> (double) a.bobberDefaultSizeSkewExponent
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("BobberQualitySizeSkewExponent", Codec.DOUBLE),
+                (a, v) -> a.bobberQualitySizeSkewExponent = v.floatValue(),
+                a -> (double) a.bobberQualitySizeSkewExponent
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("BobberTrapFleeSpeedMultiplier", Codec.DOUBLE),
+                (a, v) -> a.bobberTrapFleeSpeedMultiplier = v.floatValue(),
+                a -> (double) a.bobberTrapFleeSpeedMultiplier
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("BobberSpinnerVisionMultiplier", Codec.DOUBLE),
+                (a, v) -> a.bobberSpinnerVisionMultiplier = v.floatValue(),
+                a -> (double) a.bobberSpinnerVisionMultiplier
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("BobberDecoratedSpinnerVisionMultiplier", Codec.DOUBLE),
+                (a, v) -> a.bobberDecoratedSpinnerVisionMultiplier = v.floatValue(),
+                a -> (double) a.bobberDecoratedSpinnerVisionMultiplier
+            )
+            .add()
             .build();
 
     @Nullable
@@ -332,6 +374,13 @@ public final class FishingModConfig {
     private float treasureSpawnChance = 0.03f;
     private float spawnPreferredMissWeightMultiplier = 0.35f;
     private float spawnPreferredMatchWeightMultiplier = 1.25f;
+    private float bobberTrashChanceBonus = 0.65f;
+    private float bobberTreasureChanceBonus = 0.27f;
+    private float bobberDefaultSizeSkewExponent = 2.0f;
+    private float bobberQualitySizeSkewExponent = 1.4f;
+    private float bobberTrapFleeSpeedMultiplier = 0.65f;
+    private float bobberSpinnerVisionMultiplier = 1.25f;
+    private float bobberDecoratedSpinnerVisionMultiplier = 1.5f;
 
     public int getShadowsPerPlayerCap() {
         return shadowsPerPlayerCap;
@@ -539,5 +588,33 @@ public final class FishingModConfig {
 
     public float getSpawnPreferredMatchWeightMultiplier() {
         return spawnPreferredMatchWeightMultiplier;
+    }
+
+    public float getBobberTrashChanceBonus() {
+        return bobberTrashChanceBonus;
+    }
+
+    public float getBobberTreasureChanceBonus() {
+        return bobberTreasureChanceBonus;
+    }
+
+    public float getBobberDefaultSizeSkewExponent() {
+        return bobberDefaultSizeSkewExponent;
+    }
+
+    public float getBobberQualitySizeSkewExponent() {
+        return bobberQualitySizeSkewExponent;
+    }
+
+    public float getBobberTrapFleeSpeedMultiplier() {
+        return bobberTrapFleeSpeedMultiplier;
+    }
+
+    public float getBobberSpinnerVisionMultiplier() {
+        return bobberSpinnerVisionMultiplier;
+    }
+
+    public float getBobberDecoratedSpinnerVisionMultiplier() {
+        return bobberDecoratedSpinnerVisionMultiplier;
     }
 }

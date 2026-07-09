@@ -1,0 +1,55 @@
+$C = "../Common.ui";
+$Sounds = "../Sounds.ui";
+
+@SlotSize = 172;
+@FrameBorder = 16;
+
+Group {
+  Anchor: (Width: @SlotSize, Height: @SlotSize, Right: 10);
+  Background: (TexturePath: "../Common/DropdownBox.png", Border: @FrameBorder);
+  LayoutMode: Full;
+  Padding: (Full: @FrameBorder);
+
+  Button #SlotButton {
+    LayoutMode: Center;
+    Anchor: (Full: 0);
+    Padding: (Full: 0);
+    Style: ButtonStyle(
+      Default: (Background: #141c28),
+      Hovered: (Background: #2a3448),
+      Pressed: (Background: #354058),
+      Sounds: $Sounds.@ButtonsLight
+    );
+
+    Group {
+      LayoutMode: Top;
+      Padding: (Horizontal: 4, Vertical: 2);
+
+      ItemIcon #SlotIcon {
+        Anchor: (Width: 74, Height: 74);
+      }
+
+      Label #SlotLabel {
+        Anchor: (Width: 130);
+        Style: (FontSize: 16, HorizontalAlignment: Center, TextColor: #b7cedd, RenderBold: true, Wrap: true);
+        Padding: (Top: 5);
+        Text: "";
+      }
+
+      Label #DurabilityLabel {
+        Anchor: (Width: 130);
+        Style: (FontSize: 14, HorizontalAlignment: Center, TextColor: #96a9be, Wrap: true);
+        Padding: (Top: 3);
+        Text: "";
+      }
+
+      Label #BrokenLabel {
+        Visible: false;
+        Anchor: (Width: 130);
+        Style: (FontSize: 14, HorizontalAlignment: Center, TextColor: #ff6b6b, RenderBold: true, Wrap: true);
+        Padding: (Top: 3);
+        Text: "";
+      }
+    }
+  }
+}

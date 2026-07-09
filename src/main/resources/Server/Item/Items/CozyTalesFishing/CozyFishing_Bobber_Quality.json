@@ -1,0 +1,51 @@
+{
+  "Parent": "Template_CozyFishing_Bobber",
+  "TranslationProperties": {
+    "Name": "server.items.CozyFishing_Bobber_Quality.name",
+    "Description": "server.items.CozyFishing_Bobber_Quality.description"
+  },
+  "Icon": "Icons/ItemsGenerated/CozyFishing_Bobber_Quality.png",
+  "Model": "Items/Fishing/QualityBobber.blockymodel",
+  "Texture": "Items/Fishing/QualityBobber.png",
+  "MaxDurability": 40,
+  "Quality": "Common",
+  "ItemLevel": 5,
+  "Recipe": {
+    "TimeSeconds": 2,
+    "Input": [
+      {
+        "ItemId": "Ingredient_Stick",
+        "Quantity": 2
+      },
+      {
+        "ItemId": "Deco_Rope",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Fabric_Scrap_Linen",
+        "Quantity": 1
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "Workbench",
+        "Type": "Crafting",
+        "Categories": [
+          "Workbench_Tools"
+        ]
+      }
+    ]
+  },
+  "IconProperties": {
+    "Scale": 1,
+    "Rotation": [
+      0,
+      198,
+      30
+    ],
+    "Translation": [
+      1,
+      3
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.CozyFishing_Bobber.name",
+    "Description": "server.items.CozyFishing_Bobber.description"
+  },
+  "Quality": "Template",
+  "Categories": [
+    "Items.Tools"
+  ],
+  "PlayerAnimationsId": "Item",
+  "Scale": 0.8,
+  "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+  "Tags": {
+    "Type": [
+      "Tool"
+    ],
+    "Family": [
+      "CozyTalesFishing",
+      "CozyTalesFishingBobber"
+    ]
+  },
+  "Repairable": true,
+  "DurabilityLossOnHit": 1
+}

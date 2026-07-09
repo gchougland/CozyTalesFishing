@@ -1,4 +1,5 @@
 {
+  "Quality": "Template",
   "Categories": [
     "Items.Tools"
   ],
@@ -19,7 +20,8 @@
   "Tool": {},
   "Interactions": {
     "Primary": "Root_Cozy_Fishing_Rod_Primary",
-    "Secondary": "Root_Cozy_Fishing_Rod_Secondary"
+    "Secondary": "Root_Cozy_Fishing_Rod_Secondary",
+    "Use": "Root_Cozy_Fishing_Rod_Bobber"
   },
   "Tags": {
     "Type": [

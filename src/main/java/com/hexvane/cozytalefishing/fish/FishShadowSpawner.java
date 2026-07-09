@@ -2,6 +2,7 @@ package com.hexvane.cozytalefishing.fish;
 
 
 
+import com.hexvane.cozytalefishing.bobber.BobberEffects;
 import com.hexvane.cozytalefishing.fishing.FishingDebugLog;
 import com.hexvane.cozytalefishing.fishing.FishingRodRegistry;
 
@@ -9,6 +10,8 @@ import com.hypixel.hytale.component.CommandBuffer;
 
 import com.hypixel.hytale.component.Ref;
 
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.world.World;
 
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -433,7 +436,11 @@ public final class FishShadowSpawner {
         }
 
         FishingRodRegistry.FishingRodStats rodStats = FishingRodRegistry.getStatsFromHeld(commandBuffer, playerRef, config);
-        float treasureChance = config.getTreasureSpawnChance();
+        ItemStack heldRod = InventoryComponent.getItemInHand(commandBuffer, playerRef);
+        BobberEffects bobberEffects =
+            heldRod != null && !ItemStack.isEmpty(heldRod) ? BobberEffects.fromRod(heldRod) : BobberEffects.NONE;
+
+        float treasureChance = Math.min(1.0f, config.getTreasureSpawnChance() + bobberEffects.getTreasureChanceBonus());
         if (treasureChance > 0.0f
             && FishingRodRegistry.isFishingRod(rodStats.itemId())
             && random.nextFloat() < treasureChance) {
@@ -443,7 +450,8 @@ public final class FishShadowSpawner {
             }
         }
 
-        float trashChance = FishingRodRegistry.getTrashSpawnChance(rodStats.itemId(), config);
+        float trashChance =
+            Math.min(1.0f, FishingRodRegistry.getTrashSpawnChance(rodStats.itemId(), config) + bobberEffects.getTrashChanceBonus());
         if (trashChance > 0.0f && random.nextFloat() < trashChance) {
             FishSpeciesAsset trash = pickTrash(bodyType, config, random);
             if (trash != null) {

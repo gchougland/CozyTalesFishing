@@ -5,11 +5,7 @@
   "SpawnWeight": 4,
   "SpawnRules": {
     "WaterBody": {"Types": ["River", "Pond"], "Mode": "Required"},
-    "Location": {
-      "Environments": ["Env_Zone2_Deserts", "Env_Zone2_Oasis"],
-      "EnvironmentMode": "Required",
-      "ZoneMode": "Required"
-    },
+    "Location": {"Zone": "Zone2", "ZoneMode": "Required"},
     "Underground": {"Only": false, "Mode": "Required"},
     "DayTime": {"Range": [6, 18], "Mode": "Required"},
     "Weather": {"Ids": [], "Mode": "Ignored"}

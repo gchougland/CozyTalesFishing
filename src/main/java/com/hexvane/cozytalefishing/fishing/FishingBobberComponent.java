@@ -43,6 +43,8 @@ public final class FishingBobberComponent implements Component<EntityStore> {
     /** Fish shadow currently poking this bobber; blocks other shadows from targeting it. */
     @Nullable
     private Ref<EntityStore> pokingShadowRef;
+    @Nullable
+    private String visualModelId;
 
     public FishingBobberComponent(@Nonnull UUID ownerUuid) {
         this.ownerUuid = ownerUuid;
@@ -133,6 +135,15 @@ public final class FishingBobberComponent implements Component<EntityStore> {
         this.pokingShadowRef = pokingShadowRef;
     }
 
+    @Nullable
+    public String getVisualModelId() {
+        return visualModelId;
+    }
+
+    public void setVisualModelId(@Nullable String visualModelId) {
+        this.visualModelId = visualModelId;
+    }
+
     @Nonnull
     @Override
     public Component<EntityStore> clone() {
@@ -146,6 +157,7 @@ public final class FishingBobberComponent implements Component<EntityStore> {
         copy.pokeIndex = pokeIndex;
         copy.hookedShadowRef = hookedShadowRef;
         copy.pokingShadowRef = pokingShadowRef;
+        copy.visualModelId = visualModelId;
         return copy;
     }
 }

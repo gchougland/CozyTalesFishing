@@ -80,6 +80,60 @@ public final class FishSpawnRulesEvaluator {
         return new SpawnRuleResult(true, weightMultiplier, matches);
     }
 
+    /** Like {@link #evaluate} but evaluates every rule without short-circuiting (for spawn probes). */
+    @Nonnull
+    public static SpawnRuleResult evaluateDetailed(
+        @Nonnull FishSpeciesAsset species,
+        @Nonnull SpawnEvaluationContext context
+    ) {
+        FishSpawnRules rules = species.getSpawnRules();
+        Map<String, Boolean> matches = new LinkedHashMap<>();
+        float weightMultiplier = 1.0f;
+        boolean eligible = true;
+
+        RuleOutcome waterBody = evaluateWaterBody(rules, resolveSpawnWaterBody(context));
+        eligible &= recordOutcome("WaterBody", waterBody, matches);
+        weightMultiplier *= waterBody.weightMultiplier(context.config());
+
+        RuleOutcome zone = evaluateZone(rules, species, context);
+        eligible &= recordOutcome("Zone", zone, matches);
+        weightMultiplier *= zone.weightMultiplier(context.config());
+
+        RuleOutcome environment = evaluateEnvironment(rules, species, context);
+        eligible &= recordOutcome("Environment", environment, matches);
+        weightMultiplier *= environment.weightMultiplier(context.config());
+
+        RuleOutcome underground = evaluateUnderground(rules, species, context);
+        eligible &= recordOutcome("Underground", underground, matches);
+        weightMultiplier *= underground.weightMultiplier(context.config());
+
+        RuleOutcome dayTime = evaluateDayTime(rules, context.conditions().worldTime());
+        eligible &= recordOutcome("DayTime", dayTime, matches);
+        weightMultiplier *= dayTime.weightMultiplier(context.config());
+
+        RuleOutcome weather = evaluateWeather(rules, context.conditions().weatherIndex());
+        eligible &= recordOutcome("Weather", weather, matches);
+        weightMultiplier *= weather.weightMultiplier(context.config());
+
+        return new SpawnRuleResult(eligible, weightMultiplier, matches);
+    }
+
+    private static boolean recordOutcome(
+        @Nonnull String key,
+        @Nonnull RuleOutcome outcome,
+        @Nonnull Map<String, Boolean> matches
+    ) {
+        if (outcome.mode() == FishSpawnRuleMode.Ignored) {
+            return true;
+        }
+        if (outcome.mode() == FishSpawnRuleMode.Required) {
+            matches.put(key, outcome.eligible());
+            return outcome.eligible();
+        }
+        matches.put(key, outcome.preferredMatched());
+        return true;
+    }
+
     private record RuleOutcome(
         @Nonnull FishSpawnRuleMode mode,
         boolean eligible,

@@ -1,0 +1,83 @@
+$C = "../Common.ui";
+
+@PanelWidth = 580;
+@PanelHeight = 340;
+
+$C.@PageOverlay {
+  LayoutMode: Middle;
+
+  Group {
+    LayoutMode: Center;
+
+    $C.@DecoratedContainer {
+      Anchor: (Width: @PanelWidth, Height: @PanelHeight);
+
+      #Title {
+        Label #PageTitle {
+          Style: (...$C.@TitleStyle, HorizontalAlignment: Center);
+          Padding: (Horizontal: 19);
+          Text: "";
+        }
+      }
+
+      #Content {
+        LayoutMode: Top;
+        Padding: (Horizontal: 16, Vertical: 10);
+
+        Label #Subtitle {
+          Style: (FontSize: 14, TextColor: #9eb0bc);
+          Anchor: (Bottom: 8);
+          Text: "";
+        }
+
+        Group #NoSlotsPanel {
+          LayoutMode: Center;
+          Visible: false;
+
+          Label #NoSlotsMessage {
+            Style: (FontSize: 16, TextColor: #9eb0bc, HorizontalAlignment: Center, Wrap: true);
+            Anchor: (Width: 440);
+            Text: "";
+          }
+        }
+
+        Group #SlotsPanel {
+          LayoutMode: Top;
+
+          Group #SlotRow {
+            LayoutMode: Center;
+            Padding: (Full: 6);
+          }
+        }
+
+        Group #PickerPanel {
+          LayoutMode: Top;
+          FlexWeight: 1;
+          Visible: false;
+
+          Group #PickerHeader {
+            LayoutMode: Left;
+            Anchor: (Bottom: 8);
+
+            Label #PickerTitle {
+              FlexWeight: 1;
+              Style: (RenderBold: true, FontSize: 16);
+              Text: "";
+            }
+          }
+
+          Group #PickerList {
+            FlexWeight: 1;
+            LayoutMode: TopScrolling;
+            ScrollbarStyle: $C.@DefaultScrollbarStyle;
+          }
+
+          $C.@SmallSecondaryTextButton #BackButton {
+            Anchor: (Width: 160, Height: 38, Top: 8);
+            Text: "";
+          }
+        }
+      }
+    }
+  }
+}

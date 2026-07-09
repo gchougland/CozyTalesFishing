@@ -6,7 +6,13 @@
   "SpawnRules": {
     "WaterBody": {"Types": ["Ocean", "River"], "Mode": "Required"},
     "Location": {
-      "Environments": ["Env_Zone0_Warm", "Env_Zone2_Savanna"],
+      "Environments": [
+        "Env_Zone0_Warm",
+        "Env_Zone2_Shores",
+        "Env_Zone2_Deserts",
+        "Env_Zone2_Oasis",
+        "Env_Zone2_Savanna"
+      ],
       "EnvironmentMode": "Required",
       "ZoneMode": "Required"
     },

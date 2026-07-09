@@ -1,0 +1,82 @@
+$C = "../Common.ui";
+
+@PanelWidth = 420;
+@PanelHeight = 380;
+@FishIconSize = 112;
+
+$C.@PageOverlay {
+  LayoutMode: Middle;
+
+  Group {
+    LayoutMode: Center;
+
+    $C.@DecoratedContainer {
+      Anchor: (Width: @PanelWidth, Height: @PanelHeight);
+
+      #Title {
+        Label #HeadlineLabel {
+          Style: (
+            ...$C.@TitleStyle,
+            HorizontalAlignment: Center,
+            FontSize: 22,
+            TextColor: #c8a060,
+            RenderBold: true,
+            RenderUppercase: true
+          );
+          Padding: (Horizontal: 19);
+          Text: "";
+        }
+      }
+
+      #Content {
+        LayoutMode: Top;
+        Padding: (Horizontal: 20, Vertical: 12);
+
+        Group #FishIconFrame {
+          LayoutMode: Middle;
+          Anchor: (Height: @FishIconSize + 24, Bottom: 14);
+
+          Group #FishIconInner {
+            LayoutMode: Full;
+            Anchor: (Width: @FishIconSize, Height: @FishIconSize);
+            Padding: (Full: 4);
+            Background: #141c28;
+
+            Group {
+              LayoutMode: Full;
+              Anchor: (Full: 0);
+              Padding: (Full: 3);
+              Background: #1c2230;
+
+              AssetImage #FishIcon {
+                Anchor: (Full: 0);
+              }
+            }
+          }
+        }
+
+        Label #FishName {
+          Anchor: (Bottom: 8);
+          Style: (...$C.@DefaultLabelStyle, RenderBold: true, TextColor: #f0e6d2, FontSize: 20, HorizontalAlignment: Center, Wrap: true);
+          Text: "";
+        }
+
+        Label #FishSize {
+          Anchor: (Bottom: 16);
+          Style: (...$C.@DefaultLabelStyle, TextColor: #c8a060, FontSize: 16, HorizontalAlignment: Center);
+          Text: "";
+        }
+
+        Group #CloseButtonRow {
+          LayoutMode: Center;
+          Anchor: (Top: 8);
+
+          $C.@TextButton #CloseButton {
+            @Anchor = (Width: 140);
+            Text: "";
+          }
+        }
+      }
+    }
+  }
+}

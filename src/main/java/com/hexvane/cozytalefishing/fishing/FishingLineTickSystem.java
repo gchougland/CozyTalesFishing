@@ -1,5 +1,6 @@
 package com.hexvane.cozytalefishing.fishing;
 
+import com.hexvane.cozytalefishing.bobber.BobberDurabilityService;
 import com.hexvane.cozytalefishing.fish.FishCatchService;
 import com.hexvane.cozytalefishing.fish.FishShadowComponent;
 import com.hexvane.cozytalefishing.fish.FishShadowEntityPool;
@@ -362,6 +363,7 @@ public final class FishingLineTickSystem extends EntityTickingSystem<EntityStore
 
         float sizeCm = line.getRolledSizeCm() > 0.0f ? line.getRolledSizeCm() : FishCatchService.rollSizeCm(species);
         FishCatchService.completeCatch(commandBuffer, playerRef, species, sizeCm, shadow, shadowTransform.getPosition());
+        commandBuffer.run(store -> BobberDurabilityService.applyCatchWear(store, playerRef));
         FishShadowEntityPool.despawn(commandBuffer, shadowRef);
         FishingLineService.recallCastOut(commandBuffer, playerRef);
     }

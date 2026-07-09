@@ -6,7 +6,18 @@
   "SpawnRules": {
     "WaterBody": {"Types": ["Pond", "River"], "Mode": "Required"},
     "Location": {
-      "Environments": ["Env_Zone1_Plains", "Env_Zone3_Tundra", "Env_Zone3_Forests"],
+      "Environments": [
+        "Env_Zone1_Plains",
+        "Env_Zone3_Shores",
+        "Env_Zone3_Forests",
+        "Env_Zone3_Tundra",
+        "Env_Zone3_Glacial",
+        "Env_Zone3_Caves",
+        "Env_Zone3_Caves_Tundra",
+        "Env_Zone3_Caves_Forests",
+        "Env_Zone3_Caves_Glacial",
+        "Env_Zone3_Caves_Mountains"
+      ],
       "EnvironmentMode": "Required",
       "ZoneMode": "Required"
     },

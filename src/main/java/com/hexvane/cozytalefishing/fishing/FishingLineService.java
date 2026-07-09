@@ -1,5 +1,7 @@
 package com.hexvane.cozytalefishing.fishing;
 
+import com.hexvane.cozytalefishing.bobber.BobberLoadoutService;
+import com.hexvane.cozytalefishing.bobber.BobberVisualService;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.RemoveReason;
@@ -7,6 +9,8 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.modules.projectile.ProjectileModule;
@@ -345,7 +349,13 @@ public final class FishingLineService {
         }
 
         applyLaunchForce(store, bobberRef, direction, launchForce);
-        store.putComponent(bobberRef, FishingBobberComponent.getComponentType(), new FishingBobberComponent(ownerUuid));
+        FishingBobberComponent bobberComponent = new FishingBobberComponent(ownerUuid);
+        ItemStack heldRod = InventoryComponent.getItemInHand(store, playerRef);
+        ItemStack primaryBobber =
+            heldRod != null && !ItemStack.isEmpty(heldRod) ? BobberLoadoutService.getPrimaryVisualBobber(heldRod) : null;
+        bobberComponent.setVisualModelId(BobberVisualService.resolveProjectileModelId(primaryBobber));
+        store.putComponent(bobberRef, FishingBobberComponent.getComponentType(), bobberComponent);
+        BobberVisualService.applyToEntity(store, bobberRef, primaryBobber);
 
         TransformComponent bobberTransform = store.getComponent(bobberRef, TransformComponent.getComponentType());
         Vector3d bobberPos = bobberTransform != null ? new Vector3d(bobberTransform.getPosition()) : new Vector3d(tip);

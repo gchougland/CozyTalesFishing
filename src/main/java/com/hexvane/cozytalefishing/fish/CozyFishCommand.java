@@ -606,7 +606,7 @@ public final class CozyFishCommand extends AbstractCommandCollection {
 
     static final class RegionProbeCommand extends AbstractPlayerCommand {
         RegionProbeCommand() {
-            super("probe", "Show active spawn region and effective overrides at your feet.");
+            super("probe", "Show spawn region overrides and eligible fish at your feet.");
             setPermissionGroups(HytalePermissionsProvider.GROUP_ADMIN);
             requirePermission(HytalePermissions.fromCommand("cozyfish.region"));
         }
@@ -656,6 +656,17 @@ public final class CozyFishCommand extends AbstractCommandCollection {
             String biome = WaterBodyClassifier.getBiomeName(world, blockX, blockZ);
             String worldZone = FishShadowSpawnHelper.getWorldZoneName(world, blockX, blockZ);
 
+            SpawnProbeService.ProbeResult probeResult =
+                SpawnProbeService.analyze(
+                    world,
+                    blockX,
+                    blockZ,
+                    surfaceY,
+                    envIndex,
+                    effective,
+                    regionContext
+                );
+
             StringBuilder text = new StringBuilder();
             text.append("Spawn probe @ (")
                 .append(blockX)
@@ -687,6 +698,8 @@ public final class CozyFishCommand extends AbstractCommandCollection {
                 }
                 text.append("  ignoreWorldZoneGate=").append(region.isIgnoreWorldZoneGate()).append('\n');
             }
+
+            SpawnProbeService.appendSpeciesSections(text, probeResult);
 
             context.sendMessage(Message.raw(text.toString()));
         }

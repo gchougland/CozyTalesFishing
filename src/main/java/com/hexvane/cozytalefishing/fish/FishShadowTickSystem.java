@@ -1,5 +1,6 @@
 package com.hexvane.cozytalefishing.fish;
 
+import com.hexvane.cozytalefishing.bobber.BobberEffects;
 import com.hexvane.cozytalefishing.fishing.FishingBobberComponent;
 import com.hexvane.cozytalefishing.fishing.FishingBobberOrientation;
 import com.hexvane.cozytalefishing.fishing.FishingBobberPhase;
@@ -17,6 +18,8 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
@@ -475,9 +478,16 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
                     FishingRodRegistry.FishingRodStats rodStats =
                         FishingStaminaResolver.resolveRodStats(commandBuffer, ownerEntity, config);
                     float difficulty = species.getFightDifficulty(config);
+                    ItemStack heldRod = InventoryComponent.getItemInHand(commandBuffer, ownerEntity);
+                    BobberEffects bobberEffects =
+                        heldRod != null && !ItemStack.isEmpty(heldRod) ? BobberEffects.fromRod(heldRod) : BobberEffects.NONE;
                     line.setPhase(FishingLinePhase.FIGHTING);
                     line.setHookedShadowRef(shadowRef);
-                    line.setRolledSizeCm(species.excludesFromJournal() ? 0.0f : FishCatchService.rollSizeCm(species));
+                    line.setRolledSizeCm(
+                        species.excludesFromJournal()
+                            ? 0.0f
+                            : FishCatchService.rollSizeCm(species, bobberEffects.getSizeSkewExponent())
+                    );
                     line.setFightStartMaxLength(line.getMaxLength());
                     line.setReeledDuringFightBlocks(0.0f);
                     line.setFishingStaminaMax(rodStats.maxStamina());
@@ -540,6 +550,9 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         float pullSpeed = config.getFightReelSpeedBlocksPerSecond();
         float resist = fleeSpeed * config.getFightReelResistanceFactor();
         float counterPull = fleeSpeed * config.getFightReelCounterPullFactor() * difficulty;
+        ItemStack heldRod = InventoryComponent.getItemInHand(commandBuffer, ownerEntity);
+        BobberEffects bobberEffects =
+            heldRod != null && !ItemStack.isEmpty(heldRod) ? BobberEffects.fromRod(heldRod) : BobberEffects.NONE;
 
         Vector3d moveDir = new Vector3d();
         float moveSpeed;
@@ -548,7 +561,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
             moveSpeed = Math.max(0.85f, pullSpeed - resist - counterPull);
         } else {
             moveDir.set(position.x - ownerPos.x, 0.0, position.z - ownerPos.z);
-            moveSpeed = fleeSpeed;
+            moveSpeed = fleeSpeed * bobberEffects.getFleeSpeedMultiplier();
         }
 
         float yaw = shadow.getWanderDirection();
@@ -1008,12 +1021,13 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
                     return;
                 }
                 Vector3d bobberPos = bobberTransform.getPosition();
+                float visionRange = resolveBobberVisionRange(commandBuffer, species, bobber);
                 if (
                     FishShadowVision.isInHorizontalCone(
                         position,
                         shadow.getWanderDirection(),
                         bobberPos,
-                        species.getVisionRange(),
+                        visionRange,
                         species.getVisionAngleDegrees() * 0.5f
                     )
                 ) {
@@ -1022,6 +1036,25 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
             }
         );
         return holder.get();
+    }
+
+    private static float resolveBobberVisionRange(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull FishSpeciesAsset species,
+        @Nonnull FishingBobberComponent bobber
+    ) {
+        float multiplier = 1.0f;
+        PlayerRef ownerPlayer = Universe.get().getPlayer(bobber.getOwnerUuid());
+        if (ownerPlayer != null) {
+            Ref<EntityStore> ownerRef = ownerPlayer.getReference();
+            if (ownerRef != null && ownerRef.isValid()) {
+                ItemStack heldRod = InventoryComponent.getItemInHand(commandBuffer, ownerRef);
+                if (heldRod != null && !ItemStack.isEmpty(heldRod)) {
+                    multiplier = BobberEffects.fromRod(heldRod).getVisionRangeMultiplier();
+                }
+            }
+        }
+        return species.getVisionRange() * multiplier;
     }
 
     @Nonnull

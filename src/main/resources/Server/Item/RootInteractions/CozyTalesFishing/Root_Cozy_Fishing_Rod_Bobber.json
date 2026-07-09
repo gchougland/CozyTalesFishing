@@ -1,0 +1,11 @@
+{
+  "RequireNewClick": true,
+  "Interactions": [
+    {
+      "Type": "OpenCustomUI",
+      "Page": {
+        "Id": "CozyFishingBobber"
+      }
+    }
+  ]
+}

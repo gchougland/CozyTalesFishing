@@ -1,0 +1,51 @@
+{
+  "Parent": "Template_CozyFishing_Bobber",
+  "TranslationProperties": {
+    "Name": "server.items.CozyFishing_Bobber_Spinner.name",
+    "Description": "server.items.CozyFishing_Bobber_Spinner.description"
+  },
+  "Icon": "Icons/ItemsGenerated/CozyFishing_Bobber_Spinner.png",
+  "Model": "Items/Fishing/FishingBobber.blockymodel",
+  "Texture": "Items/Fishing/Spinner.png",
+  "MaxDurability": 40,
+  "Quality": "Uncommon",
+  "ItemLevel": 15,
+  "Recipe": {
+    "TimeSeconds": 2.5,
+    "Input": [
+      {
+        "ItemId": "Ingredient_Stick",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Deco_Rope",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Bar_Iron",
+        "Quantity": 1
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "Workbench",
+        "Type": "Crafting",
+        "Categories": [
+          "Workbench_Tools"
+        ]
+      }
+    ]
+  },
+  "IconProperties": {
+    "Scale": 1,
+    "Rotation": [
+      0,
+      198,
+      30
+    ],
+    "Translation": [
+      1,
+      3
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+$C = "../Common.ui";
+$Sounds = "../Sounds.ui";
+
+Button #PickerButton {
+  LayoutMode: Left;
+  Anchor: (Bottom: 4);
+  Padding: (Full: 8);
+  Style: ButtonStyle(
+    Default: (Background: PatchStyle(TexturePath: "../Common/Dropdown.png", Border: 16)),
+    Hovered: (Background: PatchStyle(TexturePath: "../Common/DropdownHovered.png", Border: 16)),
+    Pressed: (Background: PatchStyle(TexturePath: "../Common/DropdownPressed.png", Border: 16)),
+    Sounds: $Sounds.@ButtonsLight
+  );
+
+  ItemIcon #PickerIcon {
+    Anchor: (Width: 40, Height: 40);
+  }
+
+  Label #PickerName {
+    Anchor: (Width: 280);
+    Padding: (Horizontal: 10, Vertical: 6);
+    Style: (RenderBold: true, FontSize: 14, TextColor: #b7cedd, Wrap: true);
+    FlexWeight: 1;
+  }
+
+  Label #PickerDurability {
+    Anchor: (Width: 72);
+    Padding: (Horizontal: 8, Vertical: 6);
+    Style: (TextColor: #96a9be, FontSize: 13, HorizontalAlignment: End, Wrap: true);
+  }
+
+  Label #PickerBroken {
+    Visible: false;
+    Anchor: (Width: 72);
+    Padding: (Horizontal: 8, Vertical: 6);
+    Style: (TextColor: #ff6b6b, FontSize: 13, RenderBold: true, HorizontalAlignment: End, Wrap: true);
+  }
+}

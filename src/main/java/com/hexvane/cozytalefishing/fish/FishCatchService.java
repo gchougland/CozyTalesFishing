@@ -5,7 +5,9 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hexvane.cozytalefishing.journal.FishCatchCelebrationPage;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,6 +23,10 @@ public final class FishCatchService {
     private FishCatchService() {}
 
     public static float rollSizeCm(@Nonnull FishSpeciesAsset species) {
+        return rollSizeCm(species, SIZE_SKEW_EXPONENT);
+    }
+
+    public static float rollSizeCm(@Nonnull FishSpeciesAsset species, float skewExponent) {
         if (species.excludesFromJournal()) {
             return 0.0f;
         }
@@ -30,15 +36,20 @@ public final class FishCatchService {
         }
         float min = Math.min(range[0], range[1]);
         float max = Math.max(range[0], range[1]);
-        return rollSkewedSizeCm(min, max);
+        return rollSkewedSizeCm(min, max, skewExponent);
     }
 
     private static float rollSkewedSizeCm(float min, float max) {
+        return rollSkewedSizeCm(min, max, SIZE_SKEW_EXPONENT);
+    }
+
+    private static float rollSkewedSizeCm(float min, float max, float skewExponent) {
         if (max <= min) {
             return min;
         }
         float span = max - min;
-        float t = (float) Math.pow(Math.random(), SIZE_SKEW_EXPONENT);
+        float exponent = Math.max(0.1f, skewExponent);
+        float t = (float) Math.pow(Math.random(), exponent);
         return min + t * span;
     }
 
@@ -98,12 +109,19 @@ public final class FishCatchService {
         if (playerRefComponent != null) {
             records.updateDisplayName(playerRefComponent.getUsername());
         }
-        records.discover(species.getId());
+        boolean newSpecies = records.discover(species.getId());
         records.incrementCatchCount(species.getId());
         boolean personalBest = records.updateLargest(species.getId(), sizeCm);
         commandBuffer.putComponent(playerRef, FishCatchRecordComponent.getComponentType(), records);
 
         com.hexvane.cozytalefishing.leaderboard.FishingLeaderboardService.invalidate();
+
+        FishCatchCelebrationPage.CelebrationType celebrationType = null;
+        if (newSpecies) {
+            celebrationType = FishCatchCelebrationPage.CelebrationType.NEW_SPECIES;
+        } else if (personalBest) {
+            celebrationType = FishCatchCelebrationPage.CelebrationType.NEW_RECORD;
+        }
 
         if (playerRefComponent != null) {
             Message message =
@@ -114,6 +132,17 @@ public final class FishCatchService {
             playerRefComponent.sendMessage(message);
             if (personalBest) {
                 playerRefComponent.sendMessage(Message.translation("server.cozytalefishing.catch.personal_best"));
+            }
+            if (celebrationType != null) {
+                World world = commandBuffer.getExternalData().getWorld();
+                FishCatchCelebrationService.scheduleOpen(
+                    world,
+                    playerRefComponent,
+                    playerRef,
+                    species,
+                    sizeCm,
+                    celebrationType
+                );
             }
             FishSpeciesSpawnDebug.sendCatchDiagnosticsIfEnabled(
                 commandBuffer,

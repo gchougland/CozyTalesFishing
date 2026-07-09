@@ -1,11 +1,15 @@
 package com.hexvane.cozytalefishing.fishing;
 
 import com.hexvane.cozytalefishing.CozyTalesFishingPlugin;
+import com.hexvane.cozytalefishing.bobber.BobberConstants;
+import com.hexvane.cozytalefishing.bobber.BobberEquipPage;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
+import com.hypixel.hytale.server.core.inventory.ItemContext;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.server.OpenCustomUIInteraction;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
@@ -30,6 +34,23 @@ public final class FishingBootstrap {
         plugin
             .getCodecRegistry(Interaction.CODEC)
             .register("CozyFishingRecall", FishingRecallInteraction.class, FishingRecallInteraction.CODEC);
+
+        OpenCustomUIInteraction.registerCustomPageSupplier(
+            plugin,
+            BobberEquipPage.class,
+            BobberConstants.PAGE_ID,
+            (ref, accessor, playerRef, context) -> {
+                var commandBuffer = context.getCommandBuffer();
+                if (commandBuffer != null && FishingLineService.hasCastOut(commandBuffer, ref)) {
+                    return null;
+                }
+                ItemContext rodContext = context.createHeldItemContext();
+                if (rodContext == null || !FishingRodRegistry.isFishingRod(rodContext.getItemStack().getItemId())) {
+                    return null;
+                }
+                return new BobberEquipPage(playerRef, rodContext);
+            }
+        );
 
         plugin.getEntityStoreRegistry().registerSystem(new FishingRodHoldTickSystem());
         plugin.getEntityStoreRegistry().registerSystem(new FishingLineTickSystem());

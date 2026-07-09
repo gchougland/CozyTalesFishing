@@ -6,7 +6,13 @@
   "SpawnRules": {
     "WaterBody": {"Types": ["River", "Pond"], "Mode": "Required"},
     "Location": {
-      "Environments": ["Env_Zone1_Azure", "Env_Zone2_Deserts"],
+      "Environments": [
+        "Env_Zone1_Azure",
+        "Env_Zone2_Shores",
+        "Env_Zone2_Deserts",
+        "Env_Zone2_Oasis",
+        "Env_Zone2_Savanna"
+      ],
       "EnvironmentMode": "Required",
       "ZoneMode": "Required"
     },

@@ -5,12 +5,7 @@
   "SpawnWeight": 4,
   "SpawnRules": {
     "WaterBody": {"Types": ["River", "Pond"], "Mode": "Required"},
-    "Location": {
-      "Zone": "Zone3",
-      "Environments": ["Env_Zone3_Glacial", "Env_Zone3_Caves_Tundra", "Env_Zone3_Caves_Forests", "Env_Zone3_Caves_Glacial", "Env_Zone3_Caves_Mountains", "Env_Zone3_Caves"],
-      "ZoneMode": "Required",
-      "EnvironmentMode": "Required"
-    },
+    "Location": {"Zone": "Zone3", "ZoneMode": "Required"},
     "Underground": {"Only": true, "Mode": "Required"},
     "DayTime": {"Range": [6, 18], "Mode": "Required"},
     "Weather": {"Ids": [], "Mode": "Ignored"}

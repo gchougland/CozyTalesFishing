@@ -63,7 +63,7 @@ public final class FishSpeciesMetadataFormatter {
         if (weatherIds == null || weatherIds.length == 0) {
             return "Any";
         }
-        return String.join(", ", weatherIds);
+        return WeatherDisplayNames.joinWeatherIds(weatherIds);
     }
 
     @Nonnull
