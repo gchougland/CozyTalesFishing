@@ -8,6 +8,7 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.entity.InteractionContext;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
@@ -16,6 +17,7 @@ import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHa
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -77,8 +79,7 @@ public final class OpenFishingBenchInteraction extends SimpleBlockInteraction {
         if (blockType == null) {
             return;
         }
-        var worldChunk = world.getChunk(ChunkUtil.indexChunkFromBlock(targetBlock.x, targetBlock.z));
-        int rotationIndex = worldChunk.getRotationIndex(targetBlock.x, targetBlock.y, targetBlock.z);
+        int rotationIndex = resolveRotationIndex(world, targetBlock);
 
         var benchWindow = new FishingBenchCraftingWindow(
             targetBlock.x,
@@ -113,4 +114,18 @@ public final class OpenFishingBenchInteraction extends SimpleBlockInteraction {
         @Nonnull World world,
         @Nonnull Vector3i targetBlock
     ) {}
+
+    private static int resolveRotationIndex(@Nonnull World world, @Nonnull Vector3i targetBlock) {
+        var sectionRef =
+            world.getChunkStore().getChunkSectionReferenceAtBlock(targetBlock.x, targetBlock.y, targetBlock.z);
+        if (sectionRef == null) {
+            return RotationTuple.NONE_INDEX;
+        }
+        BlockSection blockSection =
+            world.getChunkStore().getStore().getComponent(sectionRef, BlockSection.getComponentType());
+        if (blockSection == null) {
+            return RotationTuple.NONE_INDEX;
+        }
+        return blockSection.getRotationIndex(targetBlock.x, targetBlock.y, targetBlock.z);
+    }
 }

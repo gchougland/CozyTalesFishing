@@ -8,6 +8,7 @@ items.CozyFishing_Fish_Scale_Rare.name = Rare Fish Scale
 items.CozyFishing_Fish_Scale_Rare.description = A rare fish scale. Used to craft finer fishing gear at the Fishing Bench.
 items.CozyFishing_Fish_Scale_Legendary.name = Legendary Fish Scale
 items.CozyFishing_Fish_Scale_Legendary.description = A legendary fish scale. Used to craft the finest fishing gear at the Fishing Bench.
+ui.itemcategory.cozytalesfishing = Cozy Tales Fishing
 benchCategories.fishing.tools = Tools
 benchCategories.fishing.aquariums = Aquariums
 benchCategories.fishing.decorations = Decorations

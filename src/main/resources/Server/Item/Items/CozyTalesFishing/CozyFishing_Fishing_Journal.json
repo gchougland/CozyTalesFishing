@@ -5,7 +5,8 @@
   },
   "Icon": "Icons/ItemsGenerated/CozyFishing_Fishing_Journal.png",
   "Categories": [
-    "Items.Tools"
+    "Items.Tools",
+    "CozyTalesFishing.Items"
   ],
   "Quality": "Common",
   "ItemLevel": 1,

@@ -4,7 +4,8 @@
     "Description": "server.items.CozyFishing_Message_In_A_Bottle.description"
   },
   "Categories": [
-    "Items.Deco"
+    "Items.Deco",
+    "CozyTalesFishing.Items"
   ],
   "Icon": "Icons/ItemsGenerated/CozyFishing_Message_In_A_Bottle.png",
   "IconProperties": {

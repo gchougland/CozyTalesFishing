@@ -4,7 +4,8 @@
   },
   "Quality": "Template",
   "Categories": [
-    "Items.Tools"
+    "Items.Tools",
+    "CozyTalesFishing.Items"
   ],
   "PlayerAnimationsId": "Item",
   "Tags": {

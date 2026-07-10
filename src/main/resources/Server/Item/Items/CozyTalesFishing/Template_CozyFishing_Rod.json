@@ -1,7 +1,8 @@
 {
   "Quality": "Template",
   "Categories": [
-    "Items.Tools"
+    "Items.Tools",
+    "CozyTalesFishing.Items"
   ],
   "IconProperties": {
     "Scale": 0.25,

@@ -5,7 +5,8 @@
   },
   "PlayerAnimationsId": "Block",
   "Categories": [
-    "Furniture.Furniture"
+    "Furniture.Furniture",
+    "CozyTalesFishing.Items"
   ],
   "Icon": "Icons/ItemsGenerated/CozyFishing_Aquarium_3x2x2.png",
   "IconProperties": {

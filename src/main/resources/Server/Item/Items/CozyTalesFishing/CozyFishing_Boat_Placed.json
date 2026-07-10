@@ -4,7 +4,8 @@
   },
   "Icon": "Icons/ItemsGenerated/Vehicle_Wood_Boat.png",
   "Categories": [
-    "Furniture.Benches"
+    "Furniture.Benches",
+    "CozyTalesFishing.Items"
   ],
   "BlockType": {
     "Material": "Solid",

@@ -36,6 +36,11 @@ public final class OpenFishFinderInteraction extends SimpleInstantInteraction {
     }
 
     @Override
+    public boolean needsRemoteSync() {
+        return true;
+    }
+
+    @Override
     protected void firstRun(
         @Nonnull InteractionType type,
         @Nonnull InteractionContext context,

@@ -7,7 +7,8 @@
   "Model": "Items/Vehicles/Boat.blockymodel",
   "Texture": "Items/Vehicles/Boat_Texture.png",
   "Categories": [
-    "Tools"
+    "Tools",
+    "CozyTalesFishing.Items"
   ],
   "Interactions": {
     "Secondary": "Root_CozyFishing_Boat_Secondary"

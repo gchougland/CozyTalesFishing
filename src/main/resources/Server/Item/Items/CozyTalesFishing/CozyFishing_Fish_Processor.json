@@ -5,7 +5,8 @@
   },
   "Icon": "Icons/ItemsGenerated/CozyFishing_Fish_Processor.png",
   "Categories": [
-    "Furniture.Benches"
+    "Furniture.Benches",
+    "CozyTalesFishing.Items"
   ],
   "BlockType": {
     "Material": "Solid",

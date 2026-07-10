@@ -4,7 +4,8 @@
     "Description": "server.items.CozyFishing_Fish_Scale_Rare.description"
   },
   "Categories": [
-    "Items.Ingredients"
+    "Items.Ingredients",
+    "CozyTalesFishing.Items"
   ],
   "Model": "Items/Fishing/FishScale.blockymodel",
   "Texture": "Items/Fishing/FishScale_Rare.png",

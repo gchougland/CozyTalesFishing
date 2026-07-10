@@ -1,0 +1,11 @@
+{
+  "Icon": "Icons/ItemCategories/CozyTalesFishing.png",
+  "Order": 4,
+  "Children": [
+    {
+      "Id": "Items",
+      "Name": "server.ui.itemcategory.cozytalesfishing",
+      "Icon": "Icons/ItemCategories/CozyTalesFishing.png"
+    }
+  ]
+}

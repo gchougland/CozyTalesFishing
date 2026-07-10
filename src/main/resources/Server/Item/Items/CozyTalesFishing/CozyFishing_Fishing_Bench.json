@@ -31,7 +31,8 @@
   },
   "Icon": "Icons/ItemsGenerated/CozyFishing_Fishing_Bench.png",
   "Categories": [
-    "Furniture.Benches"
+    "Furniture.Benches",
+    "CozyTalesFishing.Items"
   ],
   "BlockType": {
     "Material": "Solid",
@@ -62,7 +63,7 @@
         },
         {
           "Id": "Fishing_Decorations",
-          "Icon": "Icons/ItemsGenerated/Plant_Seaweed_Short.png",
+          "Icon": "Icons/CraftingCategories/Fishing/Plant_Seaweed_Short.png",
           "Name": "server.benchCategories.fishing.decorations"
         }
       ],
