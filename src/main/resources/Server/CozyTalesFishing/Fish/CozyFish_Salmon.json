@@ -1,6 +1,9 @@
 {
   "ShadowType": "MediumSmall",
   "ItemId": "Fish_Salmon_Item",
+  "AquariumSize": "Wide2x1",
+  "AquariumDisplayOffset": [-0.1, -0.1, 0.0],
+  "AquariumDisplayScale": 0.8,
   "Rarity": "Uncommon",
   "SpawnWeight": 6,
   "SpawnRules": {

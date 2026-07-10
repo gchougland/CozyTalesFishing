@@ -1,6 +1,10 @@
 {
   "ShadowType": "Large",
   "ItemId": "Fish_Lobster_Item",
+  "AquariumSize": "Wide2x1",
+  "AquariumDisplayOffset": [0.0, -0.4, 0.0],
+  "AquariumDisplayScale": 0.6,
+  "AquariumUseIdleAnimation": true,
   "Rarity": "Uncommon",
   "SpawnWeight": 5,
   "SpawnRules": {

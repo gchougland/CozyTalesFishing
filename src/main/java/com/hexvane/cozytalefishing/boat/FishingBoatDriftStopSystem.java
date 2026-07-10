@@ -1,5 +1,6 @@
 package com.hexvane.cozytalefishing.boat;
 
+import com.hypixel.hytale.builtin.mounts.NPCMountComponent;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
@@ -9,11 +10,15 @@ import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
 
-/** Prevents fishing boat entities from coasting on leftover physics velocity. */
+/** Prevents mounted fishing boat entities from coasting on leftover physics velocity. */
 public final class FishingBoatDriftStopSystem extends EntityTickingSystem<EntityStore> {
   @Nonnull
   private final Query<EntityStore> query =
-      Query.and(FishingBoatComponent.getComponentType(), Velocity.getComponentType());
+      Query.and(
+          FishingBoatComponent.getComponentType(),
+          NPCMountComponent.getComponentType(),
+          Velocity.getComponentType()
+      );
 
   @Nonnull
   @Override

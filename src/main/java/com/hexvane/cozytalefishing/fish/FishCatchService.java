@@ -93,7 +93,7 @@ public final class FishCatchService {
             return;
         }
 
-        ItemStack stack = new ItemStack(species.getItemId(), 1);
+        ItemStack stack = FishItemStackFactory.forSpecies(species);
         Player.giveItem(stack, playerRef, commandBuffer);
 
         if (species.isTrash()) {

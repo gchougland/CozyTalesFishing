@@ -1,0 +1,13 @@
+{
+  "Parent": "Water_Source",
+  "FluidFXId": "CozyFishing_Aquarium_Water",
+  "Ticker": {
+    "Type": "Static",
+    "CanDemote": false
+  },
+  "Tags": {
+    "Fluid": [
+      "Water"
+    ]
+  }
+}

@@ -1,6 +1,8 @@
 {
   "ShadowType": "Fin",
   "ItemId": "Fish_Whale_Humpback_Item",
+  "AquariumSize": "Tall3x2x2",
+  "AquariumDisplayOffset": [-0.25, -0.1, 0],
   "Rarity": "Legendary",
   "SpawnWeight": 1,
   "SpawnRules": {

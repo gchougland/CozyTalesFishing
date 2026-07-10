@@ -1,0 +1,33 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.CozyFishing_Leather_Boots.name",
+    "Description": "server.items.CozyFishing_Leather_Boots.description"
+  },
+  "Categories": [
+    "Items.Deco"
+  ],
+  "Icon": "Icons/ItemsGenerated/CozyFishing_Leather_Boots.png",
+  "IconProperties": {
+    "Scale": 0.6,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      5,
+      -8
+    ]
+  },
+  "Model": "Items/Fishing/Leather_Boot.blockymodel",
+  "Texture": "Items/Fishing/Leather_Boot.png",
+  "Scale": 1.0,
+  "PlayerAnimationsId": "Item",
+  "ItemSoundSetId": "ISS_Armor_Leather",
+  "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+  "Tags": {
+    "Type": [
+      "Deco"
+    ]
+  }
+}

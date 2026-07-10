@@ -1,6 +1,8 @@
 {
   "ShadowType": "Tiny",
   "ItemId": "Fish_Frostgill_Item",
+  "AquariumSize": "Tall3x2x2",
+  "AquariumDisplayOffset": [-0.1, -0.1, 0],
   "Rarity": "Rare",
   "SpawnWeight": 4,
   "SpawnRules": {

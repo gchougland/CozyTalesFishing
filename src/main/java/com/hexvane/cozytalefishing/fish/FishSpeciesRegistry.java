@@ -23,6 +23,7 @@ public final class FishSpeciesRegistry {
     private static final List<FishSpeciesAsset> MONSTER_SPECIES = new ArrayList<>();
     private static final List<FishSpeciesAsset> JOURNAL_SPECIES = new ArrayList<>();
     private static final Map<String, FishSpeciesAsset> BY_ID = new HashMap<>();
+    private static final Map<String, FishSpeciesAsset> BY_ITEM_ID = new HashMap<>();
     private static volatile boolean initialized;
 
     private FishSpeciesRegistry() {}
@@ -36,6 +37,7 @@ public final class FishSpeciesRegistry {
         MONSTER_SPECIES.clear();
         JOURNAL_SPECIES.clear();
         BY_ID.clear();
+        BY_ITEM_ID.clear();
         for (WaterBodyType type : WaterBodyType.values()) {
             BY_WATER_BODY.put(type, new ArrayList<>());
         }
@@ -65,6 +67,9 @@ public final class FishSpeciesRegistry {
             }
             species.allowedEnvironmentIndices = resolveEnvironmentIndices(species);
             BY_ID.put(species.getId(), species);
+            if (species.getItemId() != null && !species.getItemId().isBlank()) {
+                BY_ITEM_ID.put(species.getItemId(), species);
+            }
             if (species.isTrash()) {
                 TRASH_SPECIES.add(species);
             } else if (species.isTreasure()) {
@@ -103,6 +108,12 @@ public final class FishSpeciesRegistry {
     public static FishSpeciesAsset getSpecies(@Nonnull String id) {
         ensureInitialized();
         return BY_ID.get(id);
+    }
+
+    @Nullable
+    public static FishSpeciesAsset getSpeciesByItemId(@Nonnull String itemId) {
+        ensureInitialized();
+        return BY_ITEM_ID.get(itemId);
     }
 
     @Nonnull

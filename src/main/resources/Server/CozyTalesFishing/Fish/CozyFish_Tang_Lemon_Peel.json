@@ -1,6 +1,8 @@
 {
   "ShadowType": "MediumSmall",
   "ItemId": "Fish_Tang_Lemon_Peel_Item",
+  "AquariumSize": "Small",
+  "AquariumDisplayOffset": [-0.1, -0.1, 0.0],
   "Rarity": "Uncommon",
   "SpawnWeight": 6,
   "SpawnRules": {

@@ -1,6 +1,8 @@
 {
   "ShadowType": "Thin",
   "ItemId": "Fish_Snapjaw_Item",
+  "AquariumSize": "Tall3x2x2",
+  "AquariumDisplayOffset": [-0.1, -0.1, 0.0],
   "Rarity": "Rare",
   "SpawnWeight": 4,
   "SpawnRules": {

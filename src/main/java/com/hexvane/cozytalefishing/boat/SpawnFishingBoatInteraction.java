@@ -25,12 +25,11 @@ import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.joml.Vector3d;
 import org.joml.Vector3i;
 
 import static com.hypixel.hytale.server.core.modules.interaction.interaction.util.InteractionValidation.canPlayerInteractWithBlock;
 
-/** Spawns a mountable fishing boat NPC on water (horse-style mount movement). */
+/** Places a parked fishing boat block on water (entity spawns when mounted). */
 public final class SpawnFishingBoatInteraction extends SimpleBlockInteraction {
   public static final BuilderCodec<SpawnFishingBoatInteraction> CODEC =
       BuilderCodec.builder(SpawnFishingBoatInteraction.class, SpawnFishingBoatInteraction::new, SimpleBlockInteraction.CODEC)
@@ -166,17 +165,19 @@ public final class SpawnFishingBoatInteraction extends SimpleBlockInteraction {
       rotation.setYaw(headRotation.getRotation().yaw());
     }
 
-    String sourceItem =
-        itemInHand != null && !itemInHand.isEmpty() ? itemInHand.getItemId() : FishingBoatComponent.DEFAULT_SOURCE_ITEM;
+    int parkedY = BoatWaterHelper.parkedBlockY(world, placement.blockX(), placement.blockZ());
+    if (parkedY == Integer.MIN_VALUE) {
+      context.getState().state = InteractionState.Failed;
+      return;
+    }
 
-    Vector3d spawnPosition =
-        new Vector3d(placement.blockX() + 0.5, placement.surfaceY(), placement.blockZ() + 0.5);
+    float blockYaw = FishingBoatBlockHelper.entityYawToParkedBlockYaw(rotation.yaw());
 
     commandBuffer.run(
         store -> {
-          Ref<EntityStore> spawned =
-              FishingBoatSpawner.spawnBoat(store, spawnPosition, rotation.yaw(), sourceItem);
-          if (spawned == null) {
+          if (!FishingBoatBlockHelper.placeParkedBoatBlock(
+              world, placement.blockX(), parkedY, placement.blockZ(), blockYaw
+          )) {
             context.getState().state = InteractionState.Failed;
             return;
           }

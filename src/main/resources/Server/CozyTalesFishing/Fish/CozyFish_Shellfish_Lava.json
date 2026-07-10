@@ -1,6 +1,8 @@
 {
   "ShadowType": "Medium",
   "ItemId": "Fish_Shellfish_Lava_Item",
+  "AquariumSize": "Wide2x1",
+  "AquariumDisplayOffset": [-0.1, -0.1, 0.0],
   "Rarity": "Legendary",
   "SpawnWeight": 1,
   "SpawnRules": {

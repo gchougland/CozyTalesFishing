@@ -3,6 +3,7 @@ package com.hexvane.cozytalefishing;
 import com.hexvane.cozytalefishing.fishing.FishingBootstrap;
 import com.hexvane.cozytalefishing.fish.FishBootstrap;
 import com.hexvane.cozytalefishing.boat.BoatBootstrap;
+import com.hexvane.cozytalefishing.aquarium.AquariumBootstrap;
 import com.hexvane.cozytalefishing.generated.HstatsBuildMetadata;
 import com.hypixel.hytale.assetstore.AssetPack;
 import com.hypixel.hytale.common.plugin.PluginIdentifier;
@@ -57,6 +58,7 @@ public final class CozyTalesFishingPlugin extends JavaPlugin {
         FishingBootstrap.register(this);
         FishBootstrap.register(this);
         BoatBootstrap.register(this);
+        AquariumBootstrap.register(this);
 
         getLogger().atInfo().log("CozyTalesFishing v%s loaded.", modVersion);
     }

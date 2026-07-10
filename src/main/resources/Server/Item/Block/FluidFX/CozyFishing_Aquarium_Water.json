@@ -1,0 +1,14 @@
+{
+  "Parent": "Water",
+  "ColorsSaturation": 0.55,
+  "ColorsFilter": [
+    1.0,
+    1.02,
+    0.88
+  ],
+  "DistortionAmplitude": 2.0,
+  "DistortionFrequency": 3.0,
+  "FogDepthStart": 120,
+  "FogDepthFalloff": 0.8,
+  "Particle": null
+}

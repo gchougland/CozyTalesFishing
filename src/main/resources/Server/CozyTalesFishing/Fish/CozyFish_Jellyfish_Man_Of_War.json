@@ -1,6 +1,7 @@
 {
   "ShadowType": "Large",
   "ItemId": "Fish_Jellyfish_Man_Of_War_Item",
+  "AquariumSize": "Wide2x1",
   "Rarity": "Rare",
   "SpawnWeight": 3,
   "SpawnRules": {

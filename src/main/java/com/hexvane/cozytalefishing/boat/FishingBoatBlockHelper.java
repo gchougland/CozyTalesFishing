@@ -7,6 +7,7 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.universe.world.SetBlockSettings;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 import javax.annotation.Nonnull;
 import org.joml.Vector3i;
@@ -93,11 +94,22 @@ public final class FishingBoatBlockHelper {
   }
 
   public static float yawFromBlockRotation(@Nonnull World world, @Nonnull Vector3i blockPos) {
-    WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(blockPos.x, blockPos.z));
-    if (chunk == null) {
+    int x = blockPos.x;
+    int y = blockPos.y;
+    int z = blockPos.z;
+    if (y < 0 || y >= ChunkUtil.HEIGHT) {
       return 0.0f;
     }
-    return (float) RotationTuple.get(chunk.getRotationIndex(blockPos.x, blockPos.y, blockPos.z)).yaw().getRadians();
+    var sectionRef = world.getChunkStore().getChunkSectionReferenceAtBlock(x, y, z);
+    if (sectionRef == null) {
+      return 0.0f;
+    }
+    BlockSection blockSection =
+        world.getChunkStore().getStore().getComponent(sectionRef, BlockSection.getComponentType());
+    if (blockSection == null) {
+      return 0.0f;
+    }
+    return (float) RotationTuple.get(blockSection.getRotationIndex(x, y, z)).yaw().getRadians();
   }
 
   public static int rotationIndexFromYaw(float yawRadians) {

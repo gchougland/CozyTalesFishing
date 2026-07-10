@@ -1,6 +1,8 @@
 {
   "ShadowType": "Tiny",
   "ItemId": "Fish_Minnow_Item",
+  "AquariumSize": "Small",
+  "AquariumDisplayOffset": [-0.1, -0.1, 0],
   "Rarity": "Common",
   "SpawnWeight": 10,
   "SpawnRules": {

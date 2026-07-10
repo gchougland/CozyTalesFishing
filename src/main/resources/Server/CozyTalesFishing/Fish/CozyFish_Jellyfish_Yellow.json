@@ -1,6 +1,9 @@
 {
   "ShadowType": "Large",
   "ItemId": "Fish_Jellyfish_Yellow_Item",
+  "AquariumSize": "Small",
+  "AquariumDisplayOffset": [0.0, -0.25, 0.0],
+  "AquariumDisplayScale": 0.8,
   "Rarity": "Uncommon",
   "SpawnWeight": 5,
   "SpawnRules": {

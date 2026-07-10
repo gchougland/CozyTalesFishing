@@ -1,6 +1,8 @@
 {
   "ShadowType": "Medium",
   "ItemId": "Fish_Pike_Item",
+  "AquariumSize": "Tall3x2x2",
+  "AquariumDisplayOffset": [-0.2, -0.1, 0],
   "Rarity": "Uncommon",
   "SpawnWeight": 6,
   "SpawnRules": {

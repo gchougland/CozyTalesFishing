@@ -1,6 +1,8 @@
 {
   "ShadowType": "Medium",
   "ItemId": "Fish_Catfish_Item",
+  "AquariumSize": "Wide2x1",
+  "AquariumDisplayOffset": [-0.1, -0.1, 0.0],
   "Rarity": "Uncommon",
   "SpawnWeight": 10,
   "SpawnRules": {

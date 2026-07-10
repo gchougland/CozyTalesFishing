@@ -1,6 +1,9 @@
 {
   "ShadowType": "Medium",
   "ItemId": "Fish_Piranha_Item",
+  "AquariumSize": "Wide2x1",
+  "AquariumDisplayOffset": [-0.1, -0.1, 0.0],
+  "AquariumDisplayScale": 0.6,
   "Rarity": "Uncommon",
   "SpawnWeight": 6,
   "SpawnRules": {

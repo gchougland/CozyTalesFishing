@@ -83,6 +83,25 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
             .append(new KeyedCodec<>("SwimSpeed", Codec.DOUBLE), (a, v) -> a.swimSpeed = v.floatValue(), a -> (double) a.swimSpeed).add()
             .append(new KeyedCodec<>("FleePlayerRange", Codec.DOUBLE), (a, v) -> a.fleePlayerRange = v.floatValue(), a -> (double) a.fleePlayerRange).add()
             .append(new KeyedCodec<>("FightSwimSpeed", Codec.DOUBLE), (a, v) -> a.fightSwimSpeed = v.floatValue(), a -> (double) a.fightSwimSpeed).add()
+            .append(new KeyedCodec<>("AquariumSize", Codec.STRING), (a, v) -> a.aquariumSizeRaw = v, a -> a.aquariumSizeRaw).add()
+            .append(
+                new KeyedCodec<>("AquariumDisplayOffset", new ArrayCodec<>(Codec.DOUBLE, Double[]::new)),
+                (a, v) -> a.aquariumDisplayOffset = toFloatArray(v),
+                a -> toDoubleArray(a.aquariumDisplayOffset)
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("AquariumDisplayScale", Codec.DOUBLE),
+                (a, v) -> a.aquariumDisplayScale = v.floatValue(),
+                a -> (double) a.aquariumDisplayScale
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("AquariumUseIdleAnimation", Codec.BOOLEAN),
+                (a, v) -> a.aquariumUseIdleAnimation = v,
+                a -> a.aquariumUseIdleAnimation
+            )
+            .add()
             .afterDecode(FishSpeciesAsset::afterDecode)
             .build();
 
@@ -131,8 +150,16 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
     private float swimSpeed = 1.0f;
     private float fleePlayerRange = 3.5f;
     private float fightSwimSpeed = MAX_FIGHT_SWIM_SPEED;
+    @Nullable
+    private String aquariumSizeRaw;
+    @Nullable
+    private float[] aquariumDisplayOffset = new float[] {0.0f, 0.0f, 0.0f};
+    private float aquariumDisplayScale = 1.0f;
+    private boolean aquariumUseIdleAnimation = false;
 
     private FishShadowType shadowType = FishShadowType.Small;
+    @Nullable
+    private AquariumSize aquariumSize;
     private FishRarity rarity = FishRarity.Common;
     @Nullable
     private WaterBodyType[] waterBodyTypes = new WaterBodyType[0];
@@ -158,6 +185,8 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
         asset.requiresUnderground = asset.spawnRules.isUndergroundOnly();
         asset.requiresSurface = !asset.requiresUnderground;
         asset.fightSwimSpeed = Math.min(asset.fightSwimSpeed, MAX_FIGHT_SWIM_SPEED);
+        asset.aquariumSize = AquariumSize.fromString(asset.aquariumSizeRaw);
+        asset.aquariumDisplayScale = Math.max(0.01f, asset.aquariumDisplayScale);
     }
 
     private static void syncLegacyFieldsFromRules(@Nonnull FishSpeciesAsset asset) {
@@ -281,6 +310,27 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
     @Nullable
     public String getNpcRoleId() {
         return npcRoleId;
+    }
+
+    @Nullable
+    public AquariumSize getAquariumSize() {
+        return aquariumSize;
+    }
+
+    /** Local X/Y/Z offset in blocks from the aquarium display center; X/Z rotate with the tank. */
+    @Nonnull
+    public float[] getAquariumDisplayOffset() {
+        return aquariumDisplayOffset != null ? aquariumDisplayOffset : new float[] {0.0f, 0.0f, 0.0f};
+    }
+
+    /** Multiplier applied to the fish item model scale when displayed in an aquarium. */
+    public float getAquariumDisplayScale() {
+        return aquariumDisplayScale;
+    }
+
+    /** When true, aquarium displays use the Idle animation instead of Swim. */
+    public boolean isAquariumUseIdleAnimation() {
+        return aquariumUseIdleAnimation;
     }
 
     public boolean usesRandomShadowType() {

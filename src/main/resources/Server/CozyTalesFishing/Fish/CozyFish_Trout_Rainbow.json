@@ -1,6 +1,8 @@
 {
   "ShadowType": "MediumSmall",
   "ItemId": "Fish_Trout_Rainbow_Item",
+  "AquariumSize": "Wide2x1",
+  "AquariumDisplayOffset": [-0.1, -0.1, 0.0],
   "Rarity": "Common",
   "SpawnWeight": 8,
   "SpawnRules": {

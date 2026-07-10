@@ -1,0 +1,97 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.CozyFishing_Aquarium_3x2x2.name",
+    "Description": "server.items.CozyFishing_Aquarium_3x2x2.description"
+  },
+  "PlayerAnimationsId": "Block",
+  "Categories": [
+    "Furniture.Furniture"
+  ],
+  "Icon": "Icons/ItemsGenerated/CozyFishing_Aquarium_3x2x2.png",
+  "IconProperties": {
+    "Scale": 0.2,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      -9,
+      -22
+    ]
+  },
+  "Recipe": {
+    "TimeSeconds": 8,
+    "Input": [
+      {
+        "ItemId": "Ingredient_Bar_Iron",
+        "Quantity": 6
+      },
+      {
+        "ItemId": "Soil_Sand",
+        "Quantity": 8
+      },
+      {
+        "ItemId": "*Container_Bucket_State_Filled_Water",
+        "Quantity": 1
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "Furniture_Bench",
+        "Type": "Crafting",
+        "Categories": [
+          "Furniture_Misc"
+        ]
+      }
+    ]
+  },
+  "Interactions": {
+    "Primary": "Block_Primary",
+    "Secondary": "Block_Secondary"
+  },
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "Opacity": "Transparent",
+    "CustomModel": "Items/Fishing/Aquarium_3x2x2.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Items/Fishing/Aquarium.png",
+        "Weight": 1
+      }
+    ],
+    "Group": "Wood",
+    "HitboxType": "CozyFishing_Aquarium_3x2x2",
+    "VariantRotation": "NESW",
+    "Flags": {},
+    "Gathering": {
+      "Breaking": {
+        "ItemId": "CozyFishing_Aquarium_3x2x2",
+        "GatherType": "SoftBlocks"
+      }
+    },
+    "BlockEntity": {
+      "Components": {
+        "AquariumBlock": {}
+      }
+    },
+    "BlockParticleSetId": "Wood",
+    "ParticleColor": "#4a6a8a",
+    "BlockSoundSetId": "Wood",
+    "PhysicalMaterialId": "Wood",
+    "TextureComputedColor": "#3a4a5a",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "Interactions": {
+      "Use": "Root_CozyFishing_Aquarium_Use"
+    }
+  },
+  "MaxStack": 16,
+  "ItemSoundSetId": "ISS_Blocks_Wood"
+}
