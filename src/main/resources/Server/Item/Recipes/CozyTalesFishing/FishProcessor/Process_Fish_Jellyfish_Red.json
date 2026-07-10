@@ -1,0 +1,29 @@
+{
+  "Input": [
+    {
+      "ItemId": "Fish_Jellyfish_Red_Item",
+      "Quantity": 1
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "Food_Fish_Raw",
+    "Quantity": 2
+  },
+  "Output": [
+    {
+      "ItemId": "Food_Fish_Raw",
+    "Quantity": 2
+    },
+    {
+      "ItemId": "CozyFishing_Fish_Scale_Common",
+      "Quantity": 1
+    }
+  ],
+  "BenchRequirement": [
+    {
+      "Type": "Processing",
+      "Id": "Fish_Processor"
+    }
+  ],
+  "TimeSeconds": 2
+}

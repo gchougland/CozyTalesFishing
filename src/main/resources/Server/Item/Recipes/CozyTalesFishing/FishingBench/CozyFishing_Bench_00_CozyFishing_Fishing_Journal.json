@@ -1,0 +1,26 @@
+{
+  "Input": [
+    {
+      "ItemId": "Ingredient_Fibre",
+      "Quantity": 4
+    },
+    {
+      "ItemId": "Ingredient_Leather_Light",
+      "Quantity": 1
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "CozyFishing_Fishing_Journal",
+    "Quantity": 1
+  },
+  "TimeSeconds": 2,
+  "BenchRequirement": [
+    {
+      "Type": "Crafting",
+      "Id": "Fishing_Bench",
+      "Categories": [
+        "Fishing_Tools"
+      ]
+    }
+  ]
+}

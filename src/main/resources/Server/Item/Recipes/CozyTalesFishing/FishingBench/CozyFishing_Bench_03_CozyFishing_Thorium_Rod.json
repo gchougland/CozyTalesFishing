@@ -1,0 +1,39 @@
+{
+  "Input": [
+    {
+      "ItemId": "Ingredient_Bar_Thorium",
+      "Quantity": 4
+    },
+    {
+      "ItemId": "Deco_Rope",
+      "Quantity": 3
+    },
+    {
+      "ItemId": "Ingredient_Leather_Medium",
+      "Quantity": 2
+    },
+    {
+      "ItemId": "Ingredient_Fabric_Scrap_Linen",
+      "Quantity": 2
+    },
+    {
+      "ItemId": "CozyFishing_Fish_Scale_Common",
+      "Quantity": 5
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "CozyFishing_Thorium_Rod",
+    "Quantity": 1
+  },
+  "TimeSeconds": 4,
+  "BenchRequirement": [
+    {
+      "Type": "Crafting",
+      "Id": "Fishing_Bench",
+      "Categories": [
+        "Fishing_Tools"
+      ],
+      "RequiredTierLevel": 3
+    }
+  ]
+}

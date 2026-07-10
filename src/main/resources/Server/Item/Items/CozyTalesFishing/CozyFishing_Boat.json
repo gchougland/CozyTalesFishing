@@ -15,28 +15,7 @@
   "PlayerAnimationsId": "Item",
   "ItemSoundSetId": "ISS_Blocks_Wood",
   "MaxStack": 1,
-  "Recipe": {
-    "TimeSeconds": 3,
-    "Input": [
-      {
-        "ItemId": "Wood_Softwood_Planks",
-        "Quantity": 5
-      },
-      {
-        "ItemId": "Deco_Rope",
-        "Quantity": 2
-      }
-    ],
-    "BenchRequirement": [
-      {
-        "Id": "Workbench",
-        "Type": "Crafting",
-        "Categories": [
-          "Workbench_Tools"
-        ]
-      }
-    ]
-  },
+  "ItemLevel": 13,
   "IconProperties": {
     "Scale": 0.315,
     "Translation": [

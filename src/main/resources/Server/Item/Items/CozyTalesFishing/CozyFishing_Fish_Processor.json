@@ -1,0 +1,124 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.CozyFishing_Fish_Processor.name",
+    "Description": "server.items.CozyFishing_Fish_Processor.description"
+  },
+  "Icon": "Icons/ItemsGenerated/CozyFishing_Fish_Processor.png",
+  "Categories": [
+    "Furniture.Benches"
+  ],
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "Opacity": "Semitransparent",
+    "CustomModel": "Items/Fishing/FishProcessor.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Items/Fishing/FishProcessor.png",
+        "Weight": 1
+      }
+    ],
+    "HitboxType": "CozyFishing_Fish_Processor",
+    "VariantRotation": "NESW",
+    "Bench": {
+      "Type": "Processing",
+      "Input": [
+        {
+          "FilterValidIngredients": true
+        },
+        {
+          "FilterValidIngredients": true
+        }
+      ],
+      "OutputSlotsCount": 4,
+      "LocalOpenSoundEventId": "SFX_Lumbermill_Bench_Open",
+      "LocalCloseSoundEventId": "SFX_Lumbermill_Bench_Close",
+      "BenchUpgradeSoundEventId": "SFX_Workbench_Upgrade_Start_Default",
+      "BenchUpgradeCompletedSoundEventId": "SFX_Workbench_Upgrade_Complete_Default",
+      "Id": "Fish_Processor",
+      "TierLevels": [
+        {
+          "UpgradeRequirement": {
+            "Material": [
+              {
+                "ItemId": "CozyFishing_Fish_Scale_Common",
+                "Quantity": 10
+              },
+              {
+                "ItemId": "CozyFishing_Fish_Scale_Rare",
+                "Quantity": 5
+              },
+              {
+                "ItemId": "CozyFishing_Fish_Scale_Legendary",
+                "Quantity": 3
+              }
+            ],
+            "TimeSeconds": 3
+          },
+          "CraftingTimeReductionModifier": 0.0
+        },
+        {
+          "CraftingTimeReductionModifier": 0.3,
+          "ExtraInputSlot": 1
+        }
+      ]
+    },
+    "BlockEntity": {
+      "Components": {
+        "BenchBlock": {},
+        "ProcessingBenchBlock": {}
+      }
+    },
+    "State": {
+      "Definitions": {
+        "Processing": {
+          "Looping": true
+        },
+        "ProcessCompleted": {
+          "Looping": true
+        }
+      }
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
+    },
+    "BlockParticleSetId": "Wood",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "ParticleColor": "#4a7a8a",
+    "BlockSoundSetId": "Wood",
+    "PhysicalMaterialId": "Wood",
+    "Interactions": {
+      "Use": "Open_Processing_Bench"
+    },
+    "TextureComputedColor": "#3A5A6A"
+  },
+  "PlayerAnimationsId": "Block",
+  "IconProperties": {
+    "Scale": 0.5,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      -1,
+      -16
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Bench"
+    ]
+  },
+  "MaxStack": 1,
+  "ItemLevel": 14,
+  "ItemSoundSetId": "ISS_Blocks_Wood"
+}

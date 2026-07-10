@@ -34,6 +34,8 @@ public final class FishingConstants {
 
     public static final String FISHING_JOURNAL_ITEM_ID = "CozyFishing_Fishing_Journal";
 
+    public static final String FISH_FINDER_ITEM_ID = "CozyFishing_Fish_Finder";
+
     public static final String ROD_MODEL_PATH = "Items/Fishing/CozyFishingRod.blockymodel";
 
     /**

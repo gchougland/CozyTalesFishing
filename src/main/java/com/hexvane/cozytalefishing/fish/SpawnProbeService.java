@@ -1,14 +1,22 @@
 package com.hexvane.cozytalefishing.fish;
 
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.util.ChunkUtil;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.joml.Vector3d;
 
 /** Resolves which fish species can spawn at a probe location (for /cozyfish region probe). */
 public final class SpawnProbeService {
@@ -29,6 +37,94 @@ public final class SpawnProbeService {
         @Nonnull List<SpeciesProbeEntry> eligibleNow,
         @Nonnull List<SpeciesProbeEntry> timeBlockedOnly
     ) {}
+
+    /** Full location + species probe. Null when fishable fluid is missing. */
+    public record PlayerProbeResult(
+        int blockX,
+        int blockZ,
+        int surfaceY,
+        int environmentIndex,
+        @Nonnull FishShadowSpawnHelper.WaterColumn fluidColumn,
+        @Nonnull WaterBodyType classifiedWaterBody,
+        @Nonnull WaterBodyType effectiveWaterBody,
+        @Nullable FishingSpawnRegionContext regionContext,
+        @Nonnull ProbeResult probeResult
+    ) {}
+
+    /**
+     * Resolves fishable fluid near the player and runs {@link #analyze}.
+     *
+     * @return null if the player has no transform or no fishable fluid within 1 block
+     */
+    @Nullable
+    public static PlayerProbeResult probeAtPlayer(
+        @Nonnull World world, @Nonnull Store<EntityStore> store, @Nonnull Ref<EntityStore> ref
+    ) {
+        TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+        if (transform == null) {
+            return null;
+        }
+
+        Vector3d pos = transform.getPosition();
+        return probeAtBlock(world, (int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z));
+    }
+
+    /**
+     * Resolves the fishable fluid column at/near a targeted block and runs {@link #analyze}.
+     *
+     * @return null if no fishable fluid column is found at that XZ near the given Y
+     */
+    @Nullable
+    public static PlayerProbeResult probeAtBlock(@Nonnull World world, int blockX, int blockY, int blockZ) {
+        FishShadowSpawnHelper.WaterColumn fluidColumn =
+            FishShadowSpawnHelper.findFishableFluidColumnNear(world, blockX, blockZ, blockY + 0.5, 1);
+        if (fluidColumn == null) {
+            return null;
+        }
+
+        int columnX = fluidColumn.blockX();
+        int columnZ = fluidColumn.blockZ();
+        int surfaceY = fluidColumn.surfaceY();
+        UUID worldUuid = world.getWorldConfig().getUuid();
+        FishingSpawnRegionContext regionContext =
+            FishingSpawnRegionRegistry.resolve(worldUuid, columnX, surfaceY, columnZ);
+        int envIndex = resolveEnvironmentIndex(world, columnX, surfaceY, columnZ);
+
+        WaterBodyClassifier.Context classifyContext =
+            new WaterBodyClassifier.Context(FishingModConfig.get().getMaxFloodFillsPerSpawnCheck());
+        WaterBodyType classified =
+            FishShadowSpawnHelper.classifyWaterBodyForColumn(world, fluidColumn, classifyContext, envIndex);
+        WaterBodyType effective = classified;
+        if (regionContext != null && regionContext.getWaterBodyOverride() != null) {
+            effective = regionContext.getWaterBodyOverride();
+        }
+
+        ProbeResult probeResult = analyze(world, columnX, columnZ, surfaceY, envIndex, effective, regionContext);
+        return new PlayerProbeResult(
+            columnX,
+            columnZ,
+            surfaceY,
+            envIndex,
+            fluidColumn,
+            classified,
+            effective,
+            regionContext,
+            probeResult
+        );
+    }
+
+    private static int resolveEnvironmentIndex(@Nonnull World world, int blockX, int blockY, int blockZ) {
+        long chunkIndex = ChunkUtil.indexChunkFromBlock(blockX, blockZ);
+        var chunkRef = world.getChunkStore().getChunkReference(chunkIndex);
+        if (chunkRef == null) {
+            return 0;
+        }
+        var worldChunk = world.getChunkStore().getStore().getComponent(chunkRef, WorldChunk.getComponentType());
+        if (worldChunk == null) {
+            return 0;
+        }
+        return worldChunk.getBlockChunk().getEnvironment(blockX, blockY, blockZ);
+    }
 
     @Nonnull
     public static ProbeResult analyze(

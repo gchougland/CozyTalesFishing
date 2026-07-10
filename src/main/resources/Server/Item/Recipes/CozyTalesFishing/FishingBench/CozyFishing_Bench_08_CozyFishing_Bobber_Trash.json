@@ -1,0 +1,35 @@
+{
+  "Input": [
+    {
+      "ItemId": "Ingredient_Fibre",
+      "Quantity": 3
+    },
+    {
+      "ItemId": "Deco_Rope",
+      "Quantity": 1
+    },
+    {
+      "ItemId": "Ingredient_Fabric_Scrap_Linen",
+      "Quantity": 2
+    },
+    {
+      "ItemId": "CozyFishing_Fish_Scale_Common",
+      "Quantity": 2
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "CozyFishing_Bobber_Trash",
+    "Quantity": 1
+  },
+  "TimeSeconds": 2,
+  "BenchRequirement": [
+    {
+      "Type": "Crafting",
+      "Id": "Fishing_Bench",
+      "Categories": [
+        "Fishing_Tools"
+      ],
+      "RequiredTierLevel": 2
+    }
+  ]
+}

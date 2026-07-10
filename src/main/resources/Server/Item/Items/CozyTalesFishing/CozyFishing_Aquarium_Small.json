@@ -20,32 +20,6 @@
       -18
     ]
   },
-  "Recipe": {
-    "TimeSeconds": 3,
-    "Input": [
-      {
-        "ItemId": "Ingredient_Bar_Iron",
-        "Quantity": 2
-      },
-      {
-        "ItemId": "Soil_Sand",
-        "Quantity": 4
-      },
-      {
-        "ItemId": "*Container_Bucket_State_Filled_Water",
-        "Quantity": 1
-      }
-    ],
-    "BenchRequirement": [
-      {
-        "Id": "Furniture_Bench",
-        "Type": "Crafting",
-        "Categories": [
-          "Furniture_Misc"
-        ]
-      }
-    ]
-  },
   "Interactions": {
     "Primary": "Block_Primary",
     "Secondary": "Block_Secondary"
@@ -93,5 +67,6 @@
     }
   },
   "MaxStack": 64,
+  "ItemLevel": 1,
   "ItemSoundSetId": "ISS_Blocks_Wood"
 }

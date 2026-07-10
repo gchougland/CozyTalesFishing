@@ -1,0 +1,29 @@
+{
+  "Input": [
+    {
+      "ItemId": "Fish_Whale_Humpback_Item",
+      "Quantity": 1
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "Food_Fish_Raw",
+    "Quantity": 16
+  },
+  "Output": [
+    {
+      "ItemId": "Food_Fish_Raw",
+    "Quantity": 16
+    },
+    {
+      "ItemId": "CozyFishing_Fish_Scale_Legendary",
+      "Quantity": 1
+    }
+  ],
+  "BenchRequirement": [
+    {
+      "Type": "Processing",
+      "Id": "Fish_Processor"
+    }
+  ],
+  "TimeSeconds": 2
+}

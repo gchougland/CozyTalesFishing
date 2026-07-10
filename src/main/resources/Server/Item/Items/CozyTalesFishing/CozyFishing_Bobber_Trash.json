@@ -9,33 +9,7 @@
   "Texture": "Items/Fishing/TrashBobber.png",
   "MaxDurability": 60,
   "Quality": "Common",
-  "ItemLevel": 8,
-  "Recipe": {
-    "TimeSeconds": 2,
-    "Input": [
-      {
-        "ItemId": "Ingredient_Fibre",
-        "Quantity": 3
-      },
-      {
-        "ItemId": "Deco_Rope",
-        "Quantity": 1
-      },
-      {
-        "ItemId": "Ingredient_Fabric_Scrap_Linen",
-        "Quantity": 2
-      }
-    ],
-    "BenchRequirement": [
-      {
-        "Id": "Workbench",
-        "Type": "Crafting",
-        "Categories": [
-          "Workbench_Tools"
-        ]
-      }
-    ]
-  },
+  "ItemLevel": 9,
   "IconProperties": {
     "Scale": 1,
     "Rotation": [

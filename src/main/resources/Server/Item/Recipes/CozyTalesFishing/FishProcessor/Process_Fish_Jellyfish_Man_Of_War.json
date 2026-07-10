@@ -1,0 +1,29 @@
+{
+  "Input": [
+    {
+      "ItemId": "Fish_Jellyfish_Man_Of_War_Item",
+      "Quantity": 1
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "Food_Fish_Raw",
+    "Quantity": 4
+  },
+  "Output": [
+    {
+      "ItemId": "Food_Fish_Raw",
+    "Quantity": 4
+    },
+    {
+      "ItemId": "CozyFishing_Fish_Scale_Rare",
+      "Quantity": 1
+    }
+  ],
+  "BenchRequirement": [
+    {
+      "Type": "Processing",
+      "Id": "Fish_Processor"
+    }
+  ],
+  "TimeSeconds": 2
+}

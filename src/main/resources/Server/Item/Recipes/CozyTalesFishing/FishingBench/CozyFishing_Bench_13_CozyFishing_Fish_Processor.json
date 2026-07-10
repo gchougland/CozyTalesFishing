@@ -1,0 +1,27 @@
+{
+  "Input": [
+    {
+      "ItemId": "Ingredient_Bar_Thorium",
+      "Quantity": 4
+    },
+    {
+      "ItemId": "Ingredient_Crystal_Cyan",
+      "Quantity": 4
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "CozyFishing_Fish_Processor",
+    "Quantity": 1
+  },
+  "TimeSeconds": 4,
+  "BenchRequirement": [
+    {
+      "Type": "Crafting",
+      "Id": "Fishing_Bench",
+      "Categories": [
+        "Fishing_Tools"
+      ],
+      "RequiredTierLevel": 3
+    }
+  ]
+}

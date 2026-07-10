@@ -1,0 +1,30 @@
+{
+  "Input": [
+    {
+      "ItemId": "Ingredient_Bar_Iron",
+      "Quantity": 6
+    },
+    {
+      "ItemId": "Soil_Sand",
+      "Quantity": 8
+    },
+    {
+      "ItemId": "*Container_Bucket_State_Filled_Water",
+      "Quantity": 1
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "CozyFishing_Aquarium_3x2x2",
+    "Quantity": 1
+  },
+  "TimeSeconds": 8,
+  "BenchRequirement": [
+    {
+      "Type": "Crafting",
+      "Id": "Fishing_Bench",
+      "Categories": [
+        "Fishing_Aquariums"
+      ]
+    }
+  ]
+}

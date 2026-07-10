@@ -1,0 +1,26 @@
+{
+  "Input": [
+    {
+      "ItemId": "Ingredient_Stick",
+      "Quantity": 3
+    },
+    {
+      "ItemId": "Deco_Rope",
+      "Quantity": 3
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "CozyFishing_Wooden_Rod",
+    "Quantity": 1
+  },
+  "TimeSeconds": 3,
+  "BenchRequirement": [
+    {
+      "Type": "Crafting",
+      "Id": "Fishing_Bench",
+      "Categories": [
+        "Fishing_Tools"
+      ]
+    }
+  ]
+}

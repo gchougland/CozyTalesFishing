@@ -12,6 +12,7 @@ import com.hypixel.hytale.server.core.asset.type.environment.config.Environment;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hexvane.cozytalefishing.journal.FishingJournalConstants;
 import com.hexvane.cozytalefishing.journal.FishingJournalPage;
+import com.hexvane.cozytalefishing.fishfinder.OpenFishFinderInteraction;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.event.events.player.AddPlayerToWorldEvent;
@@ -57,6 +58,9 @@ public final class FishBootstrap {
         plugin
             .getCodecRegistry(Interaction.CODEC)
             .register("CozyOpenMessageInBottle", OpenMessageInBottleInteraction.class, OpenMessageInBottleInteraction.CODEC);
+        plugin
+            .getCodecRegistry(Interaction.CODEC)
+            .register("CozyOpenFishFinder", OpenFishFinderInteraction.class, OpenFishFinderInteraction.CODEC);
 
         OpenCustomUIInteraction.registerSimple(
             plugin,

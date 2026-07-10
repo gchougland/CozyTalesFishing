@@ -7,29 +7,7 @@
   "Icon": "Icons/ItemsGenerated/CozyFishing_Wooden_Rod.png",
   "Texture": "Items/Tools/Fishing_Rod/FishingRod_Texture.png",
   "Quality": "Common",
-  "ItemLevel": 1,
-  "Recipe": {
-    "TimeSeconds": 3,
-    "Input": [
-      {
-        "ItemId": "Ingredient_Stick",
-        "Quantity": 3
-      },
-      {
-        "ItemId": "Deco_Rope",
-        "Quantity": 3
-      }
-    ],
-    "BenchRequirement": [
-      {
-        "Id": "Workbench",
-        "Type": "Crafting",
-        "Categories": [
-          "Workbench_Tools"
-        ]
-      }
-    ]
-  },
+  "ItemLevel": 2,
   "IconProperties": {
     "Scale": 0.3,
     "Rotation": [

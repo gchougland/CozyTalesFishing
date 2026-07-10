@@ -1,0 +1,31 @@
+{
+  "Input": [
+    {
+      "ItemId": "CozyFishing_Fish_Scale_Rare",
+      "Quantity": 4
+    },
+    {
+      "ItemId": "Ingredient_Bar_Silver",
+      "Quantity": 3
+    },
+    {
+      "ItemId": "Ingredient_Crystal_Cyan",
+      "Quantity": 4
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "CozyFishing_Fish_Finder",
+    "Quantity": 1
+  },
+  "TimeSeconds": 3.5,
+  "BenchRequirement": [
+    {
+      "Type": "Crafting",
+      "Id": "Fishing_Bench",
+      "Categories": [
+        "Fishing_Tools"
+      ],
+      "RequiredTierLevel": 3
+    }
+  ]
+}

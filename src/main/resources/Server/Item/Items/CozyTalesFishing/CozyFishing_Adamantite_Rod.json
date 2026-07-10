@@ -7,38 +7,7 @@
   "Icon": "Icons/ItemsGenerated/CozyFishing_Adamantite_Rod.png",
   "Texture": "Items/Fishing/FishingRod_Adamantite.png",
   "Quality": "Rare",
-  "ItemLevel": 40,
-  "Recipe": {
-    "TimeSeconds": 4.5,
-    "Input": [
-      {
-        "ItemId": "Ingredient_Bar_Adamantite",
-        "Quantity": 6
-      },
-      {
-        "ItemId": "Deco_Rope",
-        "Quantity": 3
-      },
-      {
-        "ItemId": "Ingredient_Leather_Heavy",
-        "Quantity": 3
-      },
-      {
-        "ItemId": "Ingredient_Fabric_Scrap_Cindercloth",
-        "Quantity": 3
-      }
-    ],
-    "BenchRequirement": [
-      {
-        "Id": "Workbench",
-        "Type": "Crafting",
-        "Categories": [
-          "Workbench_Tools"
-        ],
-        "RequiredTierLevel": 3
-      }
-    ]
-  },
+  "ItemLevel": 6,
   "IconProperties": {
     "Scale": 0.3,
     "Rotation": [

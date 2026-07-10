@@ -1,0 +1,22 @@
+{
+  "Input": [
+    {
+      "ItemId": "Ingredient_Life_Essence",
+      "Quantity": 3
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "Plant_Coral_Bush_Purple",
+    "Quantity": 1
+  },
+  "TimeSeconds": 1,
+  "BenchRequirement": [
+    {
+      "Type": "Crafting",
+      "Id": "Fishing_Bench",
+      "Categories": [
+        "Fishing_Decorations"
+      ]
+    }
+  ]
+}

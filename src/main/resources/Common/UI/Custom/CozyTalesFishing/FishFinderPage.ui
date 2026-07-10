@@ -1,0 +1,59 @@
+$C = "../Common.ui";
+
+@PanelWidth = 480;
+@PanelHeight = 420;
+
+$C.@PageOverlay {
+  LayoutMode: Middle;
+
+  Group {
+    LayoutMode: Center;
+
+    $C.@DecoratedContainer {
+      Anchor: (Width: @PanelWidth, Height: @PanelHeight);
+
+      #Title {
+        Label #PageTitle {
+          Style: (...$C.@TitleStyle, HorizontalAlignment: Center);
+          Padding: (Horizontal: 19);
+          Text: "";
+        }
+      }
+
+      #Content {
+        LayoutMode: Top;
+        Padding: (Horizontal: 16, Vertical: 10);
+
+        Label #Subtitle {
+          Style: (FontSize: 14, TextColor: #9eb0bc);
+          Anchor: (Bottom: 8);
+          Text: "";
+        }
+
+        Group #EmptyPanel {
+          LayoutMode: Center;
+          FlexWeight: 1;
+          Visible: false;
+
+          Label #EmptyMessage {
+            Style: (FontSize: 16, TextColor: #9eb0bc, HorizontalAlignment: Center, Wrap: true);
+            Anchor: (Width: 360);
+            Text: "";
+          }
+        }
+
+        Group #FishListPanel {
+          LayoutMode: Top;
+          FlexWeight: 1;
+          Visible: false;
+
+          Group #FishList {
+            FlexWeight: 1;
+            LayoutMode: TopScrolling;
+            ScrollbarStyle: $C.@DefaultScrollbarStyle;
+          }
+        }
+      }
+    }
+  }
+}

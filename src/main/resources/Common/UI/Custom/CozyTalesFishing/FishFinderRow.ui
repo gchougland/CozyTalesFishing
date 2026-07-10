@@ -1,0 +1,18 @@
+$C = "../Common.ui";
+
+Group #Row {
+  LayoutMode: Left;
+  Anchor: (Bottom: 4);
+  Padding: (Full: 8);
+  Background: PatchStyle(TexturePath: "../Common/Dropdown.png", Border: 16);
+
+  ItemIcon #Icon {
+    Anchor: (Width: 40, Height: 40);
+  }
+
+  Label #Name {
+    FlexWeight: 1;
+    Padding: (Horizontal: 10, Vertical: 6);
+    Style: (RenderBold: true, FontSize: 14, TextColor: #b7cedd, Wrap: true);
+  }
+}

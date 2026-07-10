@@ -9,33 +9,7 @@
   "Texture": "Items/Fishing/Dressed_Spinner.png",
   "MaxDurability": 40,
   "Quality": "Rare",
-  "ItemLevel": 25,
-  "Recipe": {
-    "TimeSeconds": 3,
-    "Input": [
-      {
-        "ItemId": "CozyFishing_Bobber_Spinner",
-        "Quantity": 1
-      },
-      {
-        "ItemId": "Ingredient_Bar_Copper",
-        "Quantity": 1
-      },
-      {
-        "ItemId": "Ingredient_Feathers_Light",
-        "Quantity": 2
-      }
-    ],
-    "BenchRequirement": [
-      {
-        "Id": "Workbench",
-        "Type": "Crafting",
-        "Categories": [
-          "Workbench_Tools"
-        ]
-      }
-    ]
-  },
+  "ItemLevel": 11,
   "IconProperties": {
     "Scale": 1,
     "Rotation": [

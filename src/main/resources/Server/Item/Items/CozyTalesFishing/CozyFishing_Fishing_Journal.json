@@ -9,28 +9,6 @@
   ],
   "Quality": "Common",
   "ItemLevel": 1,
-  "Recipe": {
-    "TimeSeconds": 2,
-    "Input": [
-      {
-        "ItemId": "Ingredient_Fibre",
-        "Quantity": 4
-      },
-      {
-        "ItemId": "Ingredient_Leather_Light",
-        "Quantity": 1
-      }
-    ],
-    "BenchRequirement": [
-      {
-        "Id": "Workbench",
-        "Type": "Crafting",
-        "Categories": [
-          "Workbench_Tools"
-        ]
-      }
-    ]
-  },
   "PlayerAnimationsId": "Spellbook",
   "Model": "Items/Weapons/Spellbook/Grimoire.blockymodel",
   "Texture": "Items/Fishing/Fishing_Journal.png",

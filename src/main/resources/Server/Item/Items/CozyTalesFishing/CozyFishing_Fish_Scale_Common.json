@@ -1,0 +1,36 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.CozyFishing_Fish_Scale_Common.name",
+    "Description": "server.items.CozyFishing_Fish_Scale_Common.description"
+  },
+  "Categories": [
+    "Items.Ingredients"
+  ],
+  "Model": "Items/Fishing/FishScale.blockymodel",
+  "Texture": "Items/Fishing/FishScale_Common.png",
+  "Quality": "Common",
+  "ItemLevel": 5,
+  "PlayerAnimationsId": "Item",
+  "IconProperties": {
+    "Scale": 2.1,
+    "Rotation": [
+      22.5,
+      71,
+      22.5
+    ],
+    "Translation": [
+      -1.5,
+      -5
+    ]
+  },
+  "Scale": 1,
+  "Icon": "Icons/ItemsGenerated/CozyFishing_Fish_Scale_Common.png",
+  "Tags": {
+    "Type": [
+      "Ingredient"
+    ]
+  },
+  "MaxStack": 100,
+  "ItemSoundSetId": "ISS_Items_Gems",
+  "DropOnDeath": true
+}

@@ -9,33 +9,7 @@
   "Texture": "Items/Fishing/QualityBobber.png",
   "MaxDurability": 40,
   "Quality": "Common",
-  "ItemLevel": 5,
-  "Recipe": {
-    "TimeSeconds": 2,
-    "Input": [
-      {
-        "ItemId": "Ingredient_Stick",
-        "Quantity": 2
-      },
-      {
-        "ItemId": "Deco_Rope",
-        "Quantity": 1
-      },
-      {
-        "ItemId": "Ingredient_Fabric_Scrap_Linen",
-        "Quantity": 1
-      }
-    ],
-    "BenchRequirement": [
-      {
-        "Id": "Workbench",
-        "Type": "Crafting",
-        "Categories": [
-          "Workbench_Tools"
-        ]
-      }
-    ]
-  },
+  "ItemLevel": 10,
   "IconProperties": {
     "Scale": 1,
     "Rotation": [

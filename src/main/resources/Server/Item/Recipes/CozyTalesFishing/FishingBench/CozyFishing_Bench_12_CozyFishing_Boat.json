@@ -1,0 +1,26 @@
+{
+  "Input": [
+    {
+      "ItemId": "Wood_Softwood_Planks",
+      "Quantity": 5
+    },
+    {
+      "ItemId": "Deco_Rope",
+      "Quantity": 2
+    }
+  ],
+  "PrimaryOutput": {
+    "ItemId": "CozyFishing_Boat",
+    "Quantity": 1
+  },
+  "TimeSeconds": 3,
+  "BenchRequirement": [
+    {
+      "Type": "Crafting",
+      "Id": "Fishing_Bench",
+      "Categories": [
+        "Fishing_Tools"
+      ]
+    }
+  ]
+}

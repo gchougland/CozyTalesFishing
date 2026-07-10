@@ -1,0 +1,6 @@
+{
+  "RequireNewClick": true,
+  "Interactions": [
+    "CozyFishingBench_Use"
+  ]
+}

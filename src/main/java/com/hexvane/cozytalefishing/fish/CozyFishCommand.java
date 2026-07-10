@@ -34,7 +34,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.joml.Vector3d;
 
 import static com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes.PLAYER_REF;
 import static com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes.STRING;
@@ -724,55 +723,29 @@ public final class CozyFishCommand extends AbstractCommandCollection {
             @Nonnull PlayerRef playerRef,
             @Nonnull World world
         ) {
-            TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
-            if (transform == null) {
+            if (store.getComponent(ref, TransformComponent.getComponentType()) == null) {
                 context.sendMessage(Message.raw("Could not read player position."));
                 return;
             }
 
-            Vector3d pos = transform.getPosition();
-            int blockX = (int) Math.floor(pos.x);
-            int blockZ = (int) Math.floor(pos.z);
-            FishShadowSpawnHelper.WaterColumn fluidColumn =
-                FishShadowSpawnHelper.findFishableFluidColumnNear(world, blockX, blockZ, pos.y, 1);
-            if (fluidColumn == null) {
+            SpawnProbeService.PlayerProbeResult location = SpawnProbeService.probeAtPlayer(world, store, ref);
+            if (location == null) {
                 context.sendMessage(
                     Message.raw("No fishable fluid at your feet — stand in water or lava to probe spawn overrides.")
                 );
                 return;
             }
-            int surfaceY = fluidColumn.surfaceY();
 
-            UUID worldUuid = world.getWorldConfig().getUuid();
-            FishingSpawnRegionContext regionContext =
-                FishingSpawnRegionRegistry.resolve(worldUuid, blockX, surfaceY, blockZ);
-
-            int envIndex = resolveEnvironmentIndex(world, blockX, surfaceY, blockZ);
-
-            WaterBodyClassifier.Context classifyContext =
-                new WaterBodyClassifier.Context(FishingModConfig.get().getMaxFloodFillsPerSpawnCheck());
-            WaterBodyType classified =
-                FishShadowSpawnHelper.classifyWaterBodyForColumn(world, fluidColumn, classifyContext, envIndex);
-            WaterBodyType effective = classified;
-            if (regionContext != null && regionContext.getWaterBodyOverride() != null) {
-                effective = regionContext.getWaterBodyOverride();
-            }
+            int blockX = location.blockX();
+            int blockZ = location.blockZ();
+            int surfaceY = location.surfaceY();
+            int envIndex = location.environmentIndex();
+            FishingSpawnRegionContext regionContext = location.regionContext();
 
             Environment envAsset = Environment.getAssetMap().getAsset(envIndex);
             String envName = envAsset != null ? envAsset.getId() : null;
             String biome = WaterBodyClassifier.getBiomeName(world, blockX, blockZ);
             String worldZone = FishShadowSpawnHelper.getWorldZoneName(world, blockX, blockZ);
-
-            SpawnProbeService.ProbeResult probeResult =
-                SpawnProbeService.analyze(
-                    world,
-                    blockX,
-                    blockZ,
-                    surfaceY,
-                    envIndex,
-                    effective,
-                    regionContext
-                );
 
             StringBuilder text = new StringBuilder();
             text.append("Spawn probe @ (")
@@ -783,9 +756,9 @@ public final class CozyFishCommand extends AbstractCommandCollection {
                 .append(blockZ)
                 .append(")\n");
             text.append("  EnableSpawnRegions=").append(FishingModConfig.get().isEnableSpawnRegions()).append('\n');
-            text.append("  columnFluid=").append(fluidColumn.fluid().name()).append('\n');
-            text.append("  classifiedWaterBody=").append(classified.name()).append('\n');
-            text.append("  effectiveWaterBody=").append(effective.name()).append('\n');
+            text.append("  columnFluid=").append(location.fluidColumn().fluid().name()).append('\n');
+            text.append("  classifiedWaterBody=").append(location.classifiedWaterBody().name()).append('\n');
+            text.append("  effectiveWaterBody=").append(location.effectiveWaterBody().name()).append('\n');
             text.append("  blockEnv=").append(envName != null ? envName : "unknown").append(" (index ").append(envIndex).append(")\n");
             text.append("  worldgenBiome=").append(biome != null ? biome : "unknown").append('\n');
             text.append("  worldgenZone=").append(worldZone != null ? worldZone : "unknown").append('\n');
@@ -807,23 +780,9 @@ public final class CozyFishCommand extends AbstractCommandCollection {
                 text.append("  ignoreWorldZoneGate=").append(region.isIgnoreWorldZoneGate()).append('\n');
             }
 
-            SpawnProbeService.appendSpeciesSections(text, probeResult);
+            SpawnProbeService.appendSpeciesSections(text, location.probeResult());
 
             context.sendMessage(Message.raw(text.toString()));
-        }
-
-        private static int resolveEnvironmentIndex(@Nonnull World world, int blockX, int blockY, int blockZ) {
-            long chunkIndex = com.hypixel.hytale.math.util.ChunkUtil.indexChunkFromBlock(blockX, blockZ);
-            var chunkRef = world.getChunkStore().getChunkReference(chunkIndex);
-            if (chunkRef == null) {
-                return 0;
-            }
-            var worldChunk =
-                world.getChunkStore().getStore().getComponent(chunkRef, com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk.getComponentType());
-            if (worldChunk == null) {
-                return 0;
-            }
-            return worldChunk.getBlockChunk().getEnvironment(blockX, blockY, blockZ);
         }
     }
 }
