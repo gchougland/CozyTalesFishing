@@ -2,7 +2,7 @@
   "ShadowType": "Thin",
   "ItemId": "Fish_Eel_Moray_Item",
   "AquariumSize": "Tall3x2x2",
-  "AquariumDisplayOffset": [-0.55, -0.1, 0],
+  "AquariumDisplayOffset": [-0.6, -0.1, 0],
   "Rarity": "Uncommon",
   "SpawnWeight": 5,
   "SpawnRules": {
