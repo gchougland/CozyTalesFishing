@@ -154,6 +154,20 @@ public final class BoatWaterHelper {
     return entityDeckYAt(world, (int) Math.floor(x), (int) Math.floor(z));
   }
 
+  /** Returns true when the boat entity is supported by water at its current position. */
+  public static boolean isFloatingOnWater(@Nonnull World world, double x, double y, double z) {
+    if (Double.isNaN(deckYForPosition(world, x, z))) {
+      return false;
+    }
+
+    int blockX = (int) Math.floor(x);
+    int blockY = (int) Math.floor(y);
+    int blockZ = (int) Math.floor(z);
+
+    return FishFluidHelper.isWaterFluidAt(world, blockX, blockY, blockZ)
+        || FishFluidHelper.isWaterFluidAt(world, blockX, blockY - 1, blockZ);
+  }
+
 
 
   public static boolean isWaterTargetBlock(@Nonnull World world, @Nonnull Vector3i targetBlock) {

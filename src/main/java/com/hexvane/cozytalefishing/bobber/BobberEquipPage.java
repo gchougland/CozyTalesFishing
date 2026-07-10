@@ -276,7 +276,7 @@ public final class BobberEquipPage extends CozyInteractiveCustomUIPage<BobberEqu
             String emptySelector = PICKER_LIST + "[" + row + "]";
             commandBuilder.append(PICKER_LIST, PICKER_EMPTY_TEMPLATE);
             commandBuilder.set(
-                emptySelector + " #EmptyMessage.TextSpans",
+                emptySelector + ".TextSpans",
                 Message.translation("server.cozytalefishing.bobber.no_bobbers_in_inventory")
             );
         }

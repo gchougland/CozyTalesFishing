@@ -42,6 +42,10 @@ import org.joml.Vector3d;
 
 public final class FishingBoatDismountToBlockSystem extends RefChangeSystem<EntityStore, NPCMountComponent> {
 
+  private static final int PLACEMENT_SEARCH_RADIUS = 2;
+
+
+
   @Nonnull
 
   @Override
@@ -131,72 +135,53 @@ public final class FishingBoatDismountToBlockSystem extends RefChangeSystem<Enti
 
     Vector3d pos = transform.getPosition();
 
-    int blockX = (int) Math.floor(pos.x);
+    int originBlockX = (int) Math.floor(pos.x);
 
-    int blockZ = (int) Math.floor(pos.z);
-
-    int parkedY = BoatWaterHelper.parkedBlockY(world, blockX, blockZ);
-
-    if (parkedY == Integer.MIN_VALUE) {
-
-      return;
-
-    }
-
-
+    int originBlockZ = (int) Math.floor(pos.z);
 
     float yaw = FishingBoatBlockHelper.entityYawToParkedBlockYaw(transform.getRotation().yaw());
 
-    Vector3d standPosition = FishingBoatBlockHelper.standPositionOnParkedBlock(blockX, parkedY, blockZ);
+    int[] placement =
+        FishingBoatBlockHelper.findNearbyParkedBoatPlacement(
+            world, originBlockX, originBlockZ, yaw, PLACEMENT_SEARCH_RADIUS
+        );
 
     commandBuffer.run(
-
         _store -> {
+          if (placement != null) {
+            int blockX = placement[0];
+            int parkedY = placement[1];
+            int blockZ = placement[2];
+            Vector3d standPosition =
+                FishingBoatBlockHelper.standPositionOnParkedBlock(blockX, parkedY, blockZ);
 
-          if (!FishingBoatBlockHelper.placeParkedBoatBlock(world, blockX, parkedY, blockZ, yaw)) {
+            if (!FishingBoatBlockHelper.placeParkedBoatBlock(world, blockX, parkedY, blockZ, yaw)) {
+              return;
+            }
 
+            Ref<EntityStore> playerRef = ownerPlayerRef != null ? ownerPlayerRef.getReference() : null;
+            if (playerRef != null && playerRef.isValid()) {
+              TransformComponent playerTransform =
+                  _store.getComponent(playerRef, TransformComponent.getComponentType());
+              Rotation3f standRotation =
+                  playerTransform != null ? playerTransform.getRotation() : transform.getRotation();
+              commandBuffer.addComponent(
+                  playerRef,
+                  Teleport.getComponentType(),
+                  Teleport.createForPlayer(standPosition, standRotation)
+              );
+            }
+
+            boat.setSuppressBlockPlacement(true);
+            commandBuffer.removeEntity(ref, RemoveReason.REMOVE);
             return;
-
           }
 
-
-
-          Ref<EntityStore> playerRef = ownerPlayerRef != null ? ownerPlayerRef.getReference() : null;
-
-          if (playerRef != null && playerRef.isValid()) {
-
-            TransformComponent playerTransform =
-
-                _store.getComponent(playerRef, TransformComponent.getComponentType());
-
-            Rotation3f standRotation =
-
-                playerTransform != null ? playerTransform.getRotation() : transform.getRotation();
-
-            commandBuffer.addComponent(
-
-                playerRef,
-
-                Teleport.getComponentType(),
-
-                Teleport.createForPlayer(standPosition, standRotation)
-
-            );
-
-          }
-
-
-
-          boat.setSuppressBlockPlacement(true);
-
-          commandBuffer.removeEntity(ref, RemoveReason.REMOVE);
-
+          FishingBoatDropHelper.dropBoatAsItem(ref, boat, transform, commandBuffer, true);
         }
-
     );
 
   }
 
 }
-
 

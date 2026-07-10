@@ -4,6 +4,7 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
+import com.hypixel.hytale.server.core.universe.world.PlaceBlockSettings;
 import com.hypixel.hytale.server.core.universe.world.SetBlockSettings;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
@@ -24,7 +25,7 @@ public final class FishingBoatBlockHelper {
     return FishingBoatConstants.PLACED_BLOCK_ID.equals(blockId);
   }
 
-  public static boolean placeParkedBoatBlock(
+  public static boolean canPlaceParkedBoatBlock(
       @Nonnull World world,
       int x,
       int y,
@@ -36,32 +37,57 @@ public final class FishingBoatBlockHelper {
       return false;
     }
 
+    if (world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(x, z)) == null) {
+      return false;
+    }
+
+    BoatWaterHelper.WaterPlacement placement =
+        BoatWaterHelper.resolveWaterPlacement(world, x, topWaterY, z);
+    if (!BoatWaterHelper.isValidPlacement(world, placement)) {
+      return false;
+    }
+
+    BlockType blockType = BlockType.getAssetMap().getAsset(FishingBoatConstants.PLACED_BLOCK_ID);
+    if (blockType == null) {
+      return false;
+    }
+
     WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(x, z));
     if (chunk == null) {
       return false;
     }
-    if (chunk.getBlock(x, y, z) != BlockType.EMPTY_ID) {
-      return false;
-    }
-
-    int blockIndex = BlockType.getAssetMap().getIndex(FishingBoatConstants.PLACED_BLOCK_ID);
-    BlockType blockType = BlockType.getAssetMap().getAsset(blockIndex);
-    if (blockType == null || blockIndex == BlockType.UNKNOWN_ID) {
-      return false;
-    }
 
     int rotationIndex = rotationIndexFromYaw(yawRadians);
-    chunk.setBlock(
+    return chunk.testPlaceBlock(x, y, z, blockType, rotationIndex);
+  }
+
+  public static boolean placeParkedBoatBlock(
+      @Nonnull World world,
+      int x,
+      int y,
+      int z,
+      float yawRadians
+  ) {
+    if (!canPlaceParkedBoatBlock(world, x, y, z, yawRadians)) {
+      return false;
+    }
+
+    WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(x, z));
+    if (chunk == null) {
+      return false;
+    }
+
+    RotationTuple rotationTuple = RotationTuple.get(rotationIndexFromYaw(yawRadians));
+    return chunk.placeBlock(
         x,
         y,
         z,
-        blockIndex,
-        blockType,
-        rotationIndex,
-        FillerBlockUtil.NO_FILLER,
-        SetBlockSettings.PERFORM_BLOCK_UPDATE
+        FishingBoatConstants.PLACED_BLOCK_ID,
+        rotationTuple.yaw(),
+        rotationTuple.pitch(),
+        rotationTuple.roll(),
+        PlaceBlockSettings.PERFORM_BLOCK_UPDATE
     );
-    return true;
   }
 
   @Nonnull
@@ -131,5 +157,39 @@ public final class FishingBoatBlockHelper {
   /** Block model forward is opposite the NPC entity model forward. */
   public static float entityYawToParkedBlockYaw(float entityYawRadians) {
     return entityYawRadians + (float) Math.PI;
+  }
+
+  /**
+   * Searches outward from the origin for a valid parked boat placement.
+   *
+   * @return {@code [blockX, parkedY, blockZ]} or {@code null} if none found
+   */
+  @javax.annotation.Nullable
+  public static int[] findNearbyParkedBoatPlacement(
+      @Nonnull World world,
+      int originX,
+      int originZ,
+      float yawRadians,
+      int searchRadius
+  ) {
+    for (int radius = 0; radius <= searchRadius; radius++) {
+      for (int dx = -radius; dx <= radius; dx++) {
+        for (int dz = -radius; dz <= radius; dz++) {
+          if (radius > 0 && Math.abs(dx) != radius && Math.abs(dz) != radius) {
+            continue;
+          }
+          int candidateX = originX + dx;
+          int candidateZ = originZ + dz;
+          int parkedY = BoatWaterHelper.parkedBlockY(world, candidateX, candidateZ);
+          if (parkedY == Integer.MIN_VALUE) {
+            continue;
+          }
+          if (canPlaceParkedBoatBlock(world, candidateX, parkedY, candidateZ, yawRadians)) {
+            return new int[] {candidateX, parkedY, candidateZ};
+          }
+        }
+      }
+    }
+    return null;
   }
 }

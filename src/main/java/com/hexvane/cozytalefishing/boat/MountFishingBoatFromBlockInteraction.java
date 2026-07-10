@@ -60,7 +60,6 @@ public final class MountFishingBoatFromBlockInteraction extends SimpleBlockInter
           if (!FishingBoatBlockHelper.removeBoatBlockKeepingWater(
               world, targetBlock.x, targetBlock.y, targetBlock.z
           )) {
-            context.getState().state = InteractionState.Failed;
             return;
           }
 
@@ -79,7 +78,6 @@ public final class MountFishingBoatFromBlockInteraction extends SimpleBlockInter
                 targetBlock.z,
                 yaw
             );
-            context.getState().state = InteractionState.Failed;
             return;
           }
 
@@ -96,7 +94,6 @@ public final class MountFishingBoatFromBlockInteraction extends SimpleBlockInter
                 targetBlock.z,
                 yaw
             );
-            context.getState().state = InteractionState.Failed;
           }
         }
     );

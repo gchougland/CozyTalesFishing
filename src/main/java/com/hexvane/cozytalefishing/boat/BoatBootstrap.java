@@ -30,6 +30,7 @@ public final class BoatBootstrap {
     entityStoreRegistry.registerSystem(new FishingBoatEntitySetup());
     entityStoreRegistry.registerSystem(new FishingBoatDriftStopSystem());
     entityStoreRegistry.registerSystem(new FishingBoatItemFloatSystem());
+    entityStoreRegistry.registerSystem(new FishingBoatLandBreakSystem());
     entityStoreRegistry.registerSystem(new FishingBoatDismountToBlockSystem());
     entityStoreRegistry.registerSystem(new FishingBoatMountViewBobbingSystem.OnMountChange());
     entityStoreRegistry.registerSystem(new FishingBoatMountViewBobbingSystem.OnBoatRemoved());

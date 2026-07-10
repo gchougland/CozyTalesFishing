@@ -173,17 +173,13 @@ public final class SpawnFishingBoatInteraction extends SimpleBlockInteraction {
 
     float blockYaw = FishingBoatBlockHelper.entityYawToParkedBlockYaw(rotation.yaw());
 
-    commandBuffer.run(
-        store -> {
-          if (!FishingBoatBlockHelper.placeParkedBoatBlock(
-              world, placement.blockX(), parkedY, placement.blockZ(), blockYaw
-          )) {
-            context.getState().state = InteractionState.Failed;
-            return;
-          }
-          consumeBoatItemIfNeeded(playerRef, context, commandBuffer, itemInHand);
-        }
-    );
+    if (!FishingBoatBlockHelper.placeParkedBoatBlock(
+        world, placement.blockX(), parkedY, placement.blockZ(), blockYaw
+    )) {
+      context.getState().state = InteractionState.Failed;
+      return;
+    }
+    consumeBoatItemIfNeeded(playerRef, context, commandBuffer, itemInHand);
   }
 
   private static void consumeBoatItemIfNeeded(
