@@ -1,16 +1,17 @@
-# Reed Castwell fisherman dialogue
+# Reed Castwell fisherman dialogue — castaway who washed ashore
 
 aetherhaven.dialogue.cozyfishing_fisherman.root.speaker=Reed Castwell
-aetherhaven.dialogue.cozyfishing_fisherman.main_hub.fallback=If you want a word about the water, a tip, the shop, or a story from the line, I am listening.
-aetherhaven.dialogue.cozyfishing_fisherman.main_hub.greeting.0=Morning. The water looks calm enough for a cast.
-aetherhaven.dialogue.cozyfishing_fisherman.main_hub.greeting.1=I can smell rain on the wind. Fish like that.
-aetherhaven.dialogue.cozyfishing_fisherman.main_hub.greeting.2=Good to see another face that cares about the shore.
-aetherhaven.dialogue.cozyfishing_fisherman.main_hub.greeting.3=Sorry if I smell like the lake. I was out early.
+aetherhaven.dialogue.cozyfishing_fisherman.root.body=Storm took my boat, tide took the rest, and I woke up on your shore with a rod, a half-dry journal, and no idea which way home was. If you will have a castaway who knows fish better than maps, I would like to stay.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.fallback=Ask about the water, the shop, or whatever washed me here. I have time. The sea already took the hurry out of me.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.greeting.0=Still standing on dry land. That feels like a good day already.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.greeting.1=I can smell rain on the wind. Reminds me of the night I lost the boat.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.greeting.2=Good to see a friendly face. For a while I only had gulls and driftwood for company.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.greeting.3=Sorry if I smell like salt and old rope. Hard habit to shake when you wash up with nothing else.
 
-aetherhaven.dialogue.cozyfishing_fisherman.main_hub.hint.love.0=A rare catch or a fine bobber would make my day.
-aetherhaven.dialogue.cozyfishing_fisherman.main_hub.hint.love.1=Bring me something special from deep water if you want a big smile.
-aetherhaven.dialogue.cozyfishing_fisherman.main_hub.hint.dislike.0=Please do not bring me trash or old boots.
-aetherhaven.dialogue.cozyfishing_fisherman.main_hub.hint.dislike.1=Junk from the shore has no place in my kit.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.hint.love.0=A rare catch or a fine bobber would feel like treasure pulled from the wreck.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.hint.love.1=Bring me something special from deep water. It makes shore life feel less like waiting for the next storm.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.hint.dislike.0=Please do not bring me trash or old boots. I have already seen enough of those on the tide line.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.hint.dislike.1=Junk from the shore has no place in my kit. I left that life behind on the rocks.
 
 aetherhaven.dialogue.cozyfishing_fisherman.root.c_house=You wanted to talk about a house.
 aetherhaven.dialogue.cozyfishing_fisherman.root.c_house_done=Your name is on the house shelf. I wanted you to hear it from me.
@@ -24,46 +25,46 @@ aetherhaven.dialogue.cozyfishing_fisherman.root.c_tips=Any tips for someone new 
 aetherhaven.dialogue.cozyfishing_fisherman.root.c_catch=What is the best catch you ever landed?
 aetherhaven.dialogue.cozyfishing_fisherman.root.c_goodbye=That is all for now. See you later.
 
-aetherhaven.dialogue.cozyfishing_fisherman.reed_quest_shop.body=I have been selling from a crate by the dock for too long. The town deserves a real fishing shop with rods on the wall, bobbers in the drawers, and a counter that does not tip when the wind picks up. I sketched the layout on the road here. If you will raise it for the town, I can share those plans with you.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_quest_shop.body=I washed up with little more than tackle and stubborn habits. Selling from a crate by the dock keeps me fed, but a castaway deserves a real shop someday: rods on the wall, bobbers in the drawers, and a counter that does not tip when the wind picks up. I sketched the layout from memory of shops I knew before the wreck. If you will raise it for the town, I can share those plans with you.
 aetherhaven.dialogue.cozyfishing_fisherman.reed_quest_shop.c0=We will get your shop built.
 aetherhaven.dialogue.cozyfishing_fisherman.reed_quest_shop.c1=Not right now. I need a bit more time.
 
-aetherhaven.dialogue.cozyfishing_fisherman.reed_shop_accepted.body=Here are my shop plans. Study them at the town planning desk, craft a plot token when you are ready, and stake the shop where folks can find the water. I will wait at the inn with my tackle until the door is real.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_shop_accepted.body=Here are my shop plans. Study them at the town planning desk, craft a plot token when you are ready, and stake the shop where folks can find the water. I will wait at the inn with whatever gear survived the wreck until the door is real.
 aetherhaven.dialogue.cozyfishing_fisherman.reed_shop_accepted.c0=See you when the shelves are up.
 
-aetherhaven.dialogue.cozyfishing_fisherman.reed_building.body=The line is getting restless in my hands. Have you learned the plans and started the build yet, or should I stop counting on a shop that might not happen?
+aetherhaven.dialogue.cozyfishing_fisherman.reed_building.body=I keep watching the shoreline like I am waiting for a sail that will never come. Have you learned the plans and started the build yet, or should I stop counting on a shop that might not happen?
 aetherhaven.dialogue.cozyfishing_fisherman.reed_building.c0=I need to drop the quest for now.
 aetherhaven.dialogue.cozyfishing_fisherman.reed_building.c1=I am still working on it and I will keep going.
 
-aetherhaven.dialogue.cozyfishing_fisherman.reed_abandoned.body=That is all right. The fish will still be there tomorrow. If you change your mind, come find me and we will try again.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_abandoned.body=That is all right. The tide waits for no one, and neither do the fish. If you change your mind, come find me and we will try again.
 aetherhaven.dialogue.cozyfishing_fisherman.reed_abandoned.c0=Fair enough. I will see you around.
 
-aetherhaven.dialogue.cozyfishing_fisherman.reed_done.body=Smell that? Salt, wood, and a little pride. Honest shelves, room for every rod I brought on the road, and a counter that will not tip in the wind. Thank you for giving this town a proper fishing shop.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_done.body=Smell that? Salt, wood, and a little pride. Honest shelves, room for every rod that made it to shore with me, and a counter that will not tip in the wind. Thank you for giving a castaway a proper place to belong.
 aetherhaven.dialogue.cozyfishing_fisherman.reed_done.c0=Happy to help. Come find me if the town needs more from the water.
 
-aetherhaven.dialogue.cozyfishing_fisherman.reed_house_offer.body=The shop is for work. I would still love a little house with a quiet window for rainy mornings and a peg by the door for my hat. Same house plot as everyone else, if you are willing.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_offer.body=The shop is for work. After sleeping under sails and inn roofs, I would still love a little house with a quiet window for rainy mornings and a peg by the door for my hat. Same house plot as everyone else, if you are willing to give a washed-up fisherman a real door.
 aetherhaven.dialogue.cozyfishing_fisherman.reed_house_offer.c0=I will stake a house for you.
 aetherhaven.dialogue.cozyfishing_fisherman.reed_house_offer.c1=Another time.
 
-aetherhaven.dialogue.cozyfishing_fisherman.reed_house_accepted.body=When the walls are up, put my name on the block inside like the charter asks, then come tell me in person. I want to hear you say it before I start moving my kit.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_accepted.body=When the walls are up, put my name on the block inside like the charter asks, then come tell me in person. I want to hear you say it before I start moving my kit off the inn floor.
 aetherhaven.dialogue.cozyfishing_fisherman.reed_house_accepted.c0=You will hear it from me.
 
-aetherhaven.dialogue.cozyfishing_fisherman.reed_house_remind.body=Take your time with the frame. When it is standing, register me on the shelf inside, then come back. I am not rushing you. I just want it written down.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_remind.body=Take your time with the frame. When it is standing, register me on the shelf inside, then come back. I am not rushing you. After the wreck, I learned how to wait.
 aetherhaven.dialogue.cozyfishing_fisherman.reed_house_remind.c0=Understood.
 
-aetherhaven.dialogue.cozyfishing_fisherman.reed_house_finish.body=Oh, this is lovely. Warm light, quiet walls, and just enough room for a spare rod by the door. I can finally call some corner of your town mine.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_finish.body=Oh, this is lovely. Warm light, quiet walls, and just enough room for a spare rod by the door. No more driftwood beds for me. I can finally call some corner of your town mine.
 aetherhaven.dialogue.cozyfishing_fisherman.reed_house_finish.c0=Glad you have a proper door.
 
-aetherhaven.dialogue.cozyfishing_fisherman.talk_water.body=Rivers, lakes, and the open sea each keep their own secrets. Watch the light, the weather, and the time of day. Some fish only show when the world feels right.
+aetherhaven.dialogue.cozyfishing_fisherman.talk_water.body=I learned these waters the hard way, after waking up on the rocks. Rivers, lakes, and the open sea each keep their own secrets. Watch the light, the weather, and the time of day. Some fish only show when the world feels right.
 aetherhaven.dialogue.cozyfishing_fisherman.talk_water.c0=Thanks. I will keep my eyes open.
 
-aetherhaven.dialogue.cozyfishing_fisherman.talk_tips.body=Start simple. A sturdy rod, a little patience, and a bobber you trust. Move quiet near the bank. If a shadow slips away, give it space and try again.
+aetherhaven.dialogue.cozyfishing_fisherman.talk_tips.body=Start simple. A sturdy rod, a little patience, and a bobber you trust. Move quiet near the bank. If a shadow slips away, give it space and try again. The sea taught me that rushing only snaps the line.
 aetherhaven.dialogue.cozyfishing_fisherman.talk_tips.c0=I will take it slow.
 
-aetherhaven.dialogue.cozyfishing_fisherman.talk_catch.body=I once fought a fish so big I thought the line would sing. When it finally came in, half the town came down to look. I still dream about that pull.
+aetherhaven.dialogue.cozyfishing_fisherman.talk_catch.body=Before the wreck, I fought a fish so big I thought the line would sing. After I washed ashore here, I still dream about that pull. Someday I want to land one like it from this town's water, with both feet on solid ground.
 aetherhaven.dialogue.cozyfishing_fisherman.talk_catch.c0=Sounds like a story worth chasing.
 
-aetherhaven.dialogue.cozyfishing_fisherman.gift.love=Now that is a gift worth a whole day on the water. Thank you.
-aetherhaven.dialogue.cozyfishing_fisherman.gift.like=A fine little present. I appreciate it.
-aetherhaven.dialogue.cozyfishing_fisherman.gift.neutral=Hmm. I will find a use for it somehow.
-aetherhaven.dialogue.cozyfishing_fisherman.gift.dislike=I would rather you kept that. It is not for me.
+aetherhaven.dialogue.cozyfishing_fisherman.gift.love=Now that is a gift worth surviving a storm for. Thank you.
+aetherhaven.dialogue.cozyfishing_fisherman.gift.like=A fine little present. Feels like finding something useful in the drift.
+aetherhaven.dialogue.cozyfishing_fisherman.gift.neutral=Hmm. I will find a use for it somehow. Castaways learn not to waste much.
+aetherhaven.dialogue.cozyfishing_fisherman.gift.dislike=I would rather you kept that. I have already hauled enough unwanted cargo onto this shore.

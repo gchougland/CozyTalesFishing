@@ -7,14 +7,14 @@ npcRoleId: CozyFishing_Fisherman
 
 ![](wiki/villager_fisherman.png)
 
-**Reed Castwell** sells fishing gear, bobbers, and fresh catches from his **fishing shop** once it is built. He appears at the inn after **Vex's market stall** is finished.
+**Reed Castwell** is a castaway who washed ashore after a storm took his boat. He sells fishing gear, bobbers, and fresh catches from his **fishing shop** once it is built. He appears at the inn after **Vex's market stall** is finished.
 
 Use **Show weekly schedule** below to see where Reed goes each day. Gift likes and loves are listed under **Show gift preferences**.
 
 ### Quests
 
 #### Reed's fishing shop
-Reed wants a proper shop where the town can buy gear and fresh fish.
+Reed washed ashore with little more than tackle. Help him open a proper shop where the town can buy gear and fresh fish.
 
 1. Talk to Reed at the inn and accept the quest.
 2. Take the shop **blueprint** from Reed.
@@ -23,7 +23,7 @@ Reed wants a proper shop where the town can buy gear and fresh fish.
 5. Find Reed at the shop and close the quest in dialogue.
 
 #### Reed's home
-Even a fisherman who lives by the water deserves a quiet place to rest.
+Even a castaway who washed up by the water deserves a quiet place to rest.
 
 1. Take the house plot token from Reed.
 2. Stake and build the house prefab.
