@@ -1,5 +1,6 @@
 package com.hexvane.cozytalefishing.treasure;
 
+import com.hexvane.cozytalefishing.aetherhaven.AetherhavenIntegration;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
@@ -16,6 +17,7 @@ import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Sim
 import com.hypixel.hytale.server.core.modules.item.ItemModule;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.util.NotificationUtil;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 
@@ -73,14 +75,18 @@ public final class OpenSunkenTreasureInteraction extends SimpleInstantInteractio
         final String listId =
             dropListId != null && !dropListId.isBlank() ? dropListId : SunkenTreasureConstants.DROP_LIST_ID;
         final List<ItemStack> loot = ItemModule.get().getRandomItemDrops(listId);
-        SimpleItemContainer.addOrDropItemStacks(store, ref, inventory, loot);
+        final List<ItemStack> aetherhavenBonus = AetherhavenIntegration.rollSunkenTreasureBonus();
+        final List<ItemStack> granted = new ArrayList<>(loot.size() + aetherhavenBonus.size());
+        granted.addAll(loot);
+        granted.addAll(aetherhavenBonus);
+        SimpleItemContainer.addOrDropItemStacks(store, ref, inventory, granted);
 
         final var world = commandBuffer.getExternalData().getWorld();
         final boolean showNotifications = world.getGameplayConfig().getShowItemPickupNotifications();
         final PlayerRef playerRef = commandBuffer.getComponent(ref, PlayerRef.getComponentType());
         if (playerRef != null) {
             playerRef.sendMessage(Message.translation("server.cozytalefishing.treasure.opened"));
-            for (final ItemStack stack : loot) {
+            for (final ItemStack stack : granted) {
                 if (stack == null || stack.isEmpty()) {
                     continue;
                 }

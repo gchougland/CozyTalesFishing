@@ -4,12 +4,17 @@ import com.hexvane.cozytalefishing.fish.AquariumSize;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
+import com.hypixel.hytale.math.util.ChunkUtil;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.reference.PersistentRef;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.ArrayList;
@@ -18,7 +23,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.joml.Vector3i;
 
-/** Keeps aquarium fish and decoration display entities in sync with their block state. */
+/**
+ * Keeps aquarium fish and decoration display entities in sync with their block state.
+ *
+ * <p>Plot teardown can clear aquarium voxels without removing the chunk-store block entity. This system must not
+ * restore water/fish for those orphans — that is exactly the "water stays, fish comes back a second later" bug.
+ */
 public final class AquariumDisplayHeartbeatSystem extends EntityTickingSystem<ChunkStore> {
     private final Query<ChunkStore> query;
 
@@ -61,6 +71,13 @@ public final class AquariumDisplayHeartbeatSystem extends EntityTickingSystem<Ch
         }
 
         Vector3i origin = AquariumService.worldOriginFromBlockInfo(info, blockChunk);
+
+        // Demolish left the AquariumBlock entity alive with no voxel → do not restore; remove so BreakSystem cleans up.
+        if (!isLiveAquariumBlock(world, origin)) {
+            commandBuffer.removeEntity(blockRef, RemoveReason.REMOVE);
+            return;
+        }
+
         AquariumSize aquariumSize = aquarium.getAquariumSize();
         if (aquariumSize == null) {
             aquariumSize = AquariumBlockHelper.aquariumSizeAt(world, origin);
@@ -78,6 +95,22 @@ public final class AquariumDisplayHeartbeatSystem extends EntityTickingSystem<Ch
 
         syncFishDisplay(dt, aquarium, blockRef, world, entityStore, store, origin, aquariumSize, commandBuffer);
         syncDecorationDisplays(dt, aquarium, blockRef, world, entityStore, store, origin, aquariumSize, commandBuffer);
+    }
+
+    /**
+     * True when the world voxel at {@code origin} is still an aquarium. Uses in-memory chunk only (safe from tick).
+     * If the chunk is unloaded, assume live so we do not scrub during normal unload.
+     */
+    private static boolean isLiveAquariumBlock(@Nonnull World world, @Nonnull Vector3i origin) {
+        if (origin.y < 0 || origin.y >= ChunkUtil.HEIGHT) {
+            return false;
+        }
+        WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(origin.x, origin.z));
+        if (chunk == null) {
+            return true;
+        }
+        BlockType blockType = chunk.getBlockType(origin.x, origin.y, origin.z);
+        return blockType != null && AquariumConstants.isAquariumBlockId(blockType.getId());
     }
 
     private static void syncFishDisplay(

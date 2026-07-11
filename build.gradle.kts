@@ -20,6 +20,16 @@ repositories {
 dependencies {
     compileOnly(libs.jetbrains.annotations)
     compileOnly(libs.jspecify)
+    // Soft-dep compile against sibling Aetherhaven (build Aetherhaven first if missing).
+    val aetherhavenClasses = file("${rootProject.projectDir}/../Aetherhaven/build/classes/java/main")
+    if (aetherhavenClasses.isDirectory) {
+        compileOnly(files(aetherhavenClasses))
+    } else {
+        logger.warn(
+            "Aetherhaven classes not found at {}; build Aetherhaven before compiling jewelry soft-integration.",
+            aetherhavenClasses
+        )
+    }
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

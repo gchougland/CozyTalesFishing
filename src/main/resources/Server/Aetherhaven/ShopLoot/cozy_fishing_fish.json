@@ -1,0 +1,25 @@
+{
+  "entries": [
+    { "itemId": "Fish_Bluegill_Item", "weight": 12, "stockMin": 3, "stockMax": 8 },
+    { "itemId": "Fish_Clownfish_Item", "weight": 12, "stockMin": 3, "stockMax": 8 },
+    { "itemId": "Fish_Crab_Item", "weight": 12, "stockMin": 2, "stockMax": 6 },
+    { "itemId": "Fish_Minnow_Item", "weight": 14, "stockMin": 4, "stockMax": 10 },
+    { "itemId": "Fish_Trout_Rainbow_Item", "weight": 12, "stockMin": 3, "stockMax": 8 },
+    { "itemId": "Fish_Catfish_Item", "weight": 6, "stockMin": 1, "stockMax": 4 },
+    { "itemId": "Fish_Eel_Moray_Item", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "Fish_Jellyfish_Blue_Item", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "Fish_Jellyfish_Cyan_Item", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "Fish_Jellyfish_Green_Item", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "Fish_Jellyfish_Red_Item", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "Fish_Jellyfish_Yellow_Item", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "Fish_Lobster_Item", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "Fish_Pike_Item", "weight": 6, "stockMin": 1, "stockMax": 4 },
+    { "itemId": "Fish_Piranha_Item", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "Fish_Pufferfish_Item", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "Fish_Salmon_Item", "weight": 7, "stockMin": 2, "stockMax": 5 },
+    { "itemId": "Fish_Tang_Blue_Item", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "Fish_Tang_Chevron_Item", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "Fish_Tang_Lemon_Peel_Item", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "Fish_Tang_Sailfin_Item", "weight": 5, "stockMin": 1, "stockMax": 3 }
+  ]
+}

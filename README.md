@@ -1,130 +1,39 @@
 # Cozy Tales: Fishing
 
-A relaxed shadow-based fishing mod for Hytale, part of the **Cozy Tales** series by **Hexvane**.
+A relaxed fishing mod for Hytale, part of the Cozy Tales series by Hexvane.
 
-## About the mod
+Watch for fish shadows in the water, cast your line, and reel in the catch. Explore ponds, rivers, oceans, and even lava for dozens of species, plus the odd bit of trash or treasure.
 
-Cozy Tales: Fishing adds a new fishing system built around spotting fish in the water and timing your catch.
+## Features
 
-### Planned gameplay
+- **Fish shadows** appear in bodies of water. Cast near one, wait for the fish to take interest, then fight it in on the line.
+- **Fishing rods** in several tiers, from wooden up through adamantite. Stronger rods handle tougher fights.
+- **Bobbers** you equip on your rod. Spinners draw fish from farther away, trap bobbers help during the fight, and others favor quality catches, treasure, or trash.
+- **Fishing tools**, including a Fish Finder to scan what can bite nearby, and a Fishing Journal to track discoveries, personal bests, and server leaderboards.
+- **Fishing Bench** for crafting rods, bobbers, aquariums, and other gear. Upgrade the bench to unlock more recipes.
+- **Fish Processor** to turn catches into raw fish meat and scales used for crafting.
+- **Aquariums** in small, medium, and grand sizes. Place fish and decorations inside to show off your collection.
+- **Fishing boat** for reaching open water.
+- **Trash and treasure** while fishing, including sunken chests and messages in bottles that can hint at new species.
 
-- **Fish shadows** of varying sizes appear in bodies of water
-- **Fishing rods** let the player cast a bobber into the water
-- When a bobber lands near a shadow and is in range, the fish **boops the bobber** a number of times before pulling it under
-- The player must **rapidly press a button** to reel in and catch the fish
+## Getting started
 
-### Planned fish data
+1. Craft or obtain a **Fishing Bench**, then craft a wooden fishing rod.
+2. Find a body of water and look for **fish shadows** moving beneath the surface.
+3. Hold primary to charge your cast, then release to throw the bobber near a shadow.
+4. When the fish bites, hold primary to reel it in. Use secondary to recall your line early.
+5. Process fish at the **Fish Processor** for meat and scales, then use the bench to craft better rods, bobbers, and aquariums.
+6. Open the **Fishing Journal** to browse species you have found and check where they live.
 
-Each fish species will have stats and spawn requirements, including:
+Tip: Use the **Fish Finder** on water or lava to see which fish can be caught there right now. Equip bobbers on a rod with Use (F).
 
-- **Water type** — ocean, river, or pond
-- **Weather** — conditions required for the fish to appear
-- **Time of day** — when the fish is available
-- **Season / time of year** — possible seasonal availability
+## Optional: Aetherhaven
 
-## Status
+This mod works on its own. If you also run **Aetherhaven**, you get extra content:
 
-Fishing rod **visual cycle** is implemented (charge, cast, Verlet string segments, bobber float/splash, recall). Fish shadows and catch mechanics are not implemented yet.
+- A fisherman NPC with dialogue, tips, and related town content
+- A fishing shop you can help establish
+- Shop stock and prices for fishing gear
+- Extra rewards from sunken treasure, such as gold coins and the occasional piece of jewelry
 
-### In-game test
-
-1. Run `.\gradlew.bat runServerNoSync` (recommended while editing assets).
-2. Give yourself a rod: `/give CozyFishing_Wooden_Rod` (or iron/thorium/cobalt/adamantite tiers).
-3. Hold **primary** near water to charge (vertical HUD bar), release to cast.
-4. **Secondary** click to reel in / despawn the line.
-
-### Assets you may still need to add locally
-
-- **`Common/Items/Tools/Fishing_Rod/FishingRod.png`** — copy from the base game asset pack if textures are missing (rod, bobber, and string segments reference this atlas).
-- **`Icons/ItemsGenerated/Tool_Cozy_Fishing_Rod.png`** — custom inventory icon (item currently uses a placeholder icon path).
-- **Custom cast `.blockyanim`** — optional; temp charge/cast anims borrow Shortbow animations via `CozyFishingRod.json`.
-
-Tuning values live in [`FishingConstants.java`](src/main/java/com/hexvane/cozytalefishing/fishing/FishingConstants.java) (cast distance, launch force, bob amplitude, rod tip offset).
-
-## Custom world setup
-
-If you are building a public custom world with handmade ponds, rivers, or oceans, use **spawn regions** so fish shadows match the intended biome/zone even when worldgen data does not.
-
-See **[Custom World Spawn Regions](docs/custom-world-spawn-regions.md)** for copy-paste `/cozyfish region create` commands and preset tables.
-
-## Prerequisites
-
-- **Java 25** (JetBrains Runtime recommended for hot reload during development)
-- **IntelliJ IDEA** (Community Edition is fine) or another Java IDE
-- **Hytale** installed via the launcher (for `runServer`)
-
-## Development
-
-Build the mod:
-
-```bat
-.\gradlew.bat build
-```
-
-Run the local dev server:
-
-```bat
-.\gradlew.bat runServer
-```
-
-On first run you may need to authorize the server. Use `runServerNoSync` when editing `src/main/resources` directly so post-exit asset sync does not overwrite your files:
-
-```bat
-.\gradlew.bat runServerNoSync
-```
-
-## Gradle tasks
-
-| Task | Description |
-|------|-------------|
-| `build` | Compile and package the mod JAR |
-| `runServer` | Start dev server; syncs assets back to source on exit |
-| `runServerNoSync` | Same as `runServer` without post-exit asset sync |
-| `verifyReleaseJar` | Fail if HytaleServer was accidentally bundled |
-| `syncAssets` | Copy `build/resources/main` back to `src/main/resources` |
-
-## Project layout
-
-```
-src/main/java/com/hexvane/cozytalefishing/   Java plugin code
-src/main/resources/manifest.json              Mod manifest (Gradle token expansion)
-src/main/resources/Common/                    Client/shared assets (models, UI, etc.)
-src/main/resources/Server/CozyTalesFishing/   Server-side mod data JSON
-src/main/resources/Server/Item/Items/         Item definitions (add as needed)
-src/main/resources/Server/Languages/          Localization (.lang files)
-```
-
-See [Aetherhaven](../Aetherhaven) for a full-featured reference mod using the same patterns.
-
-## HStats setup
-
-This project includes optional [hstats.dev](https://hstats.dev) metrics integration.
-
-1. Register your mod at [hstats.dev](https://hstats.dev).
-2. Set your mod UUID in `gradle.properties`:
-
-```properties
-hstats_mod_uuid=your-uuid-here
-```
-
-Or pass at build time:
-
-```bat
-set COZYTALESFISHING_HSTATS_MOD_UUID=your-uuid-here
-.\gradlew.bat build
-```
-
-Leave `hstats_mod_uuid` empty to disable metrics (the plugin logs a skip message at startup).
-
-**Note:** Only change the package name in `HStats.java` — do not modify the metrics-sending logic per HStats license.
-
-## Optional build options
-
-In `build.gradle.kts`, the `hytale { }` block supports:
-
-- `addAssetsDependency = true` — attach `Assets.zip` for IDE browsing (very large)
-- `updateChannel = "pre-release"` — target pre-release server builds
-
-## Bundling dependencies
-
-If your mod needs to ship third-party libraries in the release JAR, see Aetherhaven's `modEmbed` pattern in its `build.gradle.kts`. Do not merge `runtimeClasspath` — it can include HytaleServer.
+Aetherhaven is not required. Install it alongside Cozy Tales: Fishing only if you want that integration.

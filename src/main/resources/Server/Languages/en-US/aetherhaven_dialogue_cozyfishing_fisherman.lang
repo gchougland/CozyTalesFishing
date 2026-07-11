@@ -1,0 +1,69 @@
+# Reed Castwell fisherman dialogue
+
+aetherhaven.dialogue.cozyfishing_fisherman.root.speaker=Reed Castwell
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.fallback=If you want a word about the water, a tip, the shop, or a story from the line, I am listening.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.greeting.0=Morning. The water looks calm enough for a cast.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.greeting.1=I can smell rain on the wind. Fish like that.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.greeting.2=Good to see another face that cares about the shore.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.greeting.3=Sorry if I smell like the lake. I was out early.
+
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.hint.love.0=A rare catch or a fine bobber would make my day.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.hint.love.1=Bring me something special from deep water if you want a big smile.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.hint.dislike.0=Please do not bring me trash or old boots.
+aetherhaven.dialogue.cozyfishing_fisherman.main_hub.hint.dislike.1=Junk from the shore has no place in my kit.
+
+aetherhaven.dialogue.cozyfishing_fisherman.root.c_house=You wanted to talk about a house.
+aetherhaven.dialogue.cozyfishing_fisherman.root.c_house_done=Your name is on the house shelf. I wanted you to hear it from me.
+aetherhaven.dialogue.cozyfishing_fisherman.root.c_house_remind=The house is still in progress.
+aetherhaven.dialogue.cozyfishing_fisherman.root.c_shop_done=I wanted to check in now that the fishing shop is standing.
+aetherhaven.dialogue.cozyfishing_fisherman.root.c_shop_complete=The fishing shop is finished. I am here to close things out with you.
+aetherhaven.dialogue.cozyfishing_fisherman.root.c_shop_building=The shop is still coming together. I wanted to ask where things stand.
+aetherhaven.dialogue.cozyfishing_fisherman.root.c_shop_offer=I want to help you open a fishing shop in town.
+aetherhaven.dialogue.cozyfishing_fisherman.root.c_water=Tell me about the water around here.
+aetherhaven.dialogue.cozyfishing_fisherman.root.c_tips=Any tips for someone new to fishing?
+aetherhaven.dialogue.cozyfishing_fisherman.root.c_catch=What is the best catch you ever landed?
+aetherhaven.dialogue.cozyfishing_fisherman.root.c_goodbye=That is all for now. See you later.
+
+aetherhaven.dialogue.cozyfishing_fisherman.reed_quest_shop.body=I have been selling from a crate by the dock for too long. The town deserves a real fishing shop with rods on the wall, bobbers in the drawers, and a counter that does not tip when the wind picks up. I sketched the layout on the road here. If you will raise it for the town, I can share those plans with you.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_quest_shop.c0=We will get your shop built.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_quest_shop.c1=Not right now. I need a bit more time.
+
+aetherhaven.dialogue.cozyfishing_fisherman.reed_shop_accepted.body=Here are my shop plans. Study them at the town planning desk, craft a plot token when you are ready, and stake the shop where folks can find the water. I will wait at the inn with my tackle until the door is real.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_shop_accepted.c0=See you when the shelves are up.
+
+aetherhaven.dialogue.cozyfishing_fisherman.reed_building.body=The line is getting restless in my hands. Have you learned the plans and started the build yet, or should I stop counting on a shop that might not happen?
+aetherhaven.dialogue.cozyfishing_fisherman.reed_building.c0=I need to drop the quest for now.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_building.c1=I am still working on it and I will keep going.
+
+aetherhaven.dialogue.cozyfishing_fisherman.reed_abandoned.body=That is all right. The fish will still be there tomorrow. If you change your mind, come find me and we will try again.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_abandoned.c0=Fair enough. I will see you around.
+
+aetherhaven.dialogue.cozyfishing_fisherman.reed_done.body=Smell that? Salt, wood, and a little pride. Honest shelves, room for every rod I brought on the road, and a counter that will not tip in the wind. Thank you for giving this town a proper fishing shop.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_done.c0=Happy to help. Come find me if the town needs more from the water.
+
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_offer.body=The shop is for work. I would still love a little house with a quiet window for rainy mornings and a peg by the door for my hat. Same house plot as everyone else, if you are willing.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_offer.c0=I will stake a house for you.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_offer.c1=Another time.
+
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_accepted.body=When the walls are up, put my name on the block inside like the charter asks, then come tell me in person. I want to hear you say it before I start moving my kit.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_accepted.c0=You will hear it from me.
+
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_remind.body=Take your time with the frame. When it is standing, register me on the shelf inside, then come back. I am not rushing you. I just want it written down.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_remind.c0=Understood.
+
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_finish.body=Oh, this is lovely. Warm light, quiet walls, and just enough room for a spare rod by the door. I can finally call some corner of your town mine.
+aetherhaven.dialogue.cozyfishing_fisherman.reed_house_finish.c0=Glad you have a proper door.
+
+aetherhaven.dialogue.cozyfishing_fisherman.talk_water.body=Rivers, lakes, and the open sea each keep their own secrets. Watch the light, the weather, and the time of day. Some fish only show when the world feels right.
+aetherhaven.dialogue.cozyfishing_fisherman.talk_water.c0=Thanks. I will keep my eyes open.
+
+aetherhaven.dialogue.cozyfishing_fisherman.talk_tips.body=Start simple. A sturdy rod, a little patience, and a bobber you trust. Move quiet near the bank. If a shadow slips away, give it space and try again.
+aetherhaven.dialogue.cozyfishing_fisherman.talk_tips.c0=I will take it slow.
+
+aetherhaven.dialogue.cozyfishing_fisherman.talk_catch.body=I once fought a fish so big I thought the line would sing. When it finally came in, half the town came down to look. I still dream about that pull.
+aetherhaven.dialogue.cozyfishing_fisherman.talk_catch.c0=Sounds like a story worth chasing.
+
+aetherhaven.dialogue.cozyfishing_fisherman.gift.love=Now that is a gift worth a whole day on the water. Thank you.
+aetherhaven.dialogue.cozyfishing_fisherman.gift.like=A fine little present. I appreciate it.
+aetherhaven.dialogue.cozyfishing_fisherman.gift.neutral=Hmm. I will find a use for it somehow.
+aetherhaven.dialogue.cozyfishing_fisherman.gift.dislike=I would rather you kept that. It is not for me.

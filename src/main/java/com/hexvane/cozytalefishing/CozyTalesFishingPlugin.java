@@ -1,5 +1,6 @@
 package com.hexvane.cozytalefishing;
 
+import com.hexvane.cozytalefishing.aetherhaven.AetherhavenIntegration;
 import com.hexvane.cozytalefishing.fishing.FishingBootstrap;
 import com.hexvane.cozytalefishing.fish.FishBootstrap;
 import com.hexvane.cozytalefishing.boat.BoatBootstrap;
@@ -61,6 +62,7 @@ public final class CozyTalesFishingPlugin extends JavaPlugin {
         BoatBootstrap.register(this);
         AquariumBootstrap.register(this);
         FishingBenchBootstrap.register(this);
+        AetherhavenIntegration.setup();
 
         getLogger().atInfo().log("CozyTalesFishing v%s loaded.", modVersion);
     }

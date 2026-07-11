@@ -73,6 +73,8 @@ public final class AquariumBootstrap {
         chunkStoreRegistry.registerSystem(new AquariumBreakSystem());
         chunkStoreRegistry.registerSystem(new AquariumDisplayHeartbeatSystem());
 
+        plugin.getEntityStoreRegistry().registerSystem(new AquariumPrefabDisplayFilterSystem());
+
         AquariumLayoutRegistry.rebuild();
         AquariumDecorationRegistry.rebuild();
     }

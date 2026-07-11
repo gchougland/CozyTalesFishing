@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "villagers": {
+    "CozyFishing_Fisherman": {
+      "fetchEntries": [
+        {
+          "id": "cozy_common_haul",
+          "rank": "E",
+          "minRank": "E",
+          "maxRank": "C",
+          "weight": 12,
+          "daysLimit": 3,
+          "titleLangKey": "cozyfishing_quest_board.aetherhaven.questBoard.fisherman.common_haul.title",
+          "descriptionLangKey": "cozyfishing_quest_board.aetherhaven.questBoard.fisherman.common_haul.description",
+          "itemSets": [
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Minnow_Item", "count": 8 }
+              ]
+            },
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Bluegill_Item", "count": 6 }
+              ]
+            },
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Clownfish_Item", "count": 5 },
+                { "itemId": "Fish_Trout_Rainbow_Item", "count": 3 }
+              ]
+            }
+          ],
+          "rewards": [
+            {
+              "kind": "item",
+              "itemId": "Aetherhaven_Gold_Coin",
+              "count": 20,
+              "grantTo": "player"
+            },
+            {
+              "kind": "reputation",
+              "amount": 5,
+              "grantTo": "quest_giver_npc"
+            }
+          ]
+        },
+        {
+          "id": "cozy_crab_basket",
+          "rank": "E",
+          "minRank": "E",
+          "maxRank": "D",
+          "weight": 10,
+          "daysLimit": 3,
+          "titleLangKey": "cozyfishing_quest_board.aetherhaven.questBoard.fisherman.crab_basket.title",
+          "descriptionLangKey": "cozyfishing_quest_board.aetherhaven.questBoard.fisherman.crab_basket.description",
+          "itemSets": [
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Crab_Item", "count": 5 }
+              ]
+            }
+          ],
+          "rewards": [
+            {
+              "kind": "item",
+              "itemId": "Aetherhaven_Gold_Coin",
+              "count": 22,
+              "grantTo": "player"
+            },
+            {
+              "kind": "reputation",
+              "amount": 5,
+              "grantTo": "quest_giver_npc"
+            }
+          ]
+        },
+        {
+          "id": "cozy_salmon_run",
+          "rank": "D",
+          "minRank": "D",
+          "maxRank": "B",
+          "weight": 10,
+          "daysLimit": 4,
+          "titleLangKey": "cozyfishing_quest_board.aetherhaven.questBoard.fisherman.salmon_run.title",
+          "descriptionLangKey": "cozyfishing_quest_board.aetherhaven.questBoard.fisherman.salmon_run.description",
+          "itemSets": [
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Salmon_Item", "count": 6 }
+              ]
+            },
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Catfish_Item", "count": 5 },
+                { "itemId": "Fish_Pike_Item", "count": 3 }
+              ]
+            }
+          ],
+          "rewards": [
+            {
+              "kind": "item",
+              "itemId": "Aetherhaven_Gold_Coin",
+              "count": 32,
+              "grantTo": "player"
+            },
+            {
+              "kind": "reputation",
+              "amount": 5,
+              "grantTo": "quest_giver_npc"
+            }
+          ]
+        },
+        {
+          "id": "cozy_reef_colors",
+          "rank": "D",
+          "minRank": "D",
+          "maxRank": "A",
+          "weight": 8,
+          "daysLimit": 4,
+          "titleLangKey": "cozyfishing_quest_board.aetherhaven.questBoard.fisherman.reef_colors.title",
+          "descriptionLangKey": "cozyfishing_quest_board.aetherhaven.questBoard.fisherman.reef_colors.description",
+          "itemSets": [
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Tang_Blue_Item", "count": 2 },
+                { "itemId": "Fish_Tang_Lemon_Peel_Item", "count": 2 },
+                { "itemId": "Fish_Tang_Sailfin_Item", "count": 2 }
+              ]
+            },
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Jellyfish_Blue_Item", "count": 2 },
+                { "itemId": "Fish_Jellyfish_Red_Item", "count": 2 },
+                { "itemId": "Fish_Lobster_Item", "count": 2 }
+              ]
+            }
+          ],
+          "rewards": [
+            {
+              "kind": "item",
+              "itemId": "Aetherhaven_Gold_Coin",
+              "count": 36,
+              "grantTo": "player"
+            },
+            {
+              "kind": "reputation",
+              "amount": 5,
+              "grantTo": "quest_giver_npc"
+            }
+          ]
+        },
+        {
+          "id": "cozy_rare_catch",
+          "rank": "C",
+          "minRank": "C",
+          "maxRank": "A",
+          "weight": 8,
+          "daysLimit": 5,
+          "titleLangKey": "cozyfishing_quest_board.aetherhaven.questBoard.fisherman.rare_catch.title",
+          "descriptionLangKey": "cozyfishing_quest_board.aetherhaven.questBoard.fisherman.rare_catch.description",
+          "itemSets": [
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Frostgill_Item", "count": 2 }
+              ]
+            },
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Snapjaw_Item", "count": 2 }
+              ]
+            },
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Trilobite_Item", "count": 1 },
+                { "itemId": "Fish_Piranha_Black_Item", "count": 1 }
+              ]
+            }
+          ],
+          "rewards": [
+            {
+              "kind": "item",
+              "itemId": "Aetherhaven_Gold_Coin",
+              "count": 48,
+              "grantTo": "player"
+            },
+            {
+              "kind": "reputation",
+              "amount": 6,
+              "grantTo": "quest_giver_npc"
+            }
+          ]
+        },
+        {
+          "id": "cozy_legend_line",
+          "rank": "A",
+          "minRank": "A",
+          "maxRank": "S",
+          "weight": 5,
+          "daysLimit": 6,
+          "titleLangKey": "cozyfishing_quest_board.aetherhaven.questBoard.fisherman.legend_line.title",
+          "descriptionLangKey": "cozyfishing_quest_board.aetherhaven.questBoard.fisherman.legend_line.description",
+          "itemSets": [
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Shark_Hammerhead_Item", "count": 1 }
+              ]
+            },
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Shellfish_Lava_Item", "count": 1 }
+              ]
+            },
+            {
+              "weight": 1,
+              "items": [
+                { "itemId": "Fish_Whale_Humpback_Item", "count": 1 }
+              ]
+            }
+          ],
+          "rewards": [
+            {
+              "kind": "item",
+              "itemId": "Aetherhaven_Gold_Coin",
+              "count": 80,
+              "grantTo": "player"
+            },
+            {
+              "kind": "reputation",
+              "amount": 8,
+              "grantTo": "quest_giver_npc"
+            }
+          ]
+        }
+      ],
+      "huntEntries": [],
+      "raidEntries": []
+    }
+  }
+}

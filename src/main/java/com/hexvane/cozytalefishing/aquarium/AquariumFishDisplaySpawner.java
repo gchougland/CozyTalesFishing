@@ -140,4 +140,62 @@ public final class AquariumFishDisplaySpawner {
             entityStore.removeEntity(displayRef, RemoveReason.REMOVE);
         }
     }
+
+    /** Removes every fish display prop tied to an aquarium origin (including orphaned prefab copies). */
+    public static void despawnDisplaysAtOrigin(
+        @Nonnull Store<EntityStore> entityStore,
+        @Nonnull Vector3i blockOrigin
+    ) {
+        despawnDisplaysInVolume(entityStore, blockOrigin);
+    }
+
+    /** Prefab fish displays keep a stale BlockOrigin; also match by transform near the aquarium. */
+    public static void despawnDisplaysInVolume(
+        @Nonnull Store<EntityStore> entityStore,
+        @Nonnull Vector3i blockOrigin
+    ) {
+        java.util.Set<Ref<EntityStore>> refs = new java.util.HashSet<>();
+        entityStore.forEachEntityParallel(
+            AquariumFishDisplayComponent.getComponentType(),
+            (index, chunk, ignored) -> {
+                AquariumFishDisplayComponent component =
+                    chunk.getComponent(index, AquariumFishDisplayComponent.getComponentType());
+                if (component == null) {
+                    return;
+                }
+                Vector3i origin = component.getBlockOrigin();
+                if (origin != null
+                    && origin.x == blockOrigin.x
+                    && origin.y == blockOrigin.y
+                    && origin.z == blockOrigin.z) {
+                    synchronized (refs) {
+                        refs.add(chunk.getReferenceTo(index));
+                    }
+                    return;
+                }
+                TransformComponent transform =
+                    chunk.getComponent(index, TransformComponent.getComponentType());
+                if (transform == null) {
+                    return;
+                }
+                Vector3d p = transform.getPosition();
+                int bx = (int) Math.floor(p.x);
+                int by = (int) Math.floor(p.y);
+                int bz = (int) Math.floor(p.z);
+                if (Math.abs(bx - blockOrigin.x) <= 3
+                    && by >= blockOrigin.y - 1
+                    && by <= blockOrigin.y + 3
+                    && Math.abs(bz - blockOrigin.z) <= 3) {
+                    synchronized (refs) {
+                        refs.add(chunk.getReferenceTo(index));
+                    }
+                }
+            }
+        );
+        for (Ref<EntityStore> ref : refs) {
+            if (ref != null && ref.isValid()) {
+                entityStore.removeEntity(ref, RemoveReason.REMOVE);
+            }
+        }
+    }
 }

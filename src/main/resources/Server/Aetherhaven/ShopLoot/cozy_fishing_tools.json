@@ -1,0 +1,16 @@
+{
+  "entries": [
+    { "itemId": "CozyFishing_Wooden_Rod", "weight": 14, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "CozyFishing_Iron_Rod", "weight": 10, "stockMin": 1, "stockMax": 2 },
+    { "itemId": "CozyFishing_Thorium_Rod", "weight": 5, "stockMin": 1, "stockMax": 1 },
+    { "itemId": "CozyFishing_Cobalt_Rod", "weight": 4, "stockMin": 1, "stockMax": 1 },
+    { "itemId": "CozyFishing_Adamantite_Rod", "weight": 2, "stockMin": 1, "stockMax": 1 },
+    { "itemId": "CozyFishing_Fishing_Bench", "weight": 6, "stockMin": 1, "stockMax": 1 },
+    { "itemId": "CozyFishing_Fish_Processor", "weight": 5, "stockMin": 1, "stockMax": 1 },
+    { "itemId": "CozyFishing_Fish_Finder", "weight": 8, "stockMin": 1, "stockMax": 2 },
+    { "itemId": "CozyFishing_Fishing_Journal", "weight": 10, "stockMin": 1, "stockMax": 2 },
+    { "itemId": "CozyFishing_Fish_Scale_Common", "weight": 12, "stockMin": 2, "stockMax": 6 },
+    { "itemId": "CozyFishing_Fish_Scale_Rare", "weight": 5, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "CozyFishing_Fish_Scale_Legendary", "weight": 2, "stockMin": 1, "stockMax": 1 }
+  ]
+}

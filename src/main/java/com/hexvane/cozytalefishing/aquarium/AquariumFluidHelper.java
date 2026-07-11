@@ -2,7 +2,8 @@ package com.hexvane.cozytalefishing.aquarium;
 
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;import javax.annotation.Nonnull;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.joml.Vector3i;
 
@@ -157,5 +158,26 @@ public final class AquariumFluidHelper {
         }
         var fluidSection = chunkStore.getStore().ensureAndGetComponent(sectionRef, FluidSection.getComponentType());
         fluidSection.setFluid(blockX, blockY, blockZ, Fluid.EMPTY_ID, (byte) 0);
+    }
+
+    /**
+     * Clears aquarium fluid in a padded box around the tank origin. Used on break/demolish when the live block is
+     * already gone and hitbox-based footprint walks can miss cells.
+     */
+    public static void clearWaterNearOrigin(
+        @Nonnull World world,
+        @Nonnull Vector3i originBlock,
+        @Nonnull com.hexvane.cozytalefishing.fish.AquariumSize size
+    ) {
+        int padX = size == com.hexvane.cozytalefishing.fish.AquariumSize.Small ? 2 : 3;
+        int padY = size == com.hexvane.cozytalefishing.fish.AquariumSize.Tall3x2x2 ? 4 : 3;
+        int padZ = padX;
+        for (int x = originBlock.x - padX; x <= originBlock.x + padX; x++) {
+            for (int y = originBlock.y; y <= originBlock.y + padY; y++) {
+                for (int z = originBlock.z - padZ; z <= originBlock.z + padZ; z++) {
+                    clearWaterAt(world, x, y, z);
+                }
+            }
+        }
     }
 }

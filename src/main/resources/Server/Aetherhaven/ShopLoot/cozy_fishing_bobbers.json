@@ -1,0 +1,10 @@
+{
+  "entries": [
+    { "itemId": "CozyFishing_Bobber_Trash", "weight": 10, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "CozyFishing_Bobber_Treasure", "weight": 8, "stockMin": 1, "stockMax": 2 },
+    { "itemId": "CozyFishing_Bobber_Quality", "weight": 8, "stockMin": 1, "stockMax": 2 },
+    { "itemId": "CozyFishing_Bobber_Trap", "weight": 8, "stockMin": 1, "stockMax": 2 },
+    { "itemId": "CozyFishing_Bobber_Spinner", "weight": 10, "stockMin": 1, "stockMax": 3 },
+    { "itemId": "CozyFishing_Bobber_Decorated_Spinner", "weight": 5, "stockMin": 1, "stockMax": 1 }
+  ]
+}

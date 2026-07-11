@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "targetTopicId": "villagers",
+  "addSubTopics": ["villager_fisherman"]
+}

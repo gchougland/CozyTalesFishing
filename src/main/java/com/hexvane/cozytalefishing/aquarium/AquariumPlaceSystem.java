@@ -75,17 +75,24 @@ public final class AquariumPlaceSystem extends RefSystem<ChunkStore> {
 
             if (size != null) {
                 AquariumService.reconcileWater(world, origin, size, rotationIndex);
-                if (reason == AddReason.LOAD) {
-                    boolean changedOnLoad = false;
+                // Prefab paste / reconstruct uses SPAWN; chunk load uses LOAD. Both need display restore when
+                // the block already has fish/decorations (prefab fish display entities often lack models).
+                if (aquarium.hasFish() || aquarium.hasDecorations()) {
+                    AquariumPendingDrops.cancelIfMatches(
+                        origin,
+                        aquarium.getFishItemId(),
+                        aquarium.getDecorationItemIds()
+                    );
+                    boolean changedRefs = false;
                     if (aquarium.hasFish()) {
                         aquarium.setDisplayReference(null);
-                        changedOnLoad = true;
+                        changedRefs = true;
                     }
                     if (aquarium.hasDecorations()) {
                         aquarium.clearDecorationDisplayRefs();
-                        changedOnLoad = true;
+                        changedRefs = true;
                     }
-                    if (changedOnLoad) {
+                    if (changedRefs) {
                         commandBuffer.putComponent(ref, AquariumBlock.getComponentType(), aquarium);
                     }
                     scheduleDisplayRestore(world, ref, origin, size);
@@ -107,13 +114,20 @@ public final class AquariumPlaceSystem extends RefSystem<ChunkStore> {
         world.execute(
             () -> {
                 Store<EntityStore> entityStore = world.getEntityStore().getStore();
+                AquariumFishDisplaySpawner.despawnDisplaysAtOrigin(entityStore, originCopy);
                 AquariumDecorationDisplaySpawner.despawnDisplaysAtOrigin(entityStore, originCopy);
                 Store<ChunkStore> chunkStore = world.getChunkStore().getStore();
                 AquariumBlock liveAquarium = chunkStore.getComponent(blockRef, AquariumBlock.getComponentType());
-                if (liveAquarium != null && liveAquarium.hasDecorations()) {
-                    liveAquarium.clearDecorationDisplayRefs();
-                    chunkStore.putComponent(blockRef, AquariumBlock.getComponentType(), liveAquarium);
+                if (liveAquarium == null) {
+                    return;
                 }
+                if (liveAquarium.hasFish()) {
+                    liveAquarium.setDisplayReference(null);
+                }
+                if (liveAquarium.hasDecorations()) {
+                    liveAquarium.clearDecorationDisplayRefs();
+                }
+                chunkStore.putComponent(blockRef, AquariumBlock.getComponentType(), liveAquarium);
                 AquariumService.ensureDisplay(world, blockRef, chunkStore, originCopy, size);
                 AquariumService.ensureDecorationDisplays(world, blockRef, chunkStore, originCopy, size);
             }
