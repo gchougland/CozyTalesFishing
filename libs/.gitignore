@@ -1,0 +1,2 @@
+# Third-party mod JARs — download locally for compileOnly / IDE (see build.gradle.kts).
+*.jar

@@ -1,6 +1,7 @@
 package com.hexvane.cozytalefishing;
 
 import com.hexvane.cozytalefishing.aetherhaven.AetherhavenIntegration;
+import com.hexvane.cozytalefishing.integration.CozyTalesFishingIntegration;
 import com.hexvane.cozytalefishing.fishing.FishingBootstrap;
 import com.hexvane.cozytalefishing.fish.FishBootstrap;
 import com.hexvane.cozytalefishing.boat.BoatBootstrap;
@@ -63,6 +64,7 @@ public final class CozyTalesFishingPlugin extends JavaPlugin {
         AquariumBootstrap.register(this);
         FishingBenchBootstrap.register(this);
         AetherhavenIntegration.setup();
+        CozyTalesFishingIntegration.setupIntegrations();
 
         getLogger().atInfo().log("CozyTalesFishing v%s loaded.", modVersion);
     }
@@ -78,6 +80,7 @@ public final class CozyTalesFishingPlugin extends JavaPlugin {
         FishBootstrap.cleanupLoadedWorlds();
         FishingModConfig.bind(fishingModConfig.get());
         FishingSpawnRegionRegistry.initialize(getDataDirectory());
+        CozyTalesFishingIntegration.setupIntegrations();
 
         if (!this.getManifest().includesAssetPack()) {
             return;

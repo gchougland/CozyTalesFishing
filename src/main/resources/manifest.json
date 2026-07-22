@@ -14,6 +14,7 @@
   "IncludesAssetPack": true,
   "Main": "${plugin_main_entrypoint}",
   "OptionalDependencies": {
-    "Hexvane:Aetherhaven": "*"
+    "Hexvane:Aetherhaven": "*",
+    "Ziggfreed:MMOSkillTree": "*"
   }
 }

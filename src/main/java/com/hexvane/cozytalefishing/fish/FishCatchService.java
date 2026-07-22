@@ -6,6 +6,7 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hexvane.cozytalefishing.journal.FishCatchCelebrationPage;
+import com.hexvane.cozytalefishing.integration.CozyTalesFishingIntegration;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -129,6 +130,17 @@ public final class FishCatchService {
         records.incrementCatchCount(species.getId());
         boolean personalBest = records.updateLargest(species.getId(), sizeCm);
         commandBuffer.putComponent(playerRef, FishCatchRecordComponent.getComponentType(), records);
+
+        if (playerRefComponent != null) {
+            CozyTalesFishingIntegration.notifyJournalFishCaught(
+                commandBuffer,
+                playerRef,
+                playerRefComponent,
+                species,
+                sizeCm,
+                newSpecies
+            );
+        }
 
         com.hexvane.cozytalefishing.leaderboard.FishingLeaderboardService.invalidate();
 

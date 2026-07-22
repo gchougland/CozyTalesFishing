@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.hexvane"
-version = "1.0.1"
+version = "1.1.0"
 val javaVersion = 25
 
 repositories {
@@ -20,6 +20,13 @@ repositories {
 dependencies {
     compileOnly(libs.jetbrains.annotations)
     compileOnly(libs.jspecify)
+    // Optional local compileOnly: drop MMOSkillTree*.jar + ZiggfreedCommon*.jar in libs/ (do not commit jars).
+    // Build works without them — MMO integration is reflection-only at runtime.
+    compileOnly(
+        fileTree("libs") {
+            include("MMOSkillTree*.jar", "ZiggfreedCommon*.jar")
+        }
+    )
     // Soft-dep compile against sibling Aetherhaven (build Aetherhaven first if missing).
     val aetherhavenClasses = file("${rootProject.projectDir}/../Aetherhaven/build/classes/java/main")
     if (aetherhavenClasses.isDirectory) {
