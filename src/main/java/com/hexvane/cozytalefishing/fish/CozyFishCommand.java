@@ -756,7 +756,7 @@ public final class CozyFishCommand extends AbstractCommandCollection {
                 .append(blockZ)
                 .append(")\n");
             text.append("  EnableSpawnRegions=").append(FishingModConfig.get().isEnableSpawnRegions()).append('\n');
-            text.append("  columnFluid=").append(location.fluidColumn().fluid().name()).append('\n');
+            text.append("  columnFluid=").append(location.fluidColumn().fluid().displayLabel()).append('\n');
             text.append("  classifiedWaterBody=").append(location.classifiedWaterBody().name()).append('\n');
             text.append("  effectiveWaterBody=").append(location.effectiveWaterBody().name()).append('\n');
             text.append("  blockEnv=").append(envName != null ? envName : "unknown").append(" (index ").append(envIndex).append(")\n");

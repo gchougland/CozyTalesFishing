@@ -150,7 +150,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         }
 
         float speed = species.getSwimSpeed() * dt;
-        if (!FishShadowSpawnHelper.tryMoveOnFluidSurface(world, position, Math.sin(shadow.getWanderDirection()) * speed, Math.cos(shadow.getWanderDirection()) * speed, shadow.getWaterBodyType())) {
+        if (!FishShadowSpawnHelper.tryMoveOnFluidSurface(world, position, Math.sin(shadow.getWanderDirection()) * speed, Math.cos(shadow.getWanderDirection()) * speed, FishFluidHelper.columnFluidForShadow(shadow))) {
             shadow.setWanderDirection((float) (Math.random() * Math.PI * 2.0));
             shadow.setWanderTimer(1.0f + (float) Math.random() * 2.0f);
         }
@@ -197,7 +197,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
                 position,
                 Math.sin(shadow.getWanderDirection()) * species.getSwimSpeed() * 1.4f * dt,
                 Math.cos(shadow.getWanderDirection()) * species.getSwimSpeed() * 1.4f * dt,
-                shadow.getWaterBodyType()
+                FishFluidHelper.columnFluidForShadow(shadow)
             )) {
                 shadow.setWanderDirection((float) (Math.random() * Math.PI * 2.0));
             }
@@ -222,7 +222,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         switch (shadow.getPokePhase()) {
             case LURK -> {
                 Vector3d lurkTarget = lurkPositionAround(bobberPos, position, lurkDistance);
-                boolean moved = swimTowardTarget(world, position, lurkTarget, swimSpeed * 0.75f, dt, shadow.getWaterBodyType());
+                boolean moved = swimTowardTarget(world, position, lurkTarget, swimSpeed * 0.75f, dt, FishFluidHelper.columnFluidForShadow(shadow));
                 dx = bobberPos.x - position.x;
                 dz = bobberPos.z - position.z;
                 dist = Math.sqrt(dx * dx + dz * dz);
@@ -236,7 +236,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
                 }
             }
             case LUNGE -> {
-                boolean moved = swimTowardTarget(world, position, bobberPos, swimSpeed * POKE_LUNGE_SPEED_FACTOR, dt, shadow.getWaterBodyType());
+                boolean moved = swimTowardTarget(world, position, bobberPos, swimSpeed * POKE_LUNGE_SPEED_FACTOR, dt, FishFluidHelper.columnFluidForShadow(shadow));
                 dx = bobberPos.x - position.x;
                 dz = bobberPos.z - position.z;
                 dist = Math.sqrt(dx * dx + dz * dz);
@@ -250,7 +250,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
             }
             case RETREAT -> {
                 double distBefore = dist;
-                boolean moved = swimAwayFromTarget(world, position, bobberPos, swimSpeed * POKE_RETREAT_SPEED_FACTOR, dt, shadow.getWaterBodyType());
+                boolean moved = swimAwayFromTarget(world, position, bobberPos, swimSpeed * POKE_RETREAT_SPEED_FACTOR, dt, FishFluidHelper.columnFluidForShadow(shadow));
                 dx = bobberPos.x - position.x;
                 dz = bobberPos.z - position.z;
                 dist = Math.sqrt(dx * dx + dz * dz);
@@ -368,7 +368,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         double dz = bobberPos.z - position.z;
         double dist = Math.sqrt(dx * dx + dz * dz);
         float pokeReach = species.getPokeReachBlocks();
-        boolean moved = swimTowardTarget(world, position, bobberPos, species.getSwimSpeed() * HOOK_APPROACH_SPEED_FACTOR, dt, shadow.getWaterBodyType());
+        boolean moved = swimTowardTarget(world, position, bobberPos, species.getSwimSpeed() * HOOK_APPROACH_SPEED_FACTOR, dt, FishFluidHelper.columnFluidForShadow(shadow));
         dx = bobberPos.x - position.x;
         dz = bobberPos.z - position.z;
         dist = Math.sqrt(dx * dx + dz * dz);
@@ -569,12 +569,12 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         if (moveDir.lengthSquared() > 1.0e-6) {
             moveDir.normalize();
             double step = moveSpeed * dt;
-            if (!FishShadowSpawnHelper.tryMoveOnFluidSurface(world, position, moveDir.x * step, moveDir.z * step, shadow.getWaterBodyType())) {
-                tryStrafeFightMove(world, position, moveDir, (float) step, shadow.getWaterBodyType());
+            if (!FishShadowSpawnHelper.tryMoveOnFluidSurface(world, position, moveDir.x * step, moveDir.z * step, FishFluidHelper.columnFluidForShadow(shadow))) {
+                tryStrafeFightMove(world, position, moveDir, (float) step, FishFluidHelper.columnFluidForShadow(shadow));
             }
             yaw = FishShadowVision.swimYaw((float) moveDir.x, (float) moveDir.z);
         } else {
-            snapShadowToWaterSurface(world, position, shadow.getWaterBodyType());
+            snapShadowToFluidSurface(world, position, shadow);
         }
 
         FishShadowEntityPool.updateTransform(commandBuffer, shadowRef, position, yaw, shadow.getCurrentScale());
@@ -609,7 +609,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
                         (int) Math.floor(position.x),
                         (int) Math.floor(position.z),
                         position.y,
-                        FishFluidHelper.columnFluidFor(shadow.getWaterBodyType())
+                        FishFluidHelper.columnFluidForShadow(shadow)
                     );
                 double surfaceWorldY =
                     surfaceBlockY >= 0 ? FishShadowSpawnHelper.waterSurfaceWorldY(surfaceBlockY) : position.y;
@@ -683,7 +683,7 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
             position,
             Math.sin(shadow.getWanderDirection()) * species.getSwimSpeed() * 1.5f * dt,
             Math.cos(shadow.getWanderDirection()) * species.getSwimSpeed() * 1.5f * dt,
-            shadow.getWaterBodyType()
+            FishFluidHelper.columnFluidForShadow(shadow)
         )) {
             shadow.setWanderDirection((float) (Math.random() * Math.PI * 2.0));
         }
@@ -898,10 +898,10 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         @Nonnull Vector3d target,
         float speedBlocksPerSecond,
         float dt,
-        @Nonnull WaterBodyType bodyType
+        @Nonnull FishFluidHelper.ColumnFluid fluid
     ) {
         Vector3d awayTarget = new Vector3d(position.x * 2.0 - target.x, position.y, position.z * 2.0 - target.z);
-        return swimTowardTarget(world, position, awayTarget, speedBlocksPerSecond, dt, bodyType);
+        return swimTowardTarget(world, position, awayTarget, speedBlocksPerSecond, dt, fluid);
     }
 
     private static boolean isActiveFloatingBobber(
@@ -1085,14 +1085,14 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         @Nonnull Vector3d position,
         @Nonnull Vector3d approachDir,
         float step,
-        @Nonnull WaterBodyType bodyType
+        @Nonnull FishFluidHelper.ColumnFluid fluid
     ) {
         double perpX = -approachDir.z;
         double perpZ = approachDir.x;
         for (double sign : new double[] {1.0, -1.0, 0.65, -0.65}) {
             double moveX = (approachDir.x + perpX * sign) * step;
             double moveZ = (approachDir.z + perpZ * sign) * step;
-            if (FishShadowSpawnHelper.tryMoveOnFluidSurface(world, position, moveX, moveZ, bodyType)) {
+            if (FishShadowSpawnHelper.tryMoveOnFluidSurface(world, position, moveX, moveZ, fluid)) {
                 return;
             }
         }
@@ -1104,14 +1104,14 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         @Nonnull Vector3d position,
         @Nonnull Vector3d fleeDir,
         float step,
-        @Nonnull WaterBodyType bodyType
+        @Nonnull FishFluidHelper.ColumnFluid fluid
     ) {
         double perpX = -fleeDir.z;
         double perpZ = fleeDir.x;
         for (double sign : new double[] {1.0, -1.0, 0.65, -0.65}) {
             double moveX = (fleeDir.x + perpX * sign) * step;
             double moveZ = (fleeDir.z + perpZ * sign) * step;
-            if (FishShadowSpawnHelper.tryMoveOnFluidSurface(world, position, moveX, moveZ, bodyType)) {
+            if (FishShadowSpawnHelper.tryMoveOnFluidSurface(world, position, moveX, moveZ, fluid)) {
                 return;
             }
         }
@@ -1123,26 +1123,26 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         @Nonnull Vector3d target,
         float speedBlocksPerSecond,
         float dt,
-        @Nonnull WaterBodyType bodyType
+        @Nonnull FishFluidHelper.ColumnFluid fluid
     ) {
         double startX = position.x;
         double startZ = position.z;
         Vector3d delta = new Vector3d(target.x - position.x, 0.0, target.z - position.z);
         double distance = delta.length();
         if (distance < 1.0e-6) {
-            snapShadowToWaterSurface(world, position, bodyType);
+            FishShadowSpawnHelper.snapShadowToFluidSurface(world, position, fluid);
             return false;
         }
         float step = speedBlocksPerSecond * dt;
         if (step >= distance) {
-            FishShadowSpawnHelper.tryMoveOnFluidSurface(world, position, target.x - position.x, target.z - position.z, bodyType);
+            FishShadowSpawnHelper.tryMoveOnFluidSurface(world, position, target.x - position.x, target.z - position.z, fluid);
         } else {
             delta.normalize();
-            if (!FishShadowSpawnHelper.tryMoveOnFluidSurface(world, position, delta.x * step, delta.z * step, bodyType)) {
-                tryStrafeApproachMove(world, position, delta, step, bodyType);
+            if (!FishShadowSpawnHelper.tryMoveOnFluidSurface(world, position, delta.x * step, delta.z * step, fluid)) {
+                tryStrafeApproachMove(world, position, delta, step, fluid);
             }
         }
-        snapShadowToWaterSurface(world, position, bodyType);
+        FishShadowSpawnHelper.snapShadowToFluidSurface(world, position, fluid);
         return startX != position.x || startZ != position.z;
     }
 
@@ -1155,11 +1155,11 @@ public final class FishShadowTickSystem extends EntityTickingSystem<EntityStore>
         return playerRef != null ? playerRef.getReference() : null;
     }
 
-    private static void snapShadowToWaterSurface(
+    private static void snapShadowToFluidSurface(
         @Nullable World world,
         @Nonnull Vector3d position,
-        @Nonnull WaterBodyType bodyType
+        @Nonnull FishShadowComponent shadow
     ) {
-        FishShadowSpawnHelper.snapShadowToFluidSurface(world, position, bodyType);
+        FishShadowSpawnHelper.snapShadowToFluidSurface(world, position, FishFluidHelper.columnFluidForShadow(shadow));
     }
 }

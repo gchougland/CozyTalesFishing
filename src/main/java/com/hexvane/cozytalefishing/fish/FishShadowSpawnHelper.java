@@ -89,8 +89,11 @@ public final class FishShadowSpawnHelper {
         @Nonnull WaterBodyClassifier.Context classifyContext,
         int environmentIndex
     ) {
-        if (column.fluid() == FishFluidHelper.ColumnFluid.LAVA) {
+        if (column.fluid().isLava()) {
             return WaterBodyType.Lava;
+        }
+        if (column.fluid().isRegistered()) {
+            return WaterBodyType.Pond;
         }
         WaterBodyType bodyType =
             WaterBodyClassifier.classify(
@@ -119,12 +122,19 @@ public final class FishShadowSpawnHelper {
         @Nonnull Vector3d position,
         @Nonnull WaterBodyType bodyType
     ) {
+        snapShadowToFluidSurface(world, position, FishFluidHelper.columnFluidFor(bodyType));
+    }
+
+    public static void snapShadowToFluidSurface(
+        @Nullable World world,
+        @Nonnull Vector3d position,
+        @Nonnull FishFluidHelper.ColumnFluid fluid
+    ) {
         if (world == null) {
             return;
         }
         int x = (int) Math.floor(position.x);
         int z = (int) Math.floor(position.z);
-        FishFluidHelper.ColumnFluid fluid = FishFluidHelper.columnFluidFor(bodyType);
         int surfaceY = findSurfaceFluidBlockYNear(world, x, z, position.y, fluid);
         if (surfaceY >= 0) {
             position.y = waterSurfaceWorldY(surfaceY);
@@ -178,18 +188,23 @@ public final class FishShadowSpawnHelper {
 
             int blockX = column.blockX();
             int blockZ = column.blockZ();
-            WaterBodyType bodyType =
-                column.fluid() == FishFluidHelper.ColumnFluid.LAVA
-                    ? WaterBodyType.Lava
-                    : WaterBodyClassifier.classify(
+            WaterBodyType bodyType;
+            if (column.fluid().isLava()) {
+                bodyType = WaterBodyType.Lava;
+            } else if (column.fluid().isRegistered()) {
+                bodyType = WaterBodyType.Pond;
+            } else {
+                bodyType =
+                    WaterBodyClassifier.classify(
                         world,
                         blockX,
                         column.surfaceY(),
                         blockZ,
                         new WaterBodyClassifier.Context(2)
                     );
-            if (bodyType != WaterBodyType.Lava && bodyType == null) {
-                bodyType = WaterBodyType.Pond;
+                if (bodyType == null) {
+                    bodyType = WaterBodyType.Pond;
+                }
             }
 
             float[] scaleRange = spawnSpecies.getShadowScaleRange();
@@ -198,11 +213,15 @@ public final class FishShadowSpawnHelper {
             double offsetX = (Math.random() - 0.5) * 0.8;
             double offsetZ = (Math.random() - 0.5) * 0.8;
 
+            @Nullable String columnFluidAssetId =
+                column.fluid().isRegistered() ? column.fluid().fluidAssetId() : null;
+
             Ref<EntityStore> shadowRef =
                 FishShadowEntityPool.spawnShadow(
                     store,
                     spawnSpecies,
                     bodyType,
+                    columnFluidAssetId,
                     new Vector3d(blockX + 0.5 + offsetX, column.spawnY(), blockZ + 0.5 + offsetZ),
                     yaw,
                     scale
@@ -307,14 +326,18 @@ public final class FishShadowSpawnHelper {
         List<WaterColumn> columns = new ArrayList<>();
         for (int y = 320; y >= 0; ) {
             FishFluidHelper.ColumnFluid fluid = FishFluidHelper.fluidTypeAt(world, x, y, z);
-            if (fluid == null || (fluidFilter != null && fluid != fluidFilter)) {
+            if (fluid == null || (fluidFilter != null && !fluid.matchesFilter(fluidFilter))) {
                 y--;
                 continue;
             }
 
             int surfaceY = y;
             int bottomY = y;
-            while (bottomY > 0 && FishFluidHelper.fluidTypeAt(world, x, bottomY - 1, z) == fluid) {
+            while (bottomY > 0) {
+                FishFluidHelper.ColumnFluid below = FishFluidHelper.fluidTypeAt(world, x, bottomY - 1, z);
+                if (below == null || !fluid.sameAs(below)) {
+                    break;
+                }
                 bottomY--;
             }
 
@@ -675,6 +698,16 @@ public final class FishShadowSpawnHelper {
         double deltaZ,
         @Nonnull WaterBodyType bodyType
     ) {
+        return tryMoveOnFluidSurface(world, position, deltaX, deltaZ, FishFluidHelper.columnFluidFor(bodyType));
+    }
+
+    public static boolean tryMoveOnFluidSurface(
+        @Nullable World world,
+        @Nonnull Vector3d position,
+        double deltaX,
+        double deltaZ,
+        @Nonnull FishFluidHelper.ColumnFluid fluid
+    ) {
         if (world == null) {
             return false;
         }
@@ -682,7 +715,6 @@ public final class FishShadowSpawnHelper {
         double nextZ = position.z + deltaZ;
         int blockX = (int) Math.floor(nextX);
         int blockZ = (int) Math.floor(nextZ);
-        FishFluidHelper.ColumnFluid fluid = FishFluidHelper.columnFluidFor(bodyType);
         int surfaceY = findSurfaceFluidBlockYNear(world, blockX, blockZ, position.y, fluid);
         if (surfaceY < 0) {
             return false;
@@ -819,10 +851,10 @@ public final class FishShadowSpawnHelper {
                 }
                 int x = centerX + dx;
                 int z = centerZ + dz;
-                if (findWaterColumnAt(world, x, z, 1, origin.y, FishFluidHelper.ColumnFluid.WATER) != null) {
+                if (findWaterColumnAt(world, x, z, 1, origin.y, null) != null) {
                     shallow++;
                 }
-                if (findWaterColumnAt(world, x, z, minDepth, origin.y, FishFluidHelper.ColumnFluid.WATER) != null) {
+                if (findWaterColumnAt(world, x, z, minDepth, origin.y, null) != null) {
                     valid++;
                 }
             }

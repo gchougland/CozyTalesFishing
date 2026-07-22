@@ -34,6 +34,9 @@ public final class FishShadowComponent implements Component<EntityStore> {
     private FishShadowState state = FishShadowState.WANDERING;
     @Nonnull
     private WaterBodyType waterBodyType = WaterBodyType.Pond;
+    /** When fishing in a registered mod fluid (e.g. oil), used for surface movement — not inferred from {@link WaterBodyType}. */
+    @Nullable
+    private String columnFluidAssetId;
 
     private int pokeCountRemaining;
     private int pokeTotal;
@@ -96,6 +99,15 @@ public final class FishShadowComponent implements Component<EntityStore> {
 
     public void setWaterBodyType(@Nonnull WaterBodyType waterBodyType) {
         this.waterBodyType = waterBodyType;
+    }
+
+    @Nullable
+    public String getColumnFluidAssetId() {
+        return columnFluidAssetId;
+    }
+
+    public void setColumnFluidAssetId(@Nullable String columnFluidAssetId) {
+        this.columnFluidAssetId = columnFluidAssetId;
     }
 
     public int getPokeCountRemaining() {
@@ -257,6 +269,7 @@ public final class FishShadowComponent implements Component<EntityStore> {
         copy.shadowType = shadowType;
         copy.state = state;
         copy.waterBodyType = waterBodyType;
+        copy.columnFluidAssetId = columnFluidAssetId;
         copy.pokeCountRemaining = pokeCountRemaining;
         copy.pokeTotal = pokeTotal;
         copy.pokeTimer = pokeTimer;

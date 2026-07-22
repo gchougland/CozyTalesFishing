@@ -5,6 +5,7 @@ package com.hexvane.cozytalefishing.fish;
 import com.hexvane.cozytalefishing.bobber.BobberEffects;
 import com.hexvane.cozytalefishing.fishing.FishingDebugLog;
 import com.hexvane.cozytalefishing.fishing.FishingRodRegistry;
+import com.hexvane.cozytalefishing.integration.MMOSkillTreeIntegration;
 
 import com.hypixel.hytale.component.CommandBuffer;
 
@@ -85,8 +86,12 @@ public final class FishShadowSpawner {
             int environmentIndex = resolveEnvironmentIndex(world, column);
 
             WaterBodyType bodyType;
-            if (column.fluid() == FishFluidHelper.ColumnFluid.LAVA) {
+            @Nullable String columnFluidAssetId = null;
+            if (column.fluid().isLava()) {
                 bodyType = WaterBodyType.Lava;
+            } else if (column.fluid().isRegistered()) {
+                bodyType = WaterBodyType.Pond;
+                columnFluidAssetId = column.fluid().fluidAssetId();
             } else {
                 bodyType =
                     WaterBodyClassifier.classify(world, blockX, column.surfaceY(), blockZ, classifyContext, environmentIndex);
@@ -99,7 +104,7 @@ public final class FishShadowSpawner {
 
             FishingSpawnRegionContext regionContext =
                 FishingSpawnRegionRegistry.resolve(world.getWorldConfig().getUuid(), blockX, column.surfaceY(), blockZ);
-            if (regionContext != null && regionContext.getWaterBodyOverride() != null) {
+            if (columnFluidAssetId == null && regionContext != null && regionContext.getWaterBodyOverride() != null) {
                 bodyType = regionContext.getWaterBodyOverride();
             }
 
@@ -111,23 +116,15 @@ public final class FishShadowSpawner {
             FishShadowSpawnDiagnostics.SpeciesFilterStats filterStats =
 
                 FishShadowSpawnDiagnostics.analyzeSpeciesFilter(
-
                     bodyType,
-
                     environmentIndex,
-
                     blockX,
-
                     blockZ,
-
                     column.surfaceY(),
-
                     world,
-
                     playerEnvironmentIndex,
-
-                    regionContext
-
+                    regionContext,
+                    columnFluidAssetId
                 );
 
 
@@ -145,7 +142,8 @@ public final class FishShadowSpawner {
                     world,
                     config,
                     random,
-                    regionContext
+                    regionContext,
+                    columnFluidAssetId
                 );
 
             if (species == null) {
@@ -217,6 +215,8 @@ public final class FishShadowSpawner {
                     species,
 
                     bodyType,
+
+                    columnFluidAssetId,
 
                     new Vector3d(blockX + 0.5, column.spawnY(), blockZ + 0.5),
 
@@ -410,7 +410,9 @@ public final class FishShadowSpawner {
 
         @Nonnull ThreadLocalRandom random,
 
-        @Nullable FishingSpawnRegionContext regionContext
+        @Nullable FishingSpawnRegionContext regionContext,
+
+        @Nullable String columnFluidAssetId
 
     ) {
 
@@ -423,11 +425,19 @@ public final class FishShadowSpawner {
                 environmentIndex,
                 world,
                 config,
-                regionContext
+                regionContext,
+                columnFluidAssetId
             );
 
         if (eligible.isEmpty()) {
+            if (columnFluidAssetId != null) {
+                return null;
+            }
             return pickTrash(bodyType, config, random);
+        }
+
+        if (columnFluidAssetId != null) {
+            return weightedPick(eligible, config.getGlobalSpawnWeightMultiplier(), random);
         }
 
         FishingRodRegistry.FishingRodStats rodStats = FishingRodRegistry.getStatsFromHeld(commandBuffer, playerRef, config);
@@ -435,7 +445,13 @@ public final class FishShadowSpawner {
         BobberEffects bobberEffects =
             heldRod != null && !ItemStack.isEmpty(heldRod) ? BobberEffects.fromRod(heldRod) : BobberEffects.NONE;
 
-        float treasureChance = Math.min(1.0f, config.getTreasureSpawnChance() + bobberEffects.getTreasureChanceBonus());
+        float treasureChance =
+            Math.min(
+                1.0f,
+                config.getTreasureSpawnChance()
+                    + bobberEffects.getTreasureChanceBonus()
+                    + MMOSkillTreeIntegration.treasureSpawnChanceBonus(commandBuffer, playerRef, config)
+            );
         if (treasureChance > 0.0f
             && FishingRodRegistry.isFishingRod(rodStats.itemId())
             && random.nextFloat() < treasureChance) {
@@ -536,7 +552,8 @@ public final class FishShadowSpawner {
                 world,
                 spawnConditions,
                 regionContext,
-                config
+                config,
+                null
             );
 
         for (FishSpeciesAsset species : FishSpeciesRegistry.getMonsterSpecies()) {
@@ -560,7 +577,8 @@ public final class FishShadowSpawner {
         int environmentIndex,
         @Nonnull World world,
         @Nonnull FishingModConfig config,
-        @Nullable FishingSpawnRegionContext regionContext
+        @Nullable FishingSpawnRegionContext regionContext,
+        @Nullable String columnFluidAssetId
     ) {
         List<WeightedSpecies> eligible = new ArrayList<>();
         FishShadowSpawnHelper.SpawnConditions spawnConditions =
@@ -575,10 +593,16 @@ public final class FishShadowSpawner {
                 world,
                 spawnConditions,
                 regionContext,
-                config
+                config,
+                columnFluidAssetId
             );
 
-        for (FishSpeciesAsset species : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType)) {
+        List<FishSpeciesAsset> pool =
+            columnFluidAssetId != null
+                ? FishSpeciesRegistry.getSpeciesForFluid(columnFluidAssetId)
+                : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType);
+
+        for (FishSpeciesAsset species : pool) {
             if (species.isTrash() || species.isTreasure() || species.isMonster()) {
                 continue;
             }

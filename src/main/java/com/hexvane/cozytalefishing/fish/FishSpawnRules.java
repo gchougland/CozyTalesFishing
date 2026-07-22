@@ -25,6 +25,8 @@ public final class FishSpawnRules {
             .add()
             .append(new KeyedCodec<>("Weather", WeatherRule.CODEC), (r, v) -> r.weather = v, r -> r.weather)
             .add()
+            .append(new KeyedCodec<>("Fluid", FluidRule.CODEC), (r, v) -> r.fluid = v, r -> r.fluid)
+            .add()
             .afterDecode(FishSpawnRules::afterDecode)
             .build();
 
@@ -38,6 +40,8 @@ public final class FishSpawnRules {
     private DayTimeRule dayTime;
     @Nullable
     private WeatherRule weather;
+    @Nullable
+    private FluidRule fluid;
 
     @Nonnull
     private WaterBodyType[] waterBodyTypes = new WaterBodyType[0];
@@ -144,6 +148,13 @@ public final class FishSpawnRules {
         if (weather.mode == null) {
             weather.mode = weather.hasIds() ? FishSpawnRuleMode.Required : FishSpawnRuleMode.Ignored;
         }
+
+        if (fluid == null) {
+            fluid = new FluidRule();
+        }
+        if (fluid.mode == null) {
+            fluid.mode = fluid.hasIds() ? FishSpawnRuleMode.Required : FishSpawnRuleMode.Ignored;
+        }
     }
 
     @Nullable
@@ -162,12 +173,14 @@ public final class FishSpawnRules {
             waterBodyTypes = new WaterBodyType[0];
             return;
         }
-        WaterBodyType[] parsed = new WaterBodyType[waterBody.typesRaw.length];
-        for (int i = 0; i < waterBody.typesRaw.length; i++) {
-            WaterBodyType bodyType = WaterBodyType.fromString(waterBody.typesRaw[i]);
-            parsed[i] = bodyType != null ? bodyType : WaterBodyType.Pond;
+        java.util.List<WaterBodyType> parsed = new java.util.ArrayList<>();
+        for (String raw : waterBody.typesRaw) {
+            WaterBodyType bodyType = WaterBodyType.fromString(raw);
+            if (bodyType != null) {
+                parsed.add(bodyType);
+            }
         }
-        waterBodyTypes = parsed;
+        waterBodyTypes = parsed.toArray(new WaterBodyType[0]);
     }
 
     @Nonnull
@@ -239,6 +252,33 @@ public final class FishSpawnRules {
             }
         }
         return false;
+    }
+
+    @Nonnull
+    public FluidRule getFluid() {
+        return fluid != null ? fluid : new FluidRule();
+    }
+
+    public boolean matchesFluid(@Nullable String columnFluidAssetId) {
+        FluidRule rule = getFluid();
+        if (!rule.hasIds()) {
+            return false;
+        }
+        if (columnFluidAssetId == null || columnFluidAssetId.isBlank()) {
+            return false;
+        }
+        for (String id : rule.ids) {
+            if (id != null && FishableFluidRegistry.matchesFluidRule(id, columnFluidAssetId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean indexesByFluid() {
+        FluidRule rule = getFluid();
+        FishSpawnRuleMode mode = rule.mode != null ? rule.mode : FishSpawnRuleMode.Ignored;
+        return mode != FishSpawnRuleMode.Ignored && rule.hasIds();
     }
 
     @Nonnull
@@ -513,6 +553,44 @@ public final class FishSpawnRules {
         @Nonnull
         public int[] getWeatherIndexes() {
             return weatherIndexes;
+        }
+    }
+
+    public static final class FluidRule {
+        @Nonnull
+        public static final BuilderCodec<FluidRule> CODEC =
+            BuilderCodec.builder(FluidRule.class, FluidRule::new)
+                .append(
+                    new KeyedCodec<>("Ids", new ArrayCodec<>(Codec.STRING, String[]::new)),
+                    (r, v) -> r.ids = v,
+                    r -> r.ids
+                )
+                .add()
+                .append(
+                    new KeyedCodec<>("Mode", Codec.STRING),
+                    (r, v) -> r.mode = FishSpawnRuleMode.fromString(v),
+                    r -> r.mode != null ? r.mode.name() : null
+                )
+                .add()
+                .build();
+
+        @Nullable
+        String[] ids;
+        @Nullable
+        FishSpawnRuleMode mode;
+
+        public boolean hasIds() {
+            return ids != null && ids.length > 0;
+        }
+
+        @Nullable
+        public String[] getIds() {
+            return ids;
+        }
+
+        @Nullable
+        public FishSpawnRuleMode getMode() {
+            return mode;
         }
     }
 }

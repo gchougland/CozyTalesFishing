@@ -311,6 +311,24 @@ public final class FishingModConfig {
             .add()
             .append(new KeyedCodec<>("BoatBreakHitsRequired", Codec.INTEGER), (a, v) -> a.boatBreakHitsRequired = v, a -> a.boatBreakHitsRequired)
             .add()
+            .append(
+                new KeyedCodec<>("MmoLuckTreasureChancePerLuckPercent", Codec.DOUBLE),
+                (a, v) -> a.mmoLuckTreasureChancePerLuckPercent = v.floatValue(),
+                a -> (double) a.mmoLuckTreasureChancePerLuckPercent
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("MmoLuckExtraFishChancePerLuckPercent", Codec.DOUBLE),
+                (a, v) -> a.mmoLuckExtraFishChancePerLuckPercent = v.floatValue(),
+                a -> (double) a.mmoLuckExtraFishChancePerLuckPercent
+            )
+            .add()
+            .append(
+                new KeyedCodec<>("MmoLuckMaxExtraFishPerCatch", Codec.INTEGER),
+                (a, v) -> a.mmoLuckMaxExtraFishPerCatch = v,
+                a -> a.mmoLuckMaxExtraFishPerCatch
+            )
+            .add()
             .build();
 
     @Nullable
@@ -408,6 +426,11 @@ public final class FishingModConfig {
     private float boatSpeedMultiplier = 3.0f;
     private int boatPlacementMinWaterDepth = 1;
     private int boatBreakHitsRequired = 3;
+    /** Each 1% MMO Fishing Luck adds this much absolute treasure shadow chance (e.g. 0.001 → +1% at 10 luck). */
+    private float mmoLuckTreasureChancePerLuckPercent = 0.001f;
+    /** Per 1% Fishing Luck, chance for one extra journal fish on the same catch (capped by max extra). */
+    private float mmoLuckExtraFishChancePerLuckPercent = 0.01f;
+    private int mmoLuckMaxExtraFishPerCatch = 2;
 
     public int getShadowsPerPlayerCap() {
         return shadowsPerPlayerCap;
@@ -663,5 +686,17 @@ public final class FishingModConfig {
 
     public int getBoatBreakHitsRequired() {
         return boatBreakHitsRequired;
+    }
+
+    public float getMmoLuckTreasureChancePerLuckPercent() {
+        return mmoLuckTreasureChancePerLuckPercent;
+    }
+
+    public float getMmoLuckExtraFishChancePerLuckPercent() {
+        return mmoLuckExtraFishChancePerLuckPercent;
+    }
+
+    public int getMmoLuckMaxExtraFishPerCatch() {
+        return mmoLuckMaxExtraFishPerCatch;
     }
 }

@@ -12,25 +12,27 @@
   "objectives": [
     {
       "id": "blueprint",
-      "kind": "journal",
+      "kind": "plot_blueprint_received",
       "text": "Take the shop blueprint from Reed.",
       "textLangKey": "aetherhaven_story_quests.aetherhaven.storyQuests.q_fisherman_shop.objective.blueprint"
     },
     {
       "id": "learn",
-      "kind": "journal",
+      "kind": "plot_blueprint_learned",
+      "constructionId": "plot_fishermans_shop",
       "text": "Use the blueprint to learn the fishing shop at your plot crafting bench.",
       "textLangKey": "aetherhaven_story_quests.aetherhaven.storyQuests.q_fisherman_shop.objective.learn"
     },
     {
       "id": "build",
-      "kind": "journal",
+      "kind": "construction_built",
+      "constructionId": "plot_fishermans_shop",
       "text": "Craft a shop plot token and build the fishing shop prefab.",
       "textLangKey": "aetherhaven_story_quests.aetherhaven.storyQuests.q_fisherman_shop.objective.build"
     },
     {
       "id": "talk",
-      "kind": "journal",
+      "kind": "dialogue_turn_in",
       "text": "Find Reed at the shop and close the quest in dialogue.",
       "textLangKey": "aetherhaven_story_quests.aetherhaven.storyQuests.q_fisherman_shop.objective.talk"
     }

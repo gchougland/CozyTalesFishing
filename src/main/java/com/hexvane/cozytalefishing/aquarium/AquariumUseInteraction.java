@@ -139,12 +139,8 @@ public final class AquariumUseInteraction extends SimpleBlockInteraction {
             return;
         }
 
-        if (requiredSize != aquariumSize) {
-            if (requiredSize.tier() > aquariumSize.tier()) {
-                send(player, "server.cozytalefishing.aquarium.fish_too_large");
-            } else {
-                send(player, "server.cozytalefishing.aquarium.aquarium_too_large");
-            }
+        if (!aquariumSize.canHold(requiredSize)) {
+            send(player, "server.cozytalefishing.aquarium.fish_too_large");
             context.getState().state = InteractionState.Failed;
             return;
         }

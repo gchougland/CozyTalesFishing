@@ -13,13 +13,14 @@
   "objectives": [
     {
       "id": "token",
-      "kind": "journal",
+      "kind": "plot_token_received",
       "text": "Take the house plot token from Reed.",
       "textLangKey": "aetherhaven_story_quests.aetherhaven.storyQuests.q_house_fisherman.objective.token"
     },
     {
       "id": "build",
-      "kind": "journal",
+      "kind": "construction_built",
+      "constructionId": "plot_house",
       "text": "Stake and build the house prefab.",
       "textLangKey": "aetherhaven_story_quests.aetherhaven.storyQuests.q_house_fisherman.objective.build"
     },
@@ -32,7 +33,7 @@
     },
     {
       "id": "talk",
-      "kind": "journal",
+      "kind": "dialogue_turn_in",
       "text": "Find Reed and close the quest in dialogue.",
       "textLangKey": "aetherhaven_story_quests.aetherhaven.storyQuests.q_house_fisherman.objective.talk"
     }

@@ -3,6 +3,7 @@ package com.hexvane.cozytalefishing.fish;
 import com.hexvane.cozytalefishing.fishing.FishingDebugLog;
 import com.hypixel.hytale.server.core.universe.world.World;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -213,10 +214,14 @@ public final class FishShadowSpawnDiagnostics {
         int surfaceY,
         @Nonnull World world,
         int playerEnvironmentIndex,
-        @Nullable FishingSpawnRegionContext regionContext
+        @Nullable FishingSpawnRegionContext regionContext,
+        @Nullable String columnFluidAssetId
     ) {
         SpeciesFilterStats stats = new SpeciesFilterStats();
-        stats.bodyPoolSize = FishSpeciesRegistry.getSpeciesForWaterBody(bodyType).size();
+        stats.bodyPoolSize =
+            columnFluidAssetId != null
+                ? FishSpeciesRegistry.getSpeciesForFluid(columnFluidAssetId).size()
+                : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType).size();
         FishingModConfig config = FishingModConfig.get();
         FishShadowSpawnHelper.SpawnConditions spawnConditions =
             FishShadowSpawnHelper.resolveSpawnConditions(world, environmentIndex);
@@ -230,10 +235,16 @@ public final class FishShadowSpawnDiagnostics {
                 world,
                 spawnConditions,
                 regionContext,
-                config
+                config,
+                columnFluidAssetId
             );
 
-        for (FishSpeciesAsset species : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType)) {
+        List<FishSpeciesAsset> pool =
+            columnFluidAssetId != null
+                ? FishSpeciesRegistry.getSpeciesForFluid(columnFluidAssetId)
+                : FishSpeciesRegistry.getSpeciesForWaterBody(bodyType);
+
+        for (FishSpeciesAsset species : pool) {
             if (species.isTrash() || species.isTreasure()) {
                 continue;
             }

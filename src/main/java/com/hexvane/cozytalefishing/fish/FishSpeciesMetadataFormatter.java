@@ -33,7 +33,14 @@ public final class FishSpeciesMetadataFormatter {
     @Nonnull
     public static String formatHabitat(@Nonnull FishSpeciesAsset species) {
         StringBuilder text = new StringBuilder();
-        text.append(formatHabitatLine("water", formatWaterBodyTypes(species.getWaterBodyTypes())));
+        FishSpawnRules.FluidRule fluidRule = species.getSpawnRules().getFluid();
+        FishSpawnRuleMode fluidMode = fluidRule.getMode() != null ? fluidRule.getMode() : FishSpawnRuleMode.Ignored;
+        if (fluidMode != FishSpawnRuleMode.Ignored && fluidRule.hasIds()) {
+            String fluidLine = formatFluidHabitatLine(fluidRule.getIds()[0]);
+            text.append(formatHabitatLine("water", fluidLine));
+        } else {
+            text.append(formatHabitatLine("water", formatWaterBodyTypes(species.getWaterBodyTypes())));
+        }
 
         String biome = formatSpawnLocation(species);
         if (!biome.equals("—")) {
@@ -45,12 +52,42 @@ public final class FishSpeciesMetadataFormatter {
     }
 
     @Nonnull
+    private static String formatFluidHabitatLine(@Nullable String fluidOrHabitatId) {
+        if (fluidOrHabitatId == null || fluidOrHabitatId.isBlank()) {
+            return "—";
+        }
+        FishableFluidRegistry.Entry entry = FishableFluidRegistry.entryForFluidId(fluidOrHabitatId);
+        if (entry == null) {
+            entry = FishableFluidRegistry.entryForHabitatId(fluidOrHabitatId);
+        }
+        if (entry != null && entry.journalHabitatKey() != null && !entry.journalHabitatKey().isBlank()) {
+            String localized = lookupJournalHabitatKey(entry.journalHabitatKey());
+            if (localized != null) {
+                return localized;
+            }
+        }
+        return fluidOrHabitatId;
+    }
+
+    @Nonnull
     private static String formatHabitatLine(@Nonnull String key, @Nonnull String value) {
         String template = lookup(HABITAT_LINE_PREFIX + key);
         if (template == null) {
             return key + ": " + value;
         }
         return template.replace("{value}", value);
+    }
+
+    @Nullable
+    private static String lookupJournalHabitatKey(@Nonnull String journalHabitatKey) {
+        String localized = lookup(journalHabitatKey);
+        if (localized != null) {
+            return localized;
+        }
+        if (!journalHabitatKey.startsWith("server.")) {
+            return lookup("server." + journalHabitatKey);
+        }
+        return null;
     }
 
     @Nullable

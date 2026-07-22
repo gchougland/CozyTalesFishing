@@ -10,9 +10,11 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.plugin.PluginManager;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hexvane.cozytalefishing.fish.FishingModConfig;
 import com.hypixel.hytale.common.semver.SemverRange;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -22,13 +24,13 @@ import javax.annotation.Nullable;
  * <p>MMO runs in a separate plugin classloader — never use {@code Class.forName} on the caller class; load via
  * {@link CozyTalesFishingPlugin#getClassLoader()} so the bridge can see optional dependency {@code Ziggfreed:MMOSkillTree}.
  *
- * <p>The {@link com.hexvane.cozytalefishing.integration.mmo.CozyTalesFishingMmoAdapter} class is the
- * {@code FishingIntegration} adapter to register inside MMO Skill Tree (see integration docs).
  */
-final class MMOSkillTreeIntegration {
+public final class MMOSkillTreeIntegration {
     private static final PluginIdentifier MMO_PLUGIN_ID = PluginIdentifier.fromString("Ziggfreed:MMOSkillTree");
     private static final String SKILL_FISHING = "FISHING";
     private static final String API_CLASS = "com.ziggfreed.mmoskilltree.api.MMOSkillTreeAPI";
+    private static final String STAT_AGGREGATOR_CLASS = "com.ziggfreed.mmoskilltree.reward.StatSourceAggregator";
+    private static final String STAT_KEY_CLASS = STAT_AGGREGATOR_CLASS + "$StatKey";
     private static final double MIN_XP = 5.0;
     private static final double NEW_SPECIES_BONUS = 25.0;
 
@@ -39,6 +41,10 @@ final class MMOSkillTreeIntegration {
     private static Method addXpWithNotification;
     private static Method addXpPlain;
     private static Method getOrCreateSkillComponent;
+    private static Method getSkillComponent;
+    private static Method statAggregatorSum;
+    @Nullable
+    private static Object statKeyLuckPct;
 
     private MMOSkillTreeIntegration() {}
 
@@ -49,6 +55,9 @@ final class MMOSkillTreeIntegration {
         addXpWithNotification = null;
         addXpPlain = null;
         getOrCreateSkillComponent = null;
+        getSkillComponent = null;
+        statAggregatorSum = null;
+        statKeyLuckPct = null;
 
         CozyTalesFishingPlugin plugin = CozyTalesFishingPlugin.get();
         if (plugin == null) {
@@ -72,13 +81,62 @@ final class MMOSkillTreeIntegration {
 
         resolveAddXpMethods(api);
         getOrCreateSkillComponent = findGetOrCreateSkillComponent(api);
+        getSkillComponent = findGetSkillComponent(api);
+        resolveFishingLuckReader(plugin);
         if (addXpPlain == null && addXpWithNotification == null) {
             logWaiting("MMO Skill Tree API found but addXp could not be resolved.");
             return;
         }
 
         enabled = true;
-        logEnabled("MMO Skill Tree integration enabled (FISHING XP on journal catches).");
+        logEnabled("MMO Skill Tree integration enabled (FISHING XP and Fishing Luck on catches/spawns).");
+    }
+
+    /** Added to base treasure spawn chance (0–1) from MMO Fishing Luck reward total. */
+    public static float treasureSpawnChanceBonus(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> playerRef,
+        @Nonnull FishingModConfig config
+    ) {
+        Store<EntityStore> store = commandBuffer.getStore();
+        if (store == null) {
+            return 0.0f;
+        }
+        double luck = getFishingLuckPercent(store, playerRef);
+        if (luck <= 0.0) {
+            return 0.0f;
+        }
+        return (float) (luck * config.getMmoLuckTreasureChancePerLuckPercent());
+    }
+
+    /** Extra journal fish beyond the first (same species/size), from Fishing Luck. */
+    public static int rollExtraJournalFishCount(
+        @Nonnull CommandBuffer<EntityStore> commandBuffer,
+        @Nonnull Ref<EntityStore> playerRef,
+        @Nonnull FishingModConfig config
+    ) {
+        Store<EntityStore> store = commandBuffer.getStore();
+        if (store == null) {
+            return 0;
+        }
+        double luck = getFishingLuckPercent(store, playerRef);
+        if (luck <= 0.0) {
+            return 0;
+        }
+        float chancePerRoll = (float) Math.min(1.0, luck * config.getMmoLuckExtraFishChancePerLuckPercent());
+        if (chancePerRoll <= 0.0f) {
+            return 0;
+        }
+        int maxExtra = Math.max(0, config.getMmoLuckMaxExtraFishPerCatch());
+        int extra = 0;
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        for (int i = 0; i < maxExtra; i++) {
+            if (random.nextFloat() >= chancePerRoll) {
+                break;
+            }
+            extra++;
+        }
+        return extra;
     }
 
     static void handleFishCaught(
@@ -172,6 +230,73 @@ final class MMOSkillTreeIntegration {
                 addXpWithNotification = method;
             }
         }
+    }
+
+    private static double getFishingLuckPercent(@Nonnull Store<EntityStore> store, @Nonnull Ref<EntityStore> playerRef) {
+        if (!enabled) {
+            setup();
+        }
+        if (statAggregatorSum == null || statKeyLuckPct == null || getSkillComponent == null) {
+            return 0.0;
+        }
+        try {
+            Object skillComponent = getSkillComponent.invoke(null, store, playerRef);
+            if (skillComponent == null) {
+                return 0.0;
+            }
+            Object sum = statAggregatorSum.invoke(null, skillComponent, statKeyLuckPct, SKILL_FISHING);
+            if (sum instanceof Number number) {
+                return Math.max(0.0, number.doubleValue());
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // soft integration
+        }
+        return 0.0;
+    }
+
+    private static void resolveFishingLuckReader(@Nonnull CozyTalesFishingPlugin plugin) {
+        Class<?> aggregator = loadMmoClass(plugin, STAT_AGGREGATOR_CLASS);
+        Class<?> statKeyEnum = loadMmoClass(plugin, STAT_KEY_CLASS);
+        if (aggregator == null || statKeyEnum == null || !statKeyEnum.isEnum()) {
+            return;
+        }
+        for (Method method : aggregator.getMethods()) {
+            if (!Modifier.isStatic(method.getModifiers()) || !method.getName().equals("sum") || method.getParameterCount() != 3) {
+                continue;
+            }
+            Class<?>[] params = method.getParameterTypes();
+            if (params[1].isAssignableFrom(statKeyEnum) && params[2] == String.class) {
+                method.setAccessible(true);
+                statAggregatorSum = method;
+                break;
+            }
+        }
+        if (statAggregatorSum == null) {
+            return;
+        }
+        for (Object constant : statKeyEnum.getEnumConstants()) {
+            if (constant instanceof Enum<?> e && "LUCK_PCT".equals(e.name())) {
+                statKeyLuckPct = constant;
+                return;
+            }
+        }
+    }
+
+    @Nullable
+    private static Method findGetSkillComponent(@Nonnull Class<?> api) {
+        for (Method method : api.getMethods()) {
+            if (!method.getName().equals("getSkillComponent")) {
+                continue;
+            }
+            Class<?>[] params = method.getParameterTypes();
+            if (params.length == 2
+                && Store.class.isAssignableFrom(params[0])
+                && Ref.class.isAssignableFrom(params[1])) {
+                method.setAccessible(true);
+                return method;
+            }
+        }
+        return null;
     }
 
     @Nullable

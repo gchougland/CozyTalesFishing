@@ -76,6 +76,7 @@ cozytalefishing.bottle.flavor.8 = Dear diary, today I lost another lure to a cra
 cozytalefishing.bottle.flavor.9 = Send more hooks. Sincerely, a very optimistic angler.
 cozytalefishing.bottle.flavor.10 = The tide took my sandwich. Revenge will be mine.
 cozytalefishing.catch.success = You caught a {fish} ({size} cm)!
+cozytalefishing.catch.luck_bonus_fish = Fishing luck! Another {fish} ({size} cm)!
 cozytalefishing.catch.trash_success = You fished up some {fish}!
 cozytalefishing.catch.treasure_success = You reeled in {fish}!
 cozytalefishing.catch.monster_success = Something stirs beneath the surface... you reeled in a {fish}!

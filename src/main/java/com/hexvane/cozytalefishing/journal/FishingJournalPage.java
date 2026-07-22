@@ -3,10 +3,12 @@ package com.hexvane.cozytalefishing.journal;
 import com.hexvane.cozytalefishing.fish.FishCatchRecordComponent;
 import com.hexvane.cozytalefishing.fish.FishCatchRecordSync;
 import com.hexvane.cozytalefishing.fish.FishScoreCalculator;
+import com.hexvane.cozytalefishing.fish.FishableFluidRegistry;
 import com.hexvane.cozytalefishing.fish.FishSpeciesAsset;
 import com.hexvane.cozytalefishing.fish.FishSpeciesDisplayNames;
 import com.hexvane.cozytalefishing.fish.FishSpeciesMetadataFormatter;
 import com.hexvane.cozytalefishing.fish.FishSpeciesRegistry;
+import com.hexvane.cozytalefishing.fish.FishSpawnRules;
 import com.hexvane.cozytalefishing.fish.WaterBodyType;
 import com.hexvane.cozytalefishing.leaderboard.FishingLeaderboardService;
 import com.hexvane.cozytalefishing.leaderboard.LeaderboardSnapshot;
@@ -30,6 +32,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -58,6 +61,9 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
     private boolean templateAppended;
     @Nonnull
     private final Set<WaterBodyType> activeWaterFilters = EnumSet.allOf(WaterBodyType.class);
+    @Nonnull
+    private final Set<String> activeHabitatFilters = new HashSet<>();
+    private boolean habitatFiltersSeeded;
     @Nonnull
     private JournalSection activeSection = JournalSection.SPECIES;
     @Nonnull
@@ -113,6 +119,8 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
             }
         } else if ("WaterFilterToggle".equals(data.action)) {
             applyWaterFilterToggle(data);
+        } else if ("HabitatFilterToggle".equals(data.action)) {
+            applyHabitatFilterToggle(data);
         } else if ("SelectFish".equals(data.action) && data.speciesId != null && !data.speciesId.isBlank()) {
             selectedSpeciesId = data.speciesId;
         }
@@ -549,11 +557,12 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
     }
 
     private void bindWaterFilters(@Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder) {
+        ensureHabitatFiltersSeeded();
         commandBuilder.clear(FILTER_ROWS);
-        for (int i = 0; i < FILTER_TYPES.length; i++) {
-            WaterBodyType bodyType = FILTER_TYPES[i];
+        int rowIndex = 0;
+        for (WaterBodyType bodyType : FILTER_TYPES) {
             commandBuilder.append(FILTER_ROWS, "CozyTalesFishing/FishingJournalFilterRow.ui");
-            String row = FILTER_ROWS + "[" + i + "]";
+            String row = FILTER_ROWS + "[" + rowIndex + "]";
             commandBuilder.set(
                 row + " #FilterLabel.TextSpans",
                 Message.translation("server.cozytalefishing.journal.filter." + bodyType.name().toLowerCase(Locale.ROOT))
@@ -568,6 +577,64 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
                     .append("@Checked", row + " #CheckBox.Value"),
                 false
             );
+            rowIndex++;
+        }
+        for (FishableFluidRegistry.JournalHabitatFilter habitat : FishableFluidRegistry.journalHabitatFilters()) {
+            commandBuilder.append(FILTER_ROWS, "CozyTalesFishing/FishingJournalFilterRow.ui");
+            String row = FILTER_ROWS + "[" + rowIndex + "]";
+            commandBuilder.set(row + " #FilterLabel.TextSpans", habitatFilterLabel(habitat));
+            commandBuilder.set(row + " #CheckBox.Value", isHabitatFilterActive(habitat.habitatId()));
+            eventBuilder.addEventBinding(
+                CustomUIEventBindingType.ValueChanged,
+                row + " #CheckBox",
+                new EventData()
+                    .append("Action", "HabitatFilterToggle")
+                    .append("HabitatId", habitat.habitatId())
+                    .append("@Checked", row + " #CheckBox.Value"),
+                false
+            );
+            rowIndex++;
+        }
+    }
+
+    private void ensureHabitatFiltersSeeded() {
+        if (habitatFiltersSeeded) {
+            return;
+        }
+        for (FishableFluidRegistry.JournalHabitatFilter habitat : FishableFluidRegistry.journalHabitatFilters()) {
+            activeHabitatFilters.add(normalizeHabitatId(habitat.habitatId()));
+        }
+        habitatFiltersSeeded = true;
+    }
+
+    @Nonnull
+    private static String normalizeHabitatId(@Nonnull String habitatId) {
+        return habitatId.toLowerCase(Locale.ROOT);
+    }
+
+    private boolean isHabitatFilterActive(@Nonnull String habitatId) {
+        return activeHabitatFilters.contains(normalizeHabitatId(habitatId));
+    }
+
+    @Nonnull
+    private static Message habitatFilterLabel(@Nonnull FishableFluidRegistry.JournalHabitatFilter habitat) {
+        String journalKey = habitat.journalHabitatKey();
+        if (journalKey != null && !journalKey.isBlank()) {
+            String i18nKey = journalKey.startsWith("server.") ? journalKey : "server." + journalKey;
+            return Message.translation(i18nKey);
+        }
+        return Message.raw(habitat.habitatId());
+    }
+
+    private void applyHabitatFilterToggle(@Nonnull PageData data) {
+        if (data.habitatId == null || data.checked == null) {
+            return;
+        }
+        String key = normalizeHabitatId(data.habitatId);
+        if (data.checked) {
+            activeHabitatFilters.add(key);
+        } else {
+            activeHabitatFilters.remove(key);
         }
     }
 
@@ -608,11 +675,30 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
     }
 
     private boolean matchesActiveFilters(@Nonnull FishSpeciesAsset species) {
-        if (activeWaterFilters.isEmpty()) {
+        if (activeWaterFilters.isEmpty() && activeHabitatFilters.isEmpty()) {
             return false;
         }
         for (WaterBodyType bodyType : species.getWaterBodyTypes()) {
             if (activeWaterFilters.contains(bodyType)) {
+                return true;
+            }
+        }
+        if (!species.getSpawnRules().indexesByFluid()) {
+            return false;
+        }
+        FishSpawnRules.FluidRule fluid = species.getSpawnRules().getFluid();
+        if (!fluid.hasIds()) {
+            return false;
+        }
+        for (String ruleId : fluid.getIds()) {
+            if (ruleId == null || ruleId.isBlank()) {
+                continue;
+            }
+            FishableFluidRegistry.Entry entry = FishableFluidRegistry.entryForFluidId(ruleId);
+            if (entry != null && activeHabitatFilters.contains(normalizeHabitatId(entry.habitatId()))) {
+                return true;
+            }
+            if (activeHabitatFilters.contains(normalizeHabitatId(ruleId))) {
                 return true;
             }
         }
@@ -817,6 +903,8 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
             .add()
             .append(new KeyedCodec<>("WaterBodyType", Codec.STRING), (d, v) -> d.waterBodyType = v, d -> d.waterBodyType)
             .add()
+            .append(new KeyedCodec<>("HabitatId", Codec.STRING), (d, v) -> d.habitatId = v, d -> d.habitatId)
+            .add()
             .append(new KeyedCodec<>("@Checked", Codec.BOOLEAN), (d, v) -> d.checked = v, d -> d.checked)
             .add()
             .append(new KeyedCodec<>("Section", Codec.STRING), (d, v) -> d.section = v, d -> d.section)
@@ -831,6 +919,8 @@ public final class FishingJournalPage extends CozyInteractiveCustomUIPage<Fishin
         private String speciesId;
         @Nullable
         private String waterBodyType;
+        @Nullable
+        private String habitatId;
         @Nullable
         private Boolean checked;
         @Nullable

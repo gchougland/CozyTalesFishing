@@ -21,7 +21,8 @@ public final class FishSpawnRulesEvaluator {
         @Nonnull World world,
         @Nonnull FishShadowSpawnHelper.SpawnConditions conditions,
         @Nullable FishingSpawnRegionContext regionContext,
-        @Nonnull FishingModConfig config
+        @Nonnull FishingModConfig config,
+        @Nullable String columnFluidAssetId
     ) {}
 
     public record SpawnRuleResult(
@@ -46,6 +47,12 @@ public final class FishSpawnRulesEvaluator {
             return SpawnRuleResult.ineligible();
         }
         weightMultiplier *= waterBody.weightMultiplier(context.config());
+
+        RuleOutcome fluid = evaluateFluid(rules, context.columnFluidAssetId());
+        if (!applyOutcome("Fluid", fluid, matches)) {
+            return SpawnRuleResult.ineligible();
+        }
+        weightMultiplier *= fluid.weightMultiplier(context.config());
 
         RuleOutcome zone = evaluateZone(rules, species, context);
         if (!applyOutcome("Zone", zone, matches)) {
@@ -94,6 +101,10 @@ public final class FishSpawnRulesEvaluator {
         RuleOutcome waterBody = evaluateWaterBody(rules, resolveSpawnWaterBody(context));
         eligible &= recordOutcome("WaterBody", waterBody, matches);
         weightMultiplier *= waterBody.weightMultiplier(context.config());
+
+        RuleOutcome fluid = evaluateFluid(rules, context.columnFluidAssetId());
+        eligible &= recordOutcome("Fluid", fluid, matches);
+        weightMultiplier *= fluid.weightMultiplier(context.config());
 
         RuleOutcome zone = evaluateZone(rules, species, context);
         eligible &= recordOutcome("Zone", zone, matches);
@@ -176,6 +187,17 @@ public final class FishSpawnRulesEvaluator {
             biomeName,
             context.environmentIndex()
         );
+    }
+
+    @Nonnull
+    private static RuleOutcome evaluateFluid(@Nonnull FishSpawnRules rules, @Nullable String columnFluidAssetId) {
+        FishSpawnRules.FluidRule rule = rules.getFluid();
+        FishSpawnRuleMode mode = rule.getMode() != null ? rule.getMode() : FishSpawnRuleMode.Ignored;
+        if (mode == FishSpawnRuleMode.Ignored || !rule.hasIds()) {
+            return new RuleOutcome(FishSpawnRuleMode.Ignored, true, true);
+        }
+        boolean matched = rules.matchesFluid(columnFluidAssetId);
+        return outcomeForMode(mode, matched);
     }
 
     @Nonnull

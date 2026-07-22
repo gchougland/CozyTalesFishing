@@ -56,8 +56,8 @@
     "BlockSoundSetId": "Wood",
     "PhysicalMaterialId": "Wood",
     "TextureComputedColor": "#3a4a5a",
-    "Support": {
-      "Down": [
+    "Supporting": {
+      "Up": [
         {
           "FaceType": "Full"
         }

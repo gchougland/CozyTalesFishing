@@ -3,6 +3,7 @@
   "ItemId": "Fish_Crab_Item",
   "AquariumSize": "Small",
   "AquariumDisplayOffset": [0.0, -0.4, 0.0],
+  "AquariumBottomDweller": true,
   "AquariumDisplayScale": 0.5,
   "AquariumUseIdleAnimation": true,
   "Rarity": "Common",

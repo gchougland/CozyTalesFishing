@@ -7,6 +7,7 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hexvane.cozytalefishing.journal.FishCatchCelebrationPage;
 import com.hexvane.cozytalefishing.integration.CozyTalesFishingIntegration;
+import com.hexvane.cozytalefishing.integration.MMOSkillTreeIntegration;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -180,6 +181,36 @@ public final class FishCatchService {
                 shadow,
                 catchPosition
             );
+
+            int luckExtraFish =
+                MMOSkillTreeIntegration.rollExtraJournalFishCount(
+                    commandBuffer,
+                    playerRef,
+                    FishingModConfig.get()
+                );
+            for (int i = 0; i < luckExtraFish; i++) {
+                Player.giveItem(stack, playerRef, commandBuffer);
+                records.incrementCatchCount(species.getId());
+                records.updateLargest(species.getId(), sizeCm);
+                CozyTalesFishingIntegration.notifyJournalFishCaught(
+                    commandBuffer,
+                    playerRef,
+                    playerRefComponent,
+                    species,
+                    sizeCm,
+                    false
+                );
+                playerRefComponent.sendMessage(
+                    Message
+                        .translation("server.cozytalefishing.catch.luck_bonus_fish")
+                        .param("fish", FishSpeciesDisplayNames.resolve(species))
+                        .param("size", String.format("%.1f", sizeCm))
+                );
+            }
+            if (luckExtraFish > 0) {
+                commandBuffer.putComponent(playerRef, FishCatchRecordComponent.getComponentType(), records);
+                com.hexvane.cozytalefishing.leaderboard.FishingLeaderboardService.invalidate();
+            }
         }
     }
 

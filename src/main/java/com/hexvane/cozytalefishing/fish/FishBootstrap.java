@@ -38,6 +38,14 @@ public final class FishBootstrap {
         );
 
         AssetRegistry.register(
+            HytaleAssetStore.builder(FishableFluidAsset.class, new DefaultAssetMap<>())
+                .setPath("CozyTalesFishing/Config/FishableFluids")
+                .setCodec(FishableFluidAsset.CODEC)
+                .setKeyFunction(FishableFluidAsset::getId)
+                .build()
+        );
+
+        AssetRegistry.register(
             HytaleAssetStore.builder(WaterBodyBiomeOverridesAsset.class, new DefaultAssetMap<>())
                 .setPath("CozyTalesFishing/Config/WaterBodyBiomeOverrides")
                 .setCodec(WaterBodyBiomeOverridesAsset.CODEC)
@@ -76,6 +84,9 @@ public final class FishBootstrap {
 
         plugin
             .getEventRegistry()
+            .register(LoadedAssetsEvent.class, FishableFluidAsset.class, FishBootstrap::onFishableFluidsLoaded);
+        plugin
+            .getEventRegistry()
             .register(LoadedAssetsEvent.class, FishSpeciesAsset.class, FishBootstrap::onFishSpeciesLoaded);
         plugin
             .getEventRegistry()
@@ -86,6 +97,7 @@ public final class FishBootstrap {
         plugin.getEventRegistry().registerGlobal(AddWorldEvent.class, FishBootstrap::onWorldAdded);
         plugin.getEventRegistry().registerGlobal(AddPlayerToWorldEvent.class, FishBootstrap::onPlayerAddedToWorld);
 
+        FishableFluidRegistry.rebuild();
         FishSpeciesRegistry.rebuild();
     }
 
@@ -115,9 +127,17 @@ public final class FishBootstrap {
         FishShadowCleanupService.scheduleAllWorldsCleanup();
     }
 
+    private static void onFishableFluidsLoaded(
+        @Nonnull LoadedAssetsEvent<String, FishableFluidAsset, DefaultAssetMap<String, FishableFluidAsset>> event
+    ) {
+        FishableFluidRegistry.rebuild();
+        FishSpeciesRegistry.rebuild();
+    }
+
     private static void onFishSpeciesLoaded(
         @Nonnull LoadedAssetsEvent<String, FishSpeciesAsset, DefaultAssetMap<String, FishSpeciesAsset>> event
     ) {
+        FishableFluidRegistry.rebuild();
         FishSpeciesRegistry.rebuild();
     }
 

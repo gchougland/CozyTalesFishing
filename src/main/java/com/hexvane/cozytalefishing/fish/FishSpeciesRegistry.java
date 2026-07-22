@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,11 +25,13 @@ public final class FishSpeciesRegistry {
     private static final List<FishSpeciesAsset> JOURNAL_SPECIES = new ArrayList<>();
     private static final Map<String, FishSpeciesAsset> BY_ID = new HashMap<>();
     private static final Map<String, FishSpeciesAsset> BY_ITEM_ID = new HashMap<>();
+    private static final Map<String, List<FishSpeciesAsset>> BY_FLUID_KEY = new HashMap<>();
     private static volatile boolean initialized;
 
     private FishSpeciesRegistry() {}
 
     public static void rebuild() {
+        FishableFluidRegistry.rebuild();
         OCEAN_ENVIRONMENT_INDICES.clear();
         ENVIRONMENT_ZONE_PREFIX.clear();
         BY_WATER_BODY.clear();
@@ -38,6 +41,7 @@ public final class FishSpeciesRegistry {
         JOURNAL_SPECIES.clear();
         BY_ID.clear();
         BY_ITEM_ID.clear();
+        BY_FLUID_KEY.clear();
         for (WaterBodyType type : WaterBodyType.values()) {
             BY_WATER_BODY.put(type, new ArrayList<>());
         }
@@ -78,8 +82,12 @@ public final class FishSpeciesRegistry {
                 MONSTER_SPECIES.add(species);
             } else {
                 JOURNAL_SPECIES.add(species);
-                for (WaterBodyType bodyType : species.getWaterBodyTypes()) {
-                    BY_WATER_BODY.get(bodyType).add(species);
+                if (species.getSpawnRules().indexesByFluid()) {
+                    indexJournalSpeciesByFluid(species);
+                } else {
+                    for (WaterBodyType bodyType : species.getWaterBodyTypes()) {
+                        BY_WATER_BODY.get(bodyType).add(species);
+                    }
                 }
             }
         }
@@ -102,6 +110,54 @@ public final class FishSpeciesRegistry {
     public static List<FishSpeciesAsset> getSpeciesForWaterBody(@Nonnull WaterBodyType bodyType) {
         ensureInitialized();
         return BY_WATER_BODY.getOrDefault(bodyType, List.of());
+    }
+
+    @Nonnull
+    public static List<FishSpeciesAsset> getSpeciesForFluid(@Nullable String columnFluidAssetId) {
+        ensureInitialized();
+        if (columnFluidAssetId == null || columnFluidAssetId.isBlank()) {
+            return List.of();
+        }
+        List<FishSpeciesAsset> direct = BY_FLUID_KEY.get(normalizeFluidKey(columnFluidAssetId));
+        if (direct != null && !direct.isEmpty()) {
+            return new ArrayList<>(direct);
+        }
+        FishableFluidRegistry.Entry entry = FishableFluidRegistry.entryForFluidId(columnFluidAssetId);
+        if (entry == null) {
+            return List.of();
+        }
+        List<FishSpeciesAsset> byHabitat = BY_FLUID_KEY.get(normalizeFluidKey(entry.habitatId()));
+        return byHabitat != null ? new ArrayList<>(byHabitat) : List.of();
+    }
+
+    private static void indexJournalSpeciesByFluid(@Nonnull FishSpeciesAsset species) {
+        FishSpawnRules.FluidRule fluidRule = species.getSpawnRules().getFluid();
+        if (!fluidRule.hasIds()) {
+            return;
+        }
+        for (String id : fluidRule.getIds()) {
+            if (id == null || id.isBlank()) {
+                continue;
+            }
+            addFluidIndexKey(id, species);
+            FishableFluidRegistry.Entry entry = FishableFluidRegistry.entryForFluidId(id);
+            if (entry != null) {
+                addFluidIndexKey(entry.habitatId(), species);
+            }
+        }
+    }
+
+    private static void addFluidIndexKey(@Nonnull String key, @Nonnull FishSpeciesAsset species) {
+        String normalized = normalizeFluidKey(key);
+        List<FishSpeciesAsset> list = BY_FLUID_KEY.computeIfAbsent(normalized, ignored -> new ArrayList<>());
+        if (list.stream().noneMatch(existing -> existing.getId().equals(species.getId()))) {
+            list.add(species);
+        }
+    }
+
+    @Nonnull
+    private static String normalizeFluidKey(@Nonnull String key) {
+        return key.toLowerCase(Locale.ROOT);
     }
 
     @Nullable

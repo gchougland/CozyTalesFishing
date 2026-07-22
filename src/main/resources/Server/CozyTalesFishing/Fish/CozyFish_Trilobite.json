@@ -3,6 +3,7 @@
   "ItemId": "Fish_Trilobite_Item",
   "AquariumSize": "Wide2x1",
   "AquariumDisplayOffset": [0.0, -0.4, 0.0],
+  "AquariumBottomDweller": true,
   "AquariumDisplayScale": 0.8,
   "Rarity": "Rare",
   "SpawnWeight": 4,

@@ -30,6 +30,7 @@ public final class FishShadowEntityPool {
         @Nonnull CommandBuffer<EntityStore> commandBuffer,
         @Nonnull FishSpeciesAsset species,
         @Nonnull WaterBodyType waterBodyType,
+        @Nullable String columnFluidAssetId,
         @Nonnull Vector3d position,
         float yawRadians,
         float scale
@@ -56,6 +57,7 @@ public final class FishShadowEntityPool {
         shadow.setSpeciesId(species.getId());
         shadow.setShadowType(shadowType);
         shadow.setWaterBodyType(waterBodyType);
+        shadow.setColumnFluidAssetId(columnFluidAssetId);
         shadow.setBaseScale(scale);
         shadow.setCurrentScale(scale);
         shadow.setWanderDirection(yawRadians);
@@ -76,6 +78,7 @@ public final class FishShadowEntityPool {
         @Nonnull Store<EntityStore> store,
         @Nonnull FishSpeciesAsset species,
         @Nonnull WaterBodyType waterBodyType,
+        @Nullable String columnFluidAssetId,
         @Nonnull Vector3d position,
         float yawRadians,
         float scale
@@ -102,6 +105,7 @@ public final class FishShadowEntityPool {
         shadow.setSpeciesId(species.getId());
         shadow.setShadowType(shadowType);
         shadow.setWaterBodyType(waterBodyType);
+        shadow.setColumnFluidAssetId(columnFluidAssetId);
         shadow.setBaseScale(scale);
         shadow.setCurrentScale(scale);
         shadow.setWanderDirection(yawRadians);

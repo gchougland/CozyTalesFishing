@@ -31,6 +31,7 @@ public final class SpawnProbeService {
 
     public record ProbeResult(
         @Nonnull WaterBodyType spawnWaterBody,
+        @Nullable String columnFluidAssetId,
         boolean underground,
         @Nonnull FishShadowSpawnHelper.SpawnConditions spawnConditions,
         int waterBodyPoolSize,
@@ -99,7 +100,20 @@ public final class SpawnProbeService {
             effective = regionContext.getWaterBodyOverride();
         }
 
-        ProbeResult probeResult = analyze(world, columnX, columnZ, surfaceY, envIndex, effective, regionContext);
+        @Nullable String columnFluidAssetId =
+            fluidColumn.fluid().isRegistered() ? fluidColumn.fluid().fluidAssetId() : null;
+
+        ProbeResult probeResult =
+            analyze(
+                world,
+                columnX,
+                columnZ,
+                surfaceY,
+                envIndex,
+                effective,
+                regionContext,
+                columnFluidAssetId
+            );
         return new PlayerProbeResult(
             columnX,
             columnZ,
@@ -134,7 +148,8 @@ public final class SpawnProbeService {
         int surfaceY,
         int environmentIndex,
         @Nonnull WaterBodyType classifiedWaterBody,
-        @Nullable FishingSpawnRegionContext regionContext
+        @Nullable FishingSpawnRegionContext regionContext,
+        @Nullable String columnFluidAssetId
     ) {
         FishingModConfig config = FishingModConfig.get();
         String biomeName = WaterBodyClassifier.getBiomeName(world, blockX, blockZ);
@@ -169,10 +184,14 @@ public final class SpawnProbeService {
                 world,
                 spawnConditions,
                 regionContext,
-                config
+                config,
+                columnFluidAssetId
             );
 
-        List<FishSpeciesAsset> pool = FishSpeciesRegistry.getSpeciesForWaterBody(spawnWaterBody);
+        List<FishSpeciesAsset> pool =
+            columnFluidAssetId != null
+                ? FishSpeciesRegistry.getSpeciesForFluid(columnFluidAssetId)
+                : FishSpeciesRegistry.getSpeciesForWaterBody(spawnWaterBody);
         List<SpeciesProbeEntry> eligibleNow = new ArrayList<>();
         List<SpeciesProbeEntry> timeBlockedOnly = new ArrayList<>();
 
@@ -201,6 +220,7 @@ public final class SpawnProbeService {
 
         return new ProbeResult(
             spawnWaterBody,
+            columnFluidAssetId,
             underground,
             spawnConditions,
             pool.size(),
@@ -215,6 +235,9 @@ public final class SpawnProbeService {
         text.append(", weatherIndex=").append(result.spawnConditions().weatherIndex());
         text.append(", underground=").append(result.underground()).append('\n');
         text.append("  spawnWaterBody=").append(result.spawnWaterBody().name());
+        if (result.columnFluidAssetId() != null) {
+            text.append(", fluid=").append(result.columnFluidAssetId());
+        }
         text.append(", speciesPool=").append(result.waterBodyPoolSize());
         text.append(", eligibleNow=").append(result.eligibleNow().size());
         text.append(", timeBlockedOnly=").append(result.timeBlockedOnly().size()).append('\n');
@@ -225,11 +248,15 @@ public final class SpawnProbeService {
         if (result.eligibleNow().isEmpty() && result.timeBlockedOnly().isEmpty()) {
             if (result.spawnWaterBody() == WaterBodyType.Lava) {
                 text.append("  >> No fish match this lava location.\n");
+            } else if (result.columnFluidAssetId() != null) {
+                text.append("  >> No fish match this custom fluid location.\n");
             } else {
                 text.append("  >> No fish match this location — spawns fall back to trash.\n");
             }
         } else if (result.eligibleNow().isEmpty()) {
             if (result.spawnWaterBody() == WaterBodyType.Lava) {
+                text.append("  >> No fish eligible right now.\n");
+            } else if (result.columnFluidAssetId() != null) {
                 text.append("  >> No fish eligible right now.\n");
             } else {
                 text.append("  >> No fish eligible right now — spawns fall back to trash until conditions change.\n");

@@ -1,6 +1,7 @@
 package com.hexvane.cozytalefishing.integration;
 
 import com.hexvane.cozytalefishing.fish.FishRarity;
+import com.hexvane.cozytalefishing.fish.FishableFluidRegistry;
 import com.hexvane.cozytalefishing.fish.FishSpeciesAsset;
 import com.hexvane.cozytalefishing.fish.FishSpeciesDisplayNames;
 import com.hexvane.cozytalefishing.fish.FishSpeciesRegistry;
@@ -44,6 +45,21 @@ public final class CozyTalesFishingIntegration {
 
     public static void removeFishCaughtListener(@Nonnull Consumer<FishCaughtEvent> listener) {
         FISH_CAUGHT_LISTENERS.remove(listener);
+    }
+
+    /**
+     * Registers a mod fluid as fishable at runtime (merged with {@code CozyTalesFishing/Config/FishableFluids} assets).
+     */
+    public static void registerFishableFluid(
+        @Nonnull String fluidAssetId,
+        @Nonnull String habitatId,
+        @Nullable String journalHabitatLangKey
+    ) {
+        FishableFluidRegistry.register(fluidAssetId, habitatId, journalHabitatLangKey);
+    }
+
+    public static void unregisterFishableFluid(@Nonnull String fluidAssetId) {
+        FishableFluidRegistry.unregister(fluidAssetId);
     }
 
     public static boolean isFishItem(@Nullable String itemIdentifier) {

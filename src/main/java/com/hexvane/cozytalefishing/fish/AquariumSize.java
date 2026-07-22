@@ -26,9 +26,14 @@ public enum AquariumSize {
         }
         return switch (raw.trim()) {
             case "Small" -> Small;
-            case "Wide2x1", "Large2x2" -> Wide2x1;
-            case "Tall3x2x2" -> Tall3x2x2;
+            case "Wide2x1", "Large2x2", "Medium" -> Wide2x1;
+            case "Tall3x2x2", "Grand" -> Tall3x2x2;
             default -> null;
         };
+    }
+
+    /** True when this tank is at least as large as the fish's minimum required size. */
+    public boolean canHold(@Nonnull AquariumSize requiredMinimum) {
+        return requiredMinimum.tier() <= tier();
     }
 }

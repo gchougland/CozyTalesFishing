@@ -157,7 +157,8 @@ public final class FishSpeciesSpawnDebug {
                     world,
                     spawnConditions,
                     regionContext,
-                    config
+                    config,
+                    null
                 );
             FishSpawnRulesEvaluator.SpawnRuleResult result =
                 FishSpawnRulesEvaluator.evaluate(species, context);

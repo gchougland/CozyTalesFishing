@@ -25,6 +25,8 @@ import org.joml.Vector3i;
 
 /** Shared aquarium block mutations outside tick systems. */
 public final class AquariumService {
+    /** Extra world-space Y offset for bottom dwellers in the 2-block-tall grand aquarium. */
+    private static final double GRAND_TANK_BOTTOM_DWELLER_Y_OFFSET = -0.5;
     private AquariumService() {}
 
     public static void ensureWater(
@@ -333,7 +335,11 @@ public final class AquariumService {
         if (species == null) {
             return base;
         }
-        return AquariumDisplayOffset.apply(base, species.getAquariumDisplayOffset(), rotationIndex);
+        Vector3d positioned = AquariumDisplayOffset.apply(base, species.getAquariumDisplayOffset(), rotationIndex);
+        if (aquariumSize == AquariumSize.Tall3x2x2 && species.isAquariumBottomDweller()) {
+            positioned = new Vector3d(positioned.x, positioned.y + GRAND_TANK_BOTTOM_DWELLER_Y_OFFSET, positioned.z);
+        }
+        return positioned;
     }
 
     @Nonnull

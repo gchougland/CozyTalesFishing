@@ -102,6 +102,12 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
                 a -> a.aquariumUseIdleAnimation
             )
             .add()
+            .append(
+                new KeyedCodec<>("AquariumBottomDweller", Codec.BOOLEAN),
+                (a, v) -> a.aquariumBottomDweller = v,
+                a -> a.aquariumBottomDweller
+            )
+            .add()
             .afterDecode(FishSpeciesAsset::afterDecode)
             .build();
 
@@ -156,6 +162,7 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
     private float[] aquariumDisplayOffset = new float[] {0.0f, 0.0f, 0.0f};
     private float aquariumDisplayScale = 1.0f;
     private boolean aquariumUseIdleAnimation = false;
+    private boolean aquariumBottomDweller = false;
 
     private FishShadowType shadowType = FishShadowType.Small;
     @Nullable
@@ -331,6 +338,11 @@ public final class FishSpeciesAsset implements JsonAssetWithMap<String, DefaultA
     /** When true, aquarium displays use the Idle animation instead of Swim. */
     public boolean isAquariumUseIdleAnimation() {
         return aquariumUseIdleAnimation;
+    }
+
+    /** Sits on the tank floor; grand (2-block-tall) tanks apply an extra downward display offset. */
+    public boolean isAquariumBottomDweller() {
+        return aquariumBottomDweller;
     }
 
     public boolean usesRandomShadowType() {
